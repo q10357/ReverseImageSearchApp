@@ -18,15 +18,17 @@ class StartupActivity : AppCompatActivity() {
 
 
     //variable for the time splashscreen is active
-    private val splashScreenTime= 42L
+    private val splashScreenTime= 420L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val s = installSplashScreen()
-        val scope = CoroutineScope(Dispatchers.Main)
+        installSplashScreen()
+
+        Thread.sleep(3000)
         //TODO check our dudes way on youtube for better coroputine
-        scope.launch { Thread.sleep(splashScreenTime) }
+        //val scope = CoroutineScope(Dispatchers.Main)
+        //scope.launch { Thread.sleep(splashScreenTime) }
 
         setContentView(R.layout.activity_startup)
 
@@ -34,7 +36,6 @@ class StartupActivity : AppCompatActivity() {
         if(isFragmentContainerEmpty) {
             supportFragmentManager
                 .beginTransaction()
-                    //
                 .add(R.id.fragment_container, UploadImageFragment.newInstance())
                 //.add(R.id.fragment_container, CropFragment.newInstance())
 

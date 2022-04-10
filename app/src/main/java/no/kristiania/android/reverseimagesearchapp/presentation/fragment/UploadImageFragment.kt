@@ -65,7 +65,7 @@ class UploadImageFragment : Fragment(), ProgressRequestBody.UploadCallback{
         chooseImageBtn = view.findViewById(R.id.choose_image_btn)
         captureImageBtn = view.findViewById(R.id.capture_image_btn)
         photoView = view.findViewById(R.id.image_view)
-        cropFragmentBtn = view.findViewById(R.id.crop_image_button)
+        //cropFragmentBtn = view.findViewById(R.id.crop_image_button)
 
         //Make coroutines do this - > captureImageBtn.isEnabled = wasInit { selectedImage }
         captureImageBtn.apply {
