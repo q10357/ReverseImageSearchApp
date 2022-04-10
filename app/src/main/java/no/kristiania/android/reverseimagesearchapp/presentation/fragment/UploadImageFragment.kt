@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import no.kristiania.android.reverseimagesearchapp.R
@@ -23,6 +24,7 @@ import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedIma
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.UploadImageViewModel
 import okhttp3.MultipartBody
 import java.io.File
+import androidx.fragment.app.FragmentManager as FragmentManager1
 
 private const val TAG = "MainActivityTAG"
 
@@ -37,10 +39,14 @@ class UploadImageFragment : Fragment(), ProgressRequestBody.UploadCallback{
     private lateinit var photoUri: Uri
     private lateinit var bitmap: Bitmap
     private lateinit var body: MultipartBody.Part
+    private lateinit var cropFragmentBtn : Button
+
+
 
     private val viewModel by viewModels<UploadImageViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
 
         registry = requireActivity().activityResultRegistry
@@ -59,6 +65,7 @@ class UploadImageFragment : Fragment(), ProgressRequestBody.UploadCallback{
         chooseImageBtn = view.findViewById(R.id.choose_image_btn)
         captureImageBtn = view.findViewById(R.id.capture_image_btn)
         photoView = view.findViewById(R.id.image_view)
+        cropFragmentBtn = view.findViewById(R.id.crop_image_button)
 
         //Make coroutines do this - > captureImageBtn.isEnabled = wasInit { selectedImage }
         captureImageBtn.apply {
@@ -83,6 +90,12 @@ class UploadImageFragment : Fragment(), ProgressRequestBody.UploadCallback{
                 //val path = getRealPathFromString(internalImageUri)
             }
         }
+        /*
+        cropFragmentBtn.setOnClickListener{
+            val cropFragment = CropFragment()
+            val transaction: FragmentTransaction = FragmentManager.beginTransaction() ?:
+            transaction.replace(R.id.fragment_container, cropFragment)
+        }*/
 
         return view
     }
@@ -131,5 +144,15 @@ class UploadImageFragment : Fragment(), ProgressRequestBody.UploadCallback{
     override fun onFinish() {
         Log.i(TAG, "Upload finish")
     }
+
+
+    /*
+    fun switchCropFragment() {
+        //fragmentManager1 = supportFragmentManager
+        fragmentManager1.beginTransaction()
+            .replace(R.id.fragment_container,CropFragment(),"CropFragment").commit()
+    }
+*/
+
 
 }
