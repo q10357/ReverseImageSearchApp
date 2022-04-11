@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ReverseImageSearchApp">
         <activity
-            android:name="no.kristiania.android.reverseimagesearchapp.presentation.StartupActivity"
+            android:name="no.kristiania.android.reverseimagesearchapp.presentation.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

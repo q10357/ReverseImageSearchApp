@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -27,25 +26,21 @@ import java.io.File
 private const val TAG = "MainActivityTAG"
 
 @AndroidEntryPoint
-class UploadImageFragment : Fragment(), ProgressRequestBody.UploadCallback{
-    private var i = 0
+class UploadImageFragment : Fragment(R.layout.fragment_upload_image), ProgressRequestBody.UploadCallback{
     private lateinit var selectedImage: UploadedImage
     private lateinit var chooseImageBtn: Button
     private lateinit var captureImageBtn: Button
-    private lateinit var registry: ActivityResultRegistry
     private lateinit var photoView: ImageView
     private lateinit var photoUri: Uri
     private lateinit var bitmap: Bitmap
     private lateinit var body: MultipartBody.Part
 
+    //ViewModels need to be instantiated after onAttach()
+    //So we do not inject them in the constructor, but place them as a property.
+    //ViewModels persist across configuration changes (such as rotation)
+    //They are cleared when the activity/fragment is destroyed,
+    //Until then, this property will remain the same instance
     private val viewModel by viewModels<UploadImageViewModel>()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        registry = requireActivity().activityResultRegistry
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,7 +49,7 @@ class UploadImageFragment : Fragment(), ProgressRequestBody.UploadCallback{
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
 
-        val view = inflater.inflate(R.layout.activity_photo, container, false)
+        val view = inflater.inflate(R.layout.fragment_upload_image, container, false)
 
         chooseImageBtn = view.findViewById(R.id.choose_image_btn)
         captureImageBtn = view.findViewById(R.id.capture_image_btn)

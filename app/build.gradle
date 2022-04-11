@@ -7,6 +7,7 @@ plugins {
 
 android {
     compileSdk 32
+    viewBinding.enabled = true
 
     defaultConfig {
         applicationId "no.kristiania.android.reverseimagesearchapp"
@@ -34,6 +35,8 @@ android {
 }
 
 dependencies {
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    def nav_version = "2.4.2"
 
     //Coroutines
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1-native-mt'

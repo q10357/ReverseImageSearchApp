@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">ReverseImageSearchApp</string>
+    <string name="select_upload">Select/Upload</string>
+    <string name="saved_results">Saved Results</string>
+    <string name="results">Results</string>
+    <string name="camera_text">Capture</string>
+    <string name="upload_text">Upload</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

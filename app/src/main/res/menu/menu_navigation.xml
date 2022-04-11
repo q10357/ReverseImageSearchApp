@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <item
+        android:id="@+id/upload"
+        android:enabled="true"
+        android:title="@string/select_upload"
+        android:icon="@drawable/ic_upload"
+        tools:layout="@layout/activity_main"/>
+
+    <item
+        android:id="@+id/display_result"
+        android:enabled="true"
+        android:title="@string/results"
+        android:icon="@drawable/ic_image_search" />
+
+    <item
+        android:id="@+id/display_collection"
+        android:enabled="true"
+        android:title="@string/saved_results"
+        android:icon="@drawable/ic_collection"/>
+</menu>
