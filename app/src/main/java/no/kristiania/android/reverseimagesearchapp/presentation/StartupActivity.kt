@@ -25,10 +25,10 @@ class StartupActivity : AppCompatActivity() {
 
         installSplashScreen()
 
-        Thread.sleep(3000)
+
         //TODO check our dudes way on youtube for better coroputine
-        //val scope = CoroutineScope(Dispatchers.Main)
-        //scope.launch { Thread.sleep(splashScreenTime) }
+        val scope = CoroutineScope(Dispatchers.Main)
+        scope.launch { Thread.sleep(splashScreenTime) }
 
         setContentView(R.layout.activity_startup)
 
@@ -37,8 +37,6 @@ class StartupActivity : AppCompatActivity() {
             supportFragmentManager
                 .beginTransaction()
                 .add(R.id.fragment_container, UploadImageFragment.newInstance())
-                //.add(R.id.fragment_container, CropFragment.newInstance())
-
                 .commit()
         }
     }
