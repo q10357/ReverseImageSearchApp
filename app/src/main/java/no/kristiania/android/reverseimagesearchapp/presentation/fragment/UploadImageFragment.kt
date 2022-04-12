@@ -47,13 +47,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image), ProgressRe
     //Until then, this property will remain the same instance
     private val viewModel by viewModels<UploadImageViewModel>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-
-        super.onCreate(savedInstanceState)
-
-        registry = requireActivity().activityResultRegistry
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,

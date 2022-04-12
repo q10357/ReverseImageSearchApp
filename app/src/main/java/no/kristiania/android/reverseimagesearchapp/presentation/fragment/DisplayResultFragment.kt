@@ -7,10 +7,11 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
+import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayResultsBinding
 
 @AndroidEntryPoint
-class DisplayResultFragment: Fragment() {
+class DisplayResultFragment: Fragment(R.layout.fragment_display_results) {
 
     private lateinit var photoRecyclerView: RecyclerView
     private lateinit var binding: FragmentDisplayResultsBinding
