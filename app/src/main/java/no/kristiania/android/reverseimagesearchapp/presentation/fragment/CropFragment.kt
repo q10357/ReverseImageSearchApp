@@ -69,6 +69,7 @@ class CropFragment : Fragment() {
             Log.i("result",resultString)
             val image: Bitmap =
                 getBitmap(requireContext(), null, resultString, ::uriToBitmap)
+            //cropped image under
             cropImageView.setImageBitmap(image)
         }
     }

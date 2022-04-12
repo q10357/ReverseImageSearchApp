@@ -8,9 +8,9 @@
 
     <com.edmodo.cropper.CropImageView
         android:id="@+id/CropImageView"
-        android:layout_width="match_parent"
-        android:layout_height="520dp"
-        android:background="@drawable/ic_launcher_foreground"/>
+        android:layout_width="283dp"
+        android:layout_height="277dp"
+        android:background="@drawable/ic_launcher_foreground" />
 
     <Button
         android:id="@+id/btnCrop"
