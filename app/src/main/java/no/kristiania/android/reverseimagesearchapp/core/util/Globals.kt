@@ -44,6 +44,12 @@ fun createFileFromBitmap(bitmap: Bitmap, file: File){
     file.writeBytes(bitmapData)
 }
 
+fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
+    val outStream = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.PNG, 0, outStream)
+    return outStream.toByteArray()
+}
+
 //Global function to check if something is initialized
 inline fun wasInit(f: () -> Unit): Boolean {
     try {

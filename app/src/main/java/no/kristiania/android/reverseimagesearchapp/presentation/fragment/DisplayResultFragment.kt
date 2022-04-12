@@ -17,8 +17,8 @@ class DisplayResultFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.i("Here", "We here")
         binding = FragmentDisplayResultsBinding.bind(view)
-
 
         val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(requireContext())
         binding.rvList.layoutManager = layoutManager

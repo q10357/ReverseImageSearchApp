@@ -92,7 +92,8 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image), ProgressRe
 
                 selectedImage = UploadedImage(
                     "first_one",
-                    photoUri.toString()
+                    photoUri.toString(),
+                    bitmap
                 )
 
                 uploadImage()

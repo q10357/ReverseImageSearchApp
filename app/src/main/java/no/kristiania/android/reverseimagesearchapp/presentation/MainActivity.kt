@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.awaitAll
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayResultFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.UploadImageFragment
@@ -32,22 +33,21 @@ class MainActivity : AppCompatActivity() {
 
         bottomNavigationView.setOnItemSelectedListener { m ->
             when (m.itemId) {
-                selectedItem.itemId -> false
                 R.id.upload -> setFragment(uploadImageFragment, m.itemId)
                 R.id.display_result -> setFragment(displayResultFragment, m.itemId)
                 R.id.display_collection -> Log.i(TAG, "Not Implemented")
             }
+            selectedItem.apply { isEnabled = true }
             selectedItem = m
+            selectedItem.isEnabled = false
             true
         }
-
     }
 
 
     private fun setFragment(currentFragment: Fragment, pos: Int) {
         Log.i("MAIN", "$pos")
-        supportFragmentManager.findFragmentByTag("$pos")
-        if(checkIfFragmentVisible(pos))
+        if(checkIfFragmentVisible(pos)) return
         //If we are already on the selected fragment, we will return
         //We check this by adding a tag, related to the id of it's placement on the navbar,
         //If the if check is true, it means that fragment is already in layout
