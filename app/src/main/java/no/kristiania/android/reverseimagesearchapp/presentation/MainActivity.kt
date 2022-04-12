@@ -58,13 +58,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun setFragment(currentFragment: Fragment, pos: Int) {
         Log.i("MAIN", "$pos")
+        Log.i("MAIN", "${checkIfFragmentVisible(pos)}")
         if(checkIfFragmentVisible(pos)) return
         //If we are already on the selected fragment, we will return
         //We check this by adding a tag, related to the id of it's placement on the navbar,
         //If the if check is true, it means that fragment is already in layout
         supportFragmentManager
             .beginTransaction()
-            .add(R.id.fragment_container, currentFragment, "$pos")
+            .replace(R.id.fragment_container, currentFragment, "$pos")
             .commit()
     }
 
@@ -74,7 +75,7 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.findFragmentByTag("$i") ?: return false
         //In addition we check if the non-null view is visible, if not,
         //We may proceed. If visible, ignore fragment change
-        return supportFragmentManager.findFragmentByTag("$i")!!.isResumed
+        return supportFragmentManager.findFragmentByTag("$i")!!.isInLayout
     }
 
 }
