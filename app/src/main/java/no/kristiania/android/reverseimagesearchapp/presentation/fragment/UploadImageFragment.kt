@@ -14,6 +14,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import no.kristiania.android.reverseimagesearchapp.R
@@ -22,6 +23,7 @@ import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedIma
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.UploadImageViewModel
 import okhttp3.MultipartBody
 import java.io.File
+import androidx.fragment.app.FragmentManager as FragmentManager1
 
 private const val TAG = "MainActivityTAG"
 
@@ -34,6 +36,9 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image), ProgressRe
     private lateinit var photoUri: Uri
     private lateinit var bitmap: Bitmap
     private lateinit var body: MultipartBody.Part
+    private lateinit var cropFragmentBtn : Button
+
+
 
     //ViewModels need to be instantiated after onAttach()
     //So we do not inject them in the constructor, but place them as a property.
@@ -41,6 +46,14 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image), ProgressRe
     //They are cleared when the activity/fragment is destroyed,
     //Until then, this property will remain the same instance
     private val viewModel by viewModels<UploadImageViewModel>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+
+        super.onCreate(savedInstanceState)
+
+        registry = requireActivity().activityResultRegistry
+
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,6 +67,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image), ProgressRe
         chooseImageBtn = view.findViewById(R.id.choose_image_btn)
         captureImageBtn = view.findViewById(R.id.capture_image_btn)
         photoView = view.findViewById(R.id.image_view)
+        //cropFragmentBtn = view.findViewById(R.id.crop_image_button)
 
         //Make coroutines do this - > captureImageBtn.isEnabled = wasInit { selectedImage }
         captureImageBtn.apply {
@@ -78,6 +92,12 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image), ProgressRe
                 //val path = getRealPathFromString(internalImageUri)
             }
         }
+        /*
+        cropFragmentBtn.setOnClickListener{
+            val cropFragment = CropFragment()
+            val transaction: FragmentTransaction = FragmentManager.beginTransaction() ?:
+            transaction.replace(R.id.fragment_container, cropFragment)
+        }*/
 
         return view
     }
@@ -126,5 +146,15 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image), ProgressRe
     override fun onFinish() {
         Log.i(TAG, "Upload finish")
     }
+
+
+    /*
+    fun switchCropFragment() {
+        //fragmentManager1 = supportFragmentManager
+        fragmentManager1.beginTransaction()
+            .replace(R.id.fragment_container,CropFragment(),"CropFragment").commit()
+    }
+*/
+
 
 }

@@ -99,3 +99,11 @@ fun getMultiPartBody(file: File, uploadCallback: ProgressRequestBody.UploadCallb
 //}
 
 fun File.writeBytes(array: ByteArray): Unit = FileOutputStream(this).use {it.write(array)}
+
+fun getBitmap(context: Context, id: Int?, uri: String?, decoder: (Context, Int?, String?) -> Bitmap): Bitmap {
+    return decoder(context, id, uri)
+}
+
+fun uriToBitmap(context: Context, id: Int?, uri: String?): Bitmap {
+    return MediaStore.Images.Media.getBitmap(context.contentResolver, Uri.parse(uri))
+}
