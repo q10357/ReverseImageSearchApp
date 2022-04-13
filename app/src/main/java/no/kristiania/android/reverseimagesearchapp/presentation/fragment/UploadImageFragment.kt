@@ -57,7 +57,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
         photoView = view.findViewById(R.id.image_view)
         //cropFragmentBtn = view.findViewById(R.id.crop_image_button)
 
-        //Make coroutines do this - > captureImageBtn.isEnabled = wasInit { selectedImage }
+        //This btn is used for instantiating upload to server
         captureImageBtn.apply {
             setOnClickListener {
                 if ( !wasInit { selectedImage } ) {
@@ -86,8 +86,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
     }
 
     private fun initSelectedPhoto(bitmap: Bitmap) {
-        Log.i(TAG, "WHY IS THIS TAKING SO LONG")
-
         selectedImage = UploadedImage(
             "first_one",
             bitmap
@@ -99,9 +97,9 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
         photoView.setImageBitmap(selectedImage.bitmap)
     }
 
-    //We used lifecycleobserver to choose image
-    //When onStarted() is initialized, we will observe the value of
-    //Bitmap property, if it is not null, we will update the UI
+    //We used an observer to choose image from gallery
+    //When onStarted() is initialized, we will observe the value of the observer's
+    //Bitmap property, if it is not null, the user has chosen an image, and we will update the UI
     override fun onStart() {
         super.onStart()
         observer.bitmap.observe(
