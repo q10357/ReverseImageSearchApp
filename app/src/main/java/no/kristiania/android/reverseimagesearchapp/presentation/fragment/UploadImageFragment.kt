@@ -69,7 +69,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
                 } else {
 
                     //cropping image
-                     ChangeImageUriToCroppedUri(selectedImage)
+                     cropImage(selectedImage)
                     Log.i(TAG, "Wait for it...")
                     val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
                     viewModel.onUpload(selectedImage, file)
@@ -131,7 +131,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
         }
     }
 
-    private fun ChangeImageUriToCroppedUri(selectedImage: UploadedImage) {
+    private fun cropImage(selectedImage: UploadedImage) {
         val croppedImage = cropImageView.croppedImage
         selectedImage.bitmap = croppedImage
 
