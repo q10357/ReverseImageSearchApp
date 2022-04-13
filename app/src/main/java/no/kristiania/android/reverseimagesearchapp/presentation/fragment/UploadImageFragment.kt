@@ -1,6 +1,7 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
 import android.app.Activity
+import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
@@ -68,7 +69,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
                     Toast.makeText(this.context, "Select Image First", Toast.LENGTH_SHORT).show()
                 } else {
 
-                    //cropping image
+                    //setting bitmap for selected image to the cropped uri
                      cropImage(selectedImage)
                     Log.i(TAG, "Wait for it...")
                     val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
@@ -76,7 +77,16 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
                 }
             }
         }
+        cropImageView.setOnClickListener {
 
+                val intent = Intent()
+                //chose to set intent to only png
+                intent.type = "image/png"
+                intent.action = Intent.ACTION_GET_CONTENT
+
+                startForResult.launch(intent)
+
+        }
 
         chooseImageBtn.apply {
             setOnClickListener {
@@ -84,9 +94,10 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
             }
         }
 
-
         return view
     }
+
+
 
     private fun initSelectedPhoto(bitmap: Bitmap) {
         selectedImage = UploadedImage(
@@ -126,7 +137,8 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
             val image: Bitmap =
                 getBitmap(requireContext(), null, resultString, ::uriToBitmap)
             //cropped image under results of crop
-            selectedImage.bitmap = image
+            initSelectedPhoto(image)
+            cropImageView.setImageBitmap(image)
 
         }
     }
