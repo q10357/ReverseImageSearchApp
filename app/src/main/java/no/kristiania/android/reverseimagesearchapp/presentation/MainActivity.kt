@@ -57,8 +57,6 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun setFragment(currentFragment: Fragment, pos: Int) {
-        Log.i("MAIN", "$pos")
-        Log.i("MAIN", "${checkIfFragmentVisible(pos)}")
         if(checkIfFragmentVisible(pos)) return
         //If we are already on the selected fragment, we will return
         //We check this by adding a tag, related to the id of it's placement on the navbar,

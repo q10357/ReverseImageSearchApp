@@ -1,7 +1,6 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
-import android.app.Activity
-import android.content.Intent
+import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -12,33 +11,27 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.core.util.*
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
+import no.kristiania.android.reverseimagesearchapp.presentation.observer.UploadImageObserver
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.UploadImageViewModel
-import okhttp3.MultipartBody
 import java.io.File
-import androidx.fragment.app.FragmentManager as FragmentManager1
 
 private const val TAG = "MainActivityTAG"
 
 @AndroidEntryPoint
-class UploadImageFragment : Fragment(R.layout.fragment_upload_image), ProgressRequestBody.UploadCallback{
-    private lateinit var selectedImage: UploadedImage
+class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
+    private lateinit var observer: UploadImageObserver
     private lateinit var chooseImageBtn: Button
+    private var bitmap: Bitmap? = null
+    private var selectedImage: UploadedImage? = null
     private lateinit var captureImageBtn: Button
     private lateinit var photoView: ImageView
-    private lateinit var photoUri: Uri
-    private lateinit var bitmap: Bitmap
-    private lateinit var body: MultipartBody.Part
     private lateinit var cropFragmentBtn : Button
-
-
 
     //ViewModels need to be instantiated after onAttach()
     //So we do not inject them in the constructor, but place them as a property.
@@ -47,6 +40,11 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image), ProgressRe
     //Until then, this property will remain the same instance
     private val viewModel by viewModels<UploadImageViewModel>()
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        observer = UploadImageObserver(requireActivity().activityResultRegistry, requireContext())
+        lifecycle.addObserver(observer)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -65,24 +63,19 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image), ProgressRe
         //Make coroutines do this - > captureImageBtn.isEnabled = wasInit { selectedImage }
         captureImageBtn.apply {
             setOnClickListener {
-                if (!wasInit { body }) {
+                if ( selectedImage == null ) {
                     Toast.makeText(this.context, "Select Image First", Toast.LENGTH_SHORT).show()
                 } else {
                     Log.i(TAG, "Wait for it...")
-                    viewModel.onUpload(body)
+                    val file = File(requireActivity().cacheDir, selectedImage!!.photoFileName)
+                    viewModel.onUpload(selectedImage!!, file)
                 }
             }
         }
 
         chooseImageBtn.apply {
-            val i = Intent()
-            i.type = "image/*"
-            i.action = Intent.ACTION_GET_CONTENT
-
             setOnClickListener {
-                startForResult.launch(i)
-
-                //val path = getRealPathFromString(internalImageUri)
+                observer.selectImage()
             }
         }
         /*
@@ -95,52 +88,40 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image), ProgressRe
         return view
     }
 
-    private var startForResult =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                // There are no request codes
-                photoUri = result.data?.data!!
-                bitmap = uriToBitmap(requireContext(), photoUri)
-                photoView.setImageBitmap(bitmap)
+    private fun initSelectedPhoto(bitmap: Bitmap) {
+        Log.i(TAG, "WHY IS THIS TAKING SO LONG")
 
-                selectedImage = UploadedImage(
-                    "first_one",
-                    photoUri.toString(),
-                    bitmap
-                )
+        val image = UploadedImage(
+            "first_one",
+            bitmap
+        )
 
-                uploadImage()
+        val file = File(requireActivity().cacheDir, image.photoFileName)
+        createFileFromBitmap(image.bitmap, file)
+
+        photoView.setImageBitmap(image.bitmap)
+        selectedImage = image
+    }
+
+    //We used lifecycleobserver to choose image
+    //When onStarted() is initialized, we will observe the value of
+    //Bitmap property, if it is not null, we will update the UI
+    override fun onStart() {
+        super.onStart()
+        observer.bitmap.observe(
+            viewLifecycleOwner,
+            {
+                it?.let {
+                    initSelectedPhoto(it)
+                }
             }
-        }
-
-    private fun uploadImage() {
-        //Creating new file to write the compressed bitmap, png formatted file
-        val file = File(requireActivity().filesDir, selectedImage.photoFileName)
-        val scaledBitmap = getScaledBitmap(bitmap)
-        createFileFromBitmap(scaledBitmap, file)
-        photoView.setImageBitmap(scaledBitmap)
-        Log.i(TAG, "This is size of newfile: ${file.length()}")
-
-        body = getMultiPartBody(file, this)
-
+        )
+        Log.i(TAG, "Now in start")
     }
 
     companion object {
         fun newInstance() = UploadImageFragment()
     }
-
-    override fun onProgressUpdate(percentage: Int) {
-        Log.i(TAG, "This is percentage $percentage")
-    }
-
-    override fun onError() {
-        Log.e(TAG, "Error in upload")
-    }
-
-    override fun onFinish() {
-        Log.i(TAG, "Upload finish")
-    }
-
 
     /*
     fun switchCropFragment() {

@@ -2,6 +2,8 @@ package no.kristiania.android.reverseimagesearchapp.data.remote.repo
 
 import android.util.Log
 import no.kristiania.android.reverseimagesearchapp.core.util.Resource
+import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
+import no.kristiania.android.reverseimagesearchapp.data.local.sqlLite.ImageRepositoryDao
 import no.kristiania.android.reverseimagesearchapp.data.remote.api.ReverseImageSearchApi
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -16,20 +18,21 @@ class ReverseImageSearchRepositoryImpl @Inject constructor(
     private val api: ReverseImageSearchApi,
 ) : ReverseImageSearchRepository {
 
-    override suspend fun getUploadedImageUrl(image: MultipartBody.Part): Resource<String> {
+    override suspend fun getUploadedImageUrl(body: MultipartBody.Part): Resource<String> {
         var response = Resource.loading(data = "")
         var url = ""
         Log.i("HEYHEY", "n here now")
 
         try {
             url = api.uploadImage(
-                image,
+                body,
                 RequestBody.create(MediaType.parse("multipart/form-data"), "Image from device")
             )
         }catch (e: HttpException){
             e.printStackTrace()
             response = Resource.error(
-                msg = "Oopsie... something went wrong, try again?"
+                msg = "Oopsie... something went wrong, try again?",
+                data = "${e.code()}"
             )
         }catch (e: IOException){
             e.printStackTrace()

@@ -7,8 +7,7 @@ import java.util.*
 
 data class UploadedImage(
     val title: String,
-    val uri: String,
-    val bitmap: Bitmap,
+    var bitmap: Bitmap,
     val date: Date = Calendar.getInstance().time,
     val id: UUID = UUID.randomUUID()
 ) : ImageItem {

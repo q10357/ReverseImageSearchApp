@@ -1,21 +1,28 @@
 package no.kristiania.android.reverseimagesearchapp.data.local.sqlLite
 
 import android.content.ContentValues
+import android.util.Log
 import no.kristiania.android.reverseimagesearchapp.core.util.bitmapToByteArray
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import javax.inject.Inject
 
-class ImageRepository @Inject constructor(
-    val database: ImageDatabaseHelper
+private const val TAG = "ImageDAO"
+
+class ImageRepositoryDao @Inject constructor(
+    private val database: ImageDatabaseHelper
 ) {
 
-    suspend fun insertUploadedImage(image: UploadedImage){
+    fun insertUploadedImage(image: UploadedImage){
+        Log.i(TAG, "LOOOL IS IT WORKING!?!?!?")
         val db = database.writableDatabase
         val byteArray = bitmapToByteArray(image.bitmap)
-        db.insert("uploaded_images", null, ContentValues().apply {
+
+        val newRowId: Long = db.insert("uploaded_images", null, ContentValues().apply {
             put("title", image.title)
             put("image", byteArray)
         })
+
+        Log.i(TAG, "This is id: $newRowId")
     }
 
 }

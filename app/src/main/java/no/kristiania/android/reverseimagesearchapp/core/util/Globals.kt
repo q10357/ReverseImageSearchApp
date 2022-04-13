@@ -16,13 +16,13 @@ import java.io.File
 import java.io.FileOutputStream
 
 
-fun getScaledBitmap(bitmap: Bitmap): Bitmap {
+fun getScaledBitmap(bitmap: Bitmap, scaling: Int): Bitmap {
     // Read in the dimensions of the image on disk
     var options = BitmapFactory.Options()
     options.inJustDecodeBounds = true
 
-    val scaledWidth = bitmap.width / 5
-    val scaledHeight = bitmap.height / 5
+    val scaledWidth = bitmap.width / scaling
+    val scaledHeight = bitmap.height / scaling
 
     return Bitmap.createScaledBitmap(bitmap, scaledWidth, scaledHeight, false )
 }

@@ -10,6 +10,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import no.kristiania.android.reverseimagesearchapp.data.local.ImageDao
 import no.kristiania.android.reverseimagesearchapp.data.local.ImageDatabase
+import no.kristiania.android.reverseimagesearchapp.data.local.sqlLite.ImageDatabaseHelper
+import no.kristiania.android.reverseimagesearchapp.data.local.sqlLite.ImageRepositoryDao
 import no.kristiania.android.reverseimagesearchapp.data.remote.api.ReverseImageSearchApi
 import no.kristiania.android.reverseimagesearchapp.data.remote.repo.ReverseImageSearchRepository
 import no.kristiania.android.reverseimagesearchapp.data.remote.repo.ReverseImageSearchRepositoryImpl
@@ -56,6 +58,17 @@ object AppModule {
     @Singleton
     fun providesImageSearchRepository(api: ReverseImageSearchApi): ReverseImageSearchRepository {
         return ReverseImageSearchRepositoryImpl(api)
+    }
+
+    @Provides
+    @Singleton
+    fun providesDatabase(context: Context): ImageDatabaseHelper{
+        return ImageDatabaseHelper(context)
+    }
+    @Provides
+    @Singleton
+    fun provideImageDao(db: ImageDatabaseHelper): ImageRepositoryDao{
+        return ImageRepositoryDao(db)
     }
 
     @Provides
