@@ -1,7 +1,6 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
 import android.app.Activity
-import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
@@ -28,9 +27,9 @@ private const val TAG = "MainActivityTAG"
 @AndroidEntryPoint
 class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
     private lateinit var observer: RegisterActivityResultsObserver
-    private lateinit var chooseImageBtn: Button
+    private lateinit var selectImageBtn: Button
     private lateinit var selectedImage: UploadedImage
-    private lateinit var captureImageBtn: Button
+    private lateinit var uploadImageBtn: Button
     private lateinit var cropImageView: CropImageView
 
 
@@ -57,13 +56,13 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
 
         val view = inflater.inflate(R.layout.fragment_upload_image, container, false)
 
-        chooseImageBtn = view.findViewById(R.id.choose_image_btn)
-        captureImageBtn = view.findViewById(R.id.capture_image_btn)
+        selectImageBtn = view.findViewById(R.id.select_image_btn)
+        uploadImageBtn = view.findViewById(R.id.upload_image_btn)
         cropImageView = view.findViewById(R.id.image_view)
 
 
         //This btn is used for instantiating upload to server
-        captureImageBtn.apply {
+        uploadImageBtn.apply {
             setOnClickListener {
                 if ( !wasInit { selectedImage } ) {
                     Toast.makeText(this.context, "Select Image First", Toast.LENGTH_SHORT).show()
@@ -77,18 +76,13 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
                 }
             }
         }
-        cropImageView.setOnClickListener {
-
-                val intent = Intent()
-                //chose to set intent to only png
-                intent.type = "image/png"
-                intent.action = Intent.ACTION_GET_CONTENT
-
-                startForResult.launch(intent)
-
+        cropImageView.apply {
+            setOnClickListener {
+                observer.selectImage()
+            }
         }
 
-        chooseImageBtn.apply {
+        selectImageBtn.apply {
             setOnClickListener {
                 observer.selectImage()
             }
@@ -127,25 +121,12 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
         Log.i(TAG, "Now in start")
     }
 
-    private var startForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result: ActivityResult ->
-
-
-        if(result.resultCode == Activity.RESULT_OK) {
-            val resultString = result.data?.data.toString()
-
-            Log.i(TAG,resultString)
-            val image: Bitmap =
-                getBitmap(requireContext(), null, resultString, ::uriToBitmap)
-            //cropped image under results of crop
-            initSelectedPhoto(image)
-            cropImageView.setImageBitmap(image)
-
-        }
-    }
 
     private fun cropImage(selectedImage: UploadedImage) {
         val croppedImage = cropImageView.croppedImage
         selectedImage.bitmap = croppedImage
+        cropImageView.setImageBitmap(croppedImage)
+
 
     }
 
