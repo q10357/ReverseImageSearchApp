@@ -27,8 +27,7 @@ private const val TAG = "MainActivityTAG"
 class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
     private lateinit var observer: UploadImageObserver
     private lateinit var chooseImageBtn: Button
-    private var bitmap: Bitmap? = null
-    private var selectedImage: UploadedImage? = null
+    private lateinit var selectedImage: UploadedImage
     private lateinit var captureImageBtn: Button
     private lateinit var photoView: ImageView
     private lateinit var cropFragmentBtn : Button
@@ -63,12 +62,12 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
         //Make coroutines do this - > captureImageBtn.isEnabled = wasInit { selectedImage }
         captureImageBtn.apply {
             setOnClickListener {
-                if ( selectedImage == null ) {
+                if ( !wasInit { selectedImage } ) {
                     Toast.makeText(this.context, "Select Image First", Toast.LENGTH_SHORT).show()
                 } else {
                     Log.i(TAG, "Wait for it...")
-                    val file = File(requireActivity().cacheDir, selectedImage!!.photoFileName)
-                    viewModel.onUpload(selectedImage!!, file)
+                    val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
+                    viewModel.onUpload(selectedImage, file)
                 }
             }
         }
@@ -91,16 +90,15 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
     private fun initSelectedPhoto(bitmap: Bitmap) {
         Log.i(TAG, "WHY IS THIS TAKING SO LONG")
 
-        val image = UploadedImage(
+        selectedImage = UploadedImage(
             "first_one",
             bitmap
         )
 
-        val file = File(requireActivity().cacheDir, image.photoFileName)
-        createFileFromBitmap(image.bitmap, file)
+        val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
+        createFileFromBitmap(selectedImage.bitmap, file)
 
-        photoView.setImageBitmap(image.bitmap)
-        selectedImage = image
+        photoView.setImageBitmap(selectedImage.bitmap)
     }
 
     //We used lifecycleobserver to choose image
