@@ -9,15 +9,14 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import no.kristiania.android.reverseimagesearchapp.data.local.ImageDao
-import no.kristiania.android.reverseimagesearchapp.data.local.ImageDatabase
 import no.kristiania.android.reverseimagesearchapp.data.local.sqlLite.ImageDatabaseHelper
-import no.kristiania.android.reverseimagesearchapp.data.local.sqlLite.ImageRepositoryDao
 import no.kristiania.android.reverseimagesearchapp.data.remote.api.ReverseImageSearchApi
 import no.kristiania.android.reverseimagesearchapp.data.remote.repo.ReverseImageSearchRepository
 import no.kristiania.android.reverseimagesearchapp.data.remote.repo.ReverseImageSearchRepositoryImpl
-import no.kristiania.android.reverseimagesearchapp.data.remote.use_case.GetUploadedImageUrl
+import no.kristiania.android.reverseimagesearchapp.data.remote.use_case.GetImageData
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import javax.inject.Singleton
 
@@ -46,9 +45,13 @@ object AppModule {
             .setLenient()
             .create()
 
+        //Since we need to to retrieve the raw URL string when we upload image,
+        //We need two converters, ScalarsConverter (for raw string),
+        //And GSON for parsing json to objects
         return Retrofit.Builder()
             .baseUrl(Constants.BASE_URI)
             .addConverterFactory(ScalarsConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .client(client)
             .build()
             .create(ReverseImageSearchApi::class.java)
@@ -67,14 +70,14 @@ object AppModule {
     }
     @Provides
     @Singleton
-    fun provideImageDao(db: ImageDatabaseHelper): ImageRepositoryDao{
-        return ImageRepositoryDao(db)
+    fun provideImageDao(db: ImageDatabaseHelper): ImageDao {
+        return ImageDao(db)
     }
 
     @Provides
     @Singleton
-    fun provideGetUploadedImageUrlUseCase(repository: ReverseImageSearchRepository): GetUploadedImageUrl {
-        return GetUploadedImageUrl(repository)
+    fun provideGetUploadedImageUrlUseCase(repository: ReverseImageSearchRepository): GetImageData {
+        return GetImageData(repository)
     }
 
 //    @Provides

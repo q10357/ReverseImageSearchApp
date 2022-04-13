@@ -7,12 +7,16 @@ import okhttp3.MultipartBody
 import javax.inject.Inject
 
 
-class GetUploadedImageUrl @Inject constructor (
+class GetImageData @Inject constructor (
     private val repository: ReverseImageSearchRepository
 ) {
 
     suspend operator fun invoke(body: MultipartBody.Part): Resource<String> {
         return repository.getUploadedImageUrl(body)
+    }
+
+    suspend operator fun invoke(url: String){
+        return  repository.getReverseImageSearchResults(url)
     }
 
 }

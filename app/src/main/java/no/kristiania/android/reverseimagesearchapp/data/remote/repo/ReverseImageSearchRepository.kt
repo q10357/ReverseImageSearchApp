@@ -7,4 +7,6 @@ import okhttp3.MultipartBody
 interface ReverseImageSearchRepository {
 
     suspend fun getUploadedImageUrl(body: MultipartBody.Part): Resource<String>
+
+    suspend fun getReverseImageSearchResults(url: String)
 }

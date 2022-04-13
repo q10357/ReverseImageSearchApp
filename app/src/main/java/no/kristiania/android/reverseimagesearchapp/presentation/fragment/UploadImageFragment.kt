@@ -1,8 +1,6 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
-import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,7 +15,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.core.util.*
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
-import no.kristiania.android.reverseimagesearchapp.presentation.observer.UploadImageObserver
+import no.kristiania.android.reverseimagesearchapp.presentation.fragment.observer.RegisterActivityResultsObserver
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.UploadImageViewModel
 import java.io.File
 
@@ -25,7 +23,7 @@ private const val TAG = "MainActivityTAG"
 
 @AndroidEntryPoint
 class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
-    private lateinit var observer: UploadImageObserver
+    private lateinit var observer: RegisterActivityResultsObserver
     private lateinit var chooseImageBtn: Button
     private lateinit var selectedImage: UploadedImage
     private lateinit var captureImageBtn: Button
@@ -41,7 +39,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        observer = UploadImageObserver(requireActivity().activityResultRegistry, requireContext())
+        observer = RegisterActivityResultsObserver(requireActivity().activityResultRegistry, requireContext())
         lifecycle.addObserver(observer)
     }
 

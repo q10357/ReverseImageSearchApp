@@ -2,8 +2,6 @@ package no.kristiania.android.reverseimagesearchapp.data.remote.repo
 
 import android.util.Log
 import no.kristiania.android.reverseimagesearchapp.core.util.Resource
-import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
-import no.kristiania.android.reverseimagesearchapp.data.local.sqlLite.ImageRepositoryDao
 import no.kristiania.android.reverseimagesearchapp.data.remote.api.ReverseImageSearchApi
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -12,7 +10,7 @@ import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
-private const val TAG = "MainActivityTAG"
+private const val TAG = "NetworkRepo"
 
 class ReverseImageSearchRepositoryImpl @Inject constructor(
     private val api: ReverseImageSearchApi,
@@ -21,7 +19,6 @@ class ReverseImageSearchRepositoryImpl @Inject constructor(
     override suspend fun getUploadedImageUrl(body: MultipartBody.Part): Resource<String> {
         var response = Resource.loading(data = "")
         var url = ""
-        Log.i("HEYHEY", "n here now")
 
         try {
             url = api.uploadImage(
@@ -46,6 +43,27 @@ class ReverseImageSearchRepositoryImpl @Inject constructor(
             response = (Resource.success(data = url))
 
         return response
+    }
+
+    override suspend fun getReverseImageSearchResults(url: String) {
+        var response = Resource.loading(data = "")
+
+        try{
+            val response = api.fetchResultPhotoData(url)
+            Log.i(TAG, "THIS IS RESPONSE $response")
+        }catch (e: HttpException){
+            e.printStackTrace()
+            response = Resource.error(
+                msg = "Oopsie... something went wrong, try again?",
+                data = "${e.code()}"
+            )
+        }catch (e: IOException){
+            e.printStackTrace()
+            response =
+                Resource.error(
+                    msg = "You got dat wifi straight?"
+                )
+        }
     }
 
 //    override fun getUploadedImageUrl(image: MultipartBody.Part): Flow<Resource<String>> = flow {

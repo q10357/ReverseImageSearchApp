@@ -6,9 +6,9 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import no.kristiania.android.reverseimagesearchapp.core.util.*
+import no.kristiania.android.reverseimagesearchapp.data.local.ImageDao
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
-import no.kristiania.android.reverseimagesearchapp.data.local.sqlLite.ImageRepositoryDao
-import no.kristiania.android.reverseimagesearchapp.data.remote.use_case.GetUploadedImageUrl
+import no.kristiania.android.reverseimagesearchapp.data.remote.use_case.GetImageData
 import no.kristiania.android.reverseimagesearchapp.presentation.UploadedImageState
 import java.io.File
 import java.lang.NumberFormatException
@@ -19,15 +19,15 @@ private const val TAGProgress = "Process"
 
 @HiltViewModel
 class UploadImageViewModel @Inject constructor(
-    private val getUploadedImageUrl: GetUploadedImageUrl,
-    private val dao: ImageRepositoryDao
+    private val getImageData: GetImageData,
+    private val dao: ImageDao
 ) : ViewModel(), ProgressRequestBody.UploadCallback {
 
     private var isLoading = UploadedImageState().isLoading
     private var uploadedImageUrl = UploadedImageState().uploadedImageUrl
     private var uploadeImageJob: Job? = null
     private var bitmapScaling = 2
-    private var timeScaled = 1
+    private var scaleFactor = 1
     private lateinit var response: Resource<String>
 
 
@@ -43,7 +43,7 @@ class UploadImageViewModel @Inject constructor(
 
             //To get to display our nice progressbar <3
             delay(500)
-            val uploadedImageJob = async { response = getUploadedImageUrl(body) }
+            val uploadedImageJob = async { response = getImageData(body) }
             uploadedImageJob.await()
 
             when(response.status){
@@ -52,6 +52,7 @@ class UploadImageViewModel @Inject constructor(
                     Log.i(TAG, "This is retrieved Url: ${response.data}")
                     uploadedImageUrl = response.data
                     dao.insertUploadedImage(image)
+                    response.data?.let { getImageData(it) }
                     isLoading = false
                 }
                 Status.ERROR -> {
@@ -59,8 +60,8 @@ class UploadImageViewModel @Inject constructor(
                     uploadedImageUrl = null
                     isLoading = false
                     if(isCode13(response.data)){
-                        image.bitmap = getScaledBitmap(image.bitmap, bitmapScaling * timeScaled)
-                        timeScaled ++
+                        image.bitmap = getScaledBitmap(image.bitmap, bitmapScaling * scaleFactor)
+                        scaleFactor ++
                         createFileFromBitmap(image.bitmap, file)
                         onUpload(image, file)
                     }
@@ -69,6 +70,9 @@ class UploadImageViewModel @Inject constructor(
         }
     }
 
+    //If the code is 413, we know the image is too large,
+    //If this is the case, we will scale the bitmap, and increase the scalingFactor,
+    //If the image still is too large, it will be scaled down until "infinity"
     private fun isCode13(data: String?): Boolean {
         val isNull = data ?: return false
         var code = 0

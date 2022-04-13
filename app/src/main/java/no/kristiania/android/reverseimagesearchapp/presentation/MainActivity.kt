@@ -21,8 +21,6 @@ private const val TAG = "ActivityMain"
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    //private val awesomeOnClickListener = bottomNavigationView.setOnItemSelectedListener { navigate() }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

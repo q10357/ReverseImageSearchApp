@@ -1,34 +1,24 @@
 package no.kristiania.android.reverseimagesearchapp.data.local
 
-import androidx.room.*
-import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
+import android.content.ContentValues
+import no.kristiania.android.reverseimagesearchapp.core.util.bitmapToByteArray
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
-import no.kristiania.android.reverseimagesearchapp.data.local.relations.UploadedImageWithReverseImageSearchResults
-import java.util.*
+import no.kristiania.android.reverseimagesearchapp.data.local.sqlLite.ImageDatabaseHelper
+import javax.inject.Inject
 
-private const val TABLE_NAME = "uploadedimage"
+private const val TAG = "ImageDAO"
 
-@Dao
-interface ImageDao {
+class ImageDao @Inject constructor(
+    private val database: ImageDatabaseHelper
+) {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addImage(imageEntity: UploadedImage)
+    fun insertUploadedImage(image: UploadedImage){
+        val db = database.writableDatabase
+        val byteArray = bitmapToByteArray(image.bitmap)
 
-    @Insert
-    suspend fun insertChildImage(child: ReverseImageSearchItem)
-
-    @Query("SELECT * FROM $TABLE_NAME WHERE id=(:id)")
-    fun getImage(id: Long): UploadedImage
-
-    @Query("SELECT * FROM $TABLE_NAME")
-    suspend fun getImages(): List<UploadedImage>
-
-    @Query("SELECT COUNT(*) FROM $TABLE_NAME")
-    fun getDataCount(): Int
-
-    @Transaction
-    @Query("SELECT * FROM $TABLE_NAME WHERE id=(:id)")
-    suspend fun getParentImageWithChildren(id: UUID): List<UploadedImageWithReverseImageSearchResults>
-
-
+        db.insert("uploaded_images", null, ContentValues().apply {
+            put("title", image.title)
+            put("image", byteArray)
+        })
+    }
 }
