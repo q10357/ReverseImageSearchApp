@@ -3,15 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="80dp"
+    android:layout_height="100dp"
     android:layout_gravity="top">
 
 
     <androidx.cardview.widget.CardView
         android:layout_width="404dp"
-        android:layout_height="80dp"
+        android:layout_height="100dp"
         android:layout_margin="10dp"
         app:cardBackgroundColor="@color/white"
+        android:background="@color/grey"
         app:cardCornerRadius="1dp"
         app:cardElevation="10dp"
         app:cardMaxElevation="0dp"
@@ -26,6 +27,7 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
+            android:background="@color/grey"
             android:layout_height="match_parent">
 
             <ImageView
