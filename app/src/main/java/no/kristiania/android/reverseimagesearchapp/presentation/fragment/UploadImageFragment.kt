@@ -2,6 +2,7 @@ package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
 import android.app.Activity
 import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +12,7 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.isNotEmpty
 import androidx.fragment.app.Fragment
 import com.edmodo.cropper.CropImageView
 import androidx.fragment.app.viewModels
@@ -31,6 +33,8 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
     private lateinit var selectedImage: UploadedImage
     private lateinit var uploadImageBtn: Button
     private lateinit var cropImageView: CropImageView
+    private lateinit var rotateRightBtn: Button
+    private lateinit var rotateLeftBtn: Button
 
 
 
@@ -58,6 +62,8 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
 
         selectImageBtn = view.findViewById(R.id.select_image_btn)
         uploadImageBtn = view.findViewById(R.id.upload_image_btn)
+        rotateLeftBtn = view.findViewById(R.id.rotate_left_button)
+        rotateRightBtn = view.findViewById(R.id.rotate_right_button)
         cropImageView = view.findViewById(R.id.image_view)
 
 
@@ -86,6 +92,15 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
             setOnClickListener {
                 observer.selectImage()
             }
+        }
+
+        rotateLeftBtn.setOnClickListener {
+           cropImageView.rotateImage(90);
+        }
+
+
+        rotateRightBtn.setOnClickListener {
+                cropImageView.rotateImage(270);
         }
 
         return view
