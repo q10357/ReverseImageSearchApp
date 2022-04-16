@@ -8,7 +8,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import no.kristiania.android.reverseimagesearchapp.R
+import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayResultsBinding
+
+private const val PARENT_IMAGE_DATA = "parent_image_data"
 
 @AndroidEntryPoint
 class DisplayResultFragment: Fragment(R.layout.fragment_display_results) {
@@ -27,6 +30,14 @@ class DisplayResultFragment: Fragment(R.layout.fragment_display_results) {
     }
 
     companion object {
-        fun newInstance() = DisplayResultFragment()
+        fun newInstance(image: UploadedImage?): DisplayResultFragment{
+            val args = Bundle().apply {
+                putParcelable(PARENT_IMAGE_DATA, image)
+            }
+
+            return DisplayResultFragment().apply {
+                args
+            }
+        }
     }
 }

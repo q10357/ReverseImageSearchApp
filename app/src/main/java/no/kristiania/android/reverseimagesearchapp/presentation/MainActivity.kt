@@ -13,13 +13,14 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.core.util.Constants.SPLASH_SCREEN_TIME
+import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayResultFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.UploadImageFragment
 
-private const val TAG = "ActivityMain"
+private const val TAG = "MainActivityTAG"
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val uploadImageFragment = UploadImageFragment.newInstance()
-        val displayResultFragment = DisplayResultFragment.newInstance()
+        val displayResultFragment = DisplayResultFragment.newInstance(null)
 
         val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottom_navigation_view)
         //We initialize with the uploadFragment
@@ -72,6 +73,12 @@ class MainActivity : AppCompatActivity() {
         //In addition we check if the non-null view is visible, if not,
         //We may proceed. If visible, ignore fragment change
         return supportFragmentManager.findFragmentByTag("$i")!!.isInLayout
+    }
+
+
+
+    override fun onImageSelected(image: UploadedImage) {
+        Log.i(TAG, "IN MAIN: THIS IS CALLBACK ${image.urlOnServer}")
     }
 
 }

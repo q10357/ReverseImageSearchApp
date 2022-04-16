@@ -1,5 +1,6 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
@@ -11,6 +12,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import dagger.hilt.android.AndroidEntryPoint
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.core.util.*
@@ -28,7 +30,12 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
     private lateinit var selectedImage: UploadedImage
     private lateinit var captureImageBtn: Button
     private lateinit var photoView: ImageView
+    private var callbacks: Callbacks? = null
     private lateinit var cropFragmentBtn : Button
+
+    interface Callbacks {
+        fun onImageSelected(image: UploadedImage)
+    }
 
     //ViewModels need to be instantiated after onAttach()
     //So we do not inject them in the constructor, but place them as a property.
@@ -66,6 +73,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
                     Log.i(TAG, "Wait for it...")
                     val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
                     viewModel.onUpload(selectedImage, file)
+                    observeImageUrl()
                 }
             }
         }
@@ -110,11 +118,32 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
                 }
             }
         )
-        Log.i(TAG, "Now in start")
+    }
+
+    private fun observeImageUrl(){
+        viewModel.uploadedImage.observe(
+            viewLifecycleOwner,
+            Observer {
+                it?.let {
+                    callbacks?.onImageSelected(it)
+                    Log.i(TAG, "This is our callback ${it}")
+                }
+            }
+        )
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks?
     }
 
     companion object {
         fun newInstance() = UploadImageFragment()
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
     }
 
     /*

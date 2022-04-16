@@ -12,13 +12,16 @@ class ImageDao @Inject constructor(
     private val database: ImageDatabaseHelper
 ) {
 
-    fun insertUploadedImage(image: UploadedImage){
+    //We want to know the ID of the uploaded picture, so we return the newRowId
+    fun insertUploadedImage(image: UploadedImage): Long {
         val db = database.writableDatabase
         val byteArray = bitmapToByteArray(image.bitmap)
 
-        db.insert("uploaded_images", null, ContentValues().apply {
+        val newRowId = db.insert("uploaded_images", null, ContentValues().apply {
             put("title", image.title)
             put("image", byteArray)
         })
+
+        return newRowId
     }
 }

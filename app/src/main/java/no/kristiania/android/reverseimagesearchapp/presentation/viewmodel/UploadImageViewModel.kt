@@ -1,6 +1,7 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.viewmodel
 
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,13 +24,17 @@ class UploadImageViewModel @Inject constructor(
     private val dao: ImageDao
 ) : ViewModel(), ProgressRequestBody.UploadCallback {
 
+    var uploadedImage = MutableLiveData<UploadedImage?>()
     private var isLoading = UploadedImageState().isLoading
-    private var uploadedImageUrl = UploadedImageState().uploadedImageUrl
     private var uploadeImageJob: Job? = null
     private var bitmapScaling = 2
     private var scaleFactor = 1
     private lateinit var response: Resource<String>
 
+    //We return the ID of the selected image when inserted in our SQLLite database
+    private fun addUploadedImage(image: UploadedImage): Long {
+        return dao.insertUploadedImage(image)
+    }
 
     fun onUpload(image: UploadedImage, file: File) {
         //In case job is not cancelled
@@ -50,14 +55,14 @@ class UploadImageViewModel @Inject constructor(
                 Status.SUCCESS -> {
                     Log.i(TAG, "SUCCESS")
                     Log.i(TAG, "This is retrieved Url: ${response.data}")
-                    uploadedImageUrl = response.data
-                    dao.insertUploadedImage(image)
-                    response.data?.let { getImageData(it) }
+                    image.urlOnServer = response.data.toString()
+                    uploadedImage.postValue(image)
+                    addUploadedImage(image)
+                    //response.data?.let { getImageData(it) }
                     isLoading = false
                 }
                 Status.ERROR -> {
                     Log.i(TAG, "ERROR")
-                    uploadedImageUrl = null
                     isLoading = false
                     if(isCode13(response.data)){
                         image.bitmap = getScaledBitmap(image.bitmap, bitmapScaling * scaleFactor)

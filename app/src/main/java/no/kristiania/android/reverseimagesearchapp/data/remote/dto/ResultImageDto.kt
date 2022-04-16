@@ -4,7 +4,8 @@ import com.google.gson.annotations.SerializedName
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
 
 data class ResultImageDto(
-    //This class is just a helper
+    //The decision of having this data transfer object was mainly based on
+    //what we felt gave a more readable code
     //We store all the data here, even the not necessary data,
     //We will later make these objects into the objects we use for our database
     @SerializedName("current_date")
