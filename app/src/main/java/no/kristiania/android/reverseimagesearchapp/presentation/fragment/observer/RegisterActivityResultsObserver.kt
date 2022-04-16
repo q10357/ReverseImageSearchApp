@@ -28,6 +28,7 @@ class RegisterActivityResultsObserver(
         }
     }
 
+
     fun selectImage(){
         getContent.launch("image/*")
     }

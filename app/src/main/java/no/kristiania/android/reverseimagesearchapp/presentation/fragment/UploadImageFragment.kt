@@ -1,6 +1,9 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
+
 import android.app.Activity
+
+
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -16,6 +19,7 @@ import androidx.core.view.isNotEmpty
 import androidx.fragment.app.Fragment
 import com.edmodo.cropper.CropImageView
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import dagger.hilt.android.AndroidEntryPoint
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.core.util.*
@@ -31,12 +35,22 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
     private lateinit var observer: RegisterActivityResultsObserver
     private lateinit var selectImageBtn: Button
     private lateinit var selectedImage: UploadedImage
+
     private lateinit var uploadImageBtn: Button
     private lateinit var cropImageView: CropImageView
     private lateinit var rotateRightBtn: Button
     private lateinit var rotateLeftBtn: Button
 
 
+    private lateinit var captureImageBtn: Button
+    private lateinit var photoView: ImageView
+    private var callbacks: Callbacks? = null
+    private lateinit var cropFragmentBtn : Button
+
+
+    interface Callbacks {
+        fun onImageSelected(image: UploadedImage)
+    }
 
     //ViewModels need to be instantiated after onAttach()
     //So we do not inject them in the constructor, but place them as a property.
@@ -79,6 +93,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
                     Log.i(TAG, "Wait for it...")
                     val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
                     viewModel.onUpload(selectedImage, file)
+                    observeImageUrl()
                 }
             }
         }
@@ -143,7 +158,23 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
                 }
             }
         )
-        Log.i(TAG, "Now in start")
+    }
+
+    private fun observeImageUrl(){
+        viewModel.uploadedImage.observe(
+            viewLifecycleOwner,
+            Observer {
+                it?.let {
+                    callbacks?.onImageSelected(it)
+                    Log.i(TAG, "This is our callback ${it}")
+                }
+            }
+        )
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks?
     }
 
     //function to change the bitmap variable in the Uploaded Image Object
@@ -160,6 +191,19 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
         fun newInstance() = UploadImageFragment()
     }
 
+
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
+    }
+
+    /*
+    fun switchCropFragment() {
+        //fragmentManager1 = supportFragmentManager
+        fragmentManager1.beginTransaction()
+            .replace(R.id.fragment_container,CropFragment(),"CropFragment").commit()
+    }
+*/
 
 
 
