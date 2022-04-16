@@ -7,10 +7,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.core.util.Constants.SPLASH_SCREEN_TIME
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
@@ -25,10 +22,11 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //installing the splashcreen and letting a corotuine splashcreen gets screentime
+        //installing the splashscreen and letting a coroutine splashscreen gets screen time
         installSplashScreen()
+
         val scope = CoroutineScope(Dispatchers.Main)
-        scope.launch { Thread.sleep(SPLASH_SCREEN_TIME) }
+        scope.launch { delay(10000) }
 
         setContentView(R.layout.activity_main)
 
