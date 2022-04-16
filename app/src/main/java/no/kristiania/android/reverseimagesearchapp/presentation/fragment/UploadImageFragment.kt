@@ -75,7 +75,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
                 } else {
 
                     //setting bitmap for selected image to the cropped uri
-                     cropImage(selectedImage)
+                    cropImage(selectedImage)
                     Log.i(TAG, "Wait for it...")
                     val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
                     viewModel.onUpload(selectedImage, file)
@@ -94,6 +94,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
             }
         }
 
+        //simple button to rotate the cropview left
         rotateLeftBtn.setOnClickListener {
             if ( !wasInit { selectedImage } ) {
                 Toast.makeText(this.context, "Select Image First", Toast.LENGTH_SHORT).show()
@@ -103,7 +104,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
             }
         }
 
-
+        //simple button to rotate cropview to the right
         rotateRightBtn.setOnClickListener {
             if ( !wasInit { selectedImage } ) {
                 Toast.makeText(this.context, "Select Image First", Toast.LENGTH_SHORT).show()
@@ -145,7 +146,8 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
         Log.i(TAG, "Now in start")
     }
 
-
+    //function to change the bitmap variable in the Uploaded Image Object
+    //to the bitmap of the cropped imageview
     private fun cropImage(selectedImage: UploadedImage) {
         val croppedImage = cropImageView.croppedImage
         selectedImage.bitmap = croppedImage
