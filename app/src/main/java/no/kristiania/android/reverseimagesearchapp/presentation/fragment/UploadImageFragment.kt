@@ -95,12 +95,21 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
         }
 
         rotateLeftBtn.setOnClickListener {
-           cropImageView.rotateImage(90);
+            if ( !wasInit { selectedImage } ) {
+                Toast.makeText(this.context, "Select Image First", Toast.LENGTH_SHORT).show()
+            } else {
+
+                cropImageView.rotateImage(90);
+            }
         }
 
 
         rotateRightBtn.setOnClickListener {
+            if ( !wasInit { selectedImage } ) {
+                Toast.makeText(this.context, "Select Image First", Toast.LENGTH_SHORT).show()
+            } else {
                 cropImageView.rotateImage(270);
+            }
         }
 
         return view
