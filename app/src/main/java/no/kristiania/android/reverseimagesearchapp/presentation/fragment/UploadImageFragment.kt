@@ -99,7 +99,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
                 Toast.makeText(this.context, "Select Image First", Toast.LENGTH_SHORT).show()
             } else {
 
-                cropImageView.rotateImage(90);
+                cropImageView.rotateImage(270);
             }
         }
 
@@ -108,7 +108,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
             if ( !wasInit { selectedImage } ) {
                 Toast.makeText(this.context, "Select Image First", Toast.LENGTH_SHORT).show()
             } else {
-                cropImageView.rotateImage(270);
+                cropImageView.rotateImage(90);
             }
         }
 
