@@ -2,6 +2,7 @@ package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
 
 import android.app.Activity
+import android.content.Context
 
 
 import android.graphics.Bitmap
@@ -43,7 +44,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
 
 
     private lateinit var captureImageBtn: Button
-    private lateinit var photoView: ImageView
     private var callbacks: Callbacks? = null
     private lateinit var cropFragmentBtn : Button
 
