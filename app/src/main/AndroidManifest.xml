@@ -25,6 +25,7 @@
             </intent-filter>
         </activity>
         <service android:name=".presentation.service.ProgressBarService" />
+        <service android:name=".presentation.service.ResultImageService" />
     </application>
 
 </manifest>

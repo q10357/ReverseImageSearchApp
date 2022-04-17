@@ -6,10 +6,15 @@ import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImag
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.data.remote.dto.ResultImageDto
 import okhttp3.MultipartBody
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Response
 
 interface ReverseImageSearchRepository {
 
     suspend fun getUploadedImageUrl(body: MultipartBody.Part): String
 
     suspend fun getReverseImageSearchResults(url: String): List<ResultImageDto>
+
+    fun fetchBytes(url: String): Response<ResponseBody>
 }

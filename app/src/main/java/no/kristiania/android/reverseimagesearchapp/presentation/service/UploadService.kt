@@ -5,13 +5,15 @@ import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import no.kristiania.android.reverseimagesearchapp.core.util.ProgressRequestBody
 
 private const val TAG = "LocalServiceTAG"
 class ProgressBarService : Service(), ProgressRequestBody.UploadCallback{
 
     private val binder = LocalBinder()
-    var mProgress: Int = 0
+    var mProgress = MutableStateFlow(0)
 
     //Provides instance of service to client
     inner class LocalBinder: Binder() {
@@ -24,16 +26,17 @@ class ProgressBarService : Service(), ProgressRequestBody.UploadCallback{
     }
 
     override fun onProgressUpdate(percentage: Int) {
+        mProgress.value = percentage
         Log.i(TAG, "THIS IS PROGRESS: $percentage")
     }
 
     override fun onError() {
-        mProgress = 0
+        mProgress.value = 0
         Log.e(TAG, "Error in upload")
     }
 
     override fun onFinish() {
-        mProgress = 0
+        mProgress.value = 0
         Log.i(TAG, "Upload finish")
     }
 

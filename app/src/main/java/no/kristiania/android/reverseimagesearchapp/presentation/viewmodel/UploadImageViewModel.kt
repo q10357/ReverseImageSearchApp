@@ -31,21 +31,8 @@ class UploadImageViewModel @Inject constructor(
     var uploadedImage = MutableLiveData<UploadedImage?>()
     var mBinder = MutableLiveData<ProgressBarService.LocalBinder?>()
     private var isLoading: Boolean = false
-    private var uploadeImageJob: Job? = null
     private var bitmapScaling = 2
     private var scaleFactor = 1
-
-    private val serviceConnection = object: ServiceConnection{
-        override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder?) {
-            Log.d(TAG, "onServiceConnected: connected to service")
-            val binder: ProgressBarService.LocalBinder = iBinder as ProgressBarService.LocalBinder
-            mBinder.postValue(binder)
-        }
-
-        override fun onServiceDisconnected(componentName: ComponentName) {
-            mBinder.value = null
-        }
-    }
 
     //We return the ID of the selected image when inserted in our SQLLite database
     private fun addUploadedImage(image: UploadedImage): Long {

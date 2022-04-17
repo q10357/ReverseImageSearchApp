@@ -180,6 +180,11 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
         callbacks = null
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewLifecycleOwner.lifecycle.removeObserver(observer)
+    }
+
     companion object {
         fun newInstance() = UploadImageFragment()
     }
