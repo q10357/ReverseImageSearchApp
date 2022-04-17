@@ -13,7 +13,8 @@ import no.kristiania.android.reverseimagesearchapp.data.local.sqlLite.ImageDatab
 import no.kristiania.android.reverseimagesearchapp.data.remote.api.ReverseImageSearchApi
 import no.kristiania.android.reverseimagesearchapp.data.remote.repo.ReverseImageSearchRepository
 import no.kristiania.android.reverseimagesearchapp.data.remote.repo.ReverseImageSearchRepositoryImpl
-import no.kristiania.android.reverseimagesearchapp.data.remote.use_case.GetImageData
+import no.kristiania.android.reverseimagesearchapp.data.remote.use_case.GetReverseImageSearchItemData
+import no.kristiania.android.reverseimagesearchapp.data.remote.use_case.GetUploadedImageUrl
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -76,8 +77,14 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideGetUploadedImageUrlUseCase(repository: ReverseImageSearchRepository): GetImageData {
-        return GetImageData(repository)
+    fun provideGetUploadedImageUrlUseCase(repository: ReverseImageSearchRepository): GetUploadedImageUrl {
+        return GetUploadedImageUrl(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetReverseImageSearchItemDataUseCase(repository: ReverseImageSearchRepository): GetReverseImageSearchItemData {
+        return GetReverseImageSearchItemData(repository)
     }
 
 //    @Provides

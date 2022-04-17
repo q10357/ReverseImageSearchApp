@@ -24,6 +24,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service android:name=".presentation.service.ProgressBarService" />
     </application>
 
 </manifest>

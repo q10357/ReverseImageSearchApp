@@ -1,8 +1,10 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
+import android.content.ComponentName
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -26,9 +28,11 @@ private const val TAG = "MainActivityTAG"
 @AndroidEntryPoint
 class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
     private lateinit var observer: RegisterActivityResultsObserver
-    private lateinit var selectImageBtn: Button
     private lateinit var selectedImage: UploadedImage
+    private var mProgress: Int = 0
 
+    //UI components
+    private lateinit var selectImageBtn: Button
     private lateinit var uploadImageBtn: Button
     private lateinit var cropImageView: CropImageView
     private lateinit var rotateRightBtn: Button
@@ -55,6 +59,8 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
         super.onCreate(savedInstanceState)
         observer = RegisterActivityResultsObserver(requireActivity().activityResultRegistry, requireContext())
         lifecycle.addObserver(observer)
+
+
     }
 
     override fun onCreateView(
@@ -79,7 +85,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
                 if ( !wasInit { selectedImage } ) {
                     Toast.makeText(this.context, "Select Image First", Toast.LENGTH_SHORT).show()
                 } else {
-
                     //setting bitmap for selected image to the cropped uri
                     cropImage(selectedImage)
                     Log.i(TAG, "Wait for it...")
@@ -123,7 +128,13 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
         return view
     }
 
-
+    //function to change the bitmap variable in the Uploaded Image Object
+    //to the bitmap of the cropped imageview
+    private fun cropImage(selectedImage: UploadedImage) {
+        val croppedImage = cropImageView.croppedImage
+        selectedImage.bitmap = croppedImage
+        cropImageView.setImageBitmap(croppedImage)
+    }
 
     private fun initSelectedPhoto(bitmap: Bitmap) {
         selectedImage = UploadedImage(
@@ -169,34 +180,17 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
         callbacks = context as Callbacks?
     }
 
-    //function to change the bitmap variable in the Uploaded Image Object
-    //to the bitmap of the cropped imageview
-    private fun cropImage(selectedImage: UploadedImage) {
-        val croppedImage = cropImageView.croppedImage
-        selectedImage.bitmap = croppedImage
-        cropImageView.setImageBitmap(croppedImage)
-
-
+    override fun onDestroy() {
+        super.onDestroy()
+        callbacks = null
     }
-
-    companion object {
-        fun newInstance() = UploadImageFragment()
-    }
-
 
     override fun onDetach() {
         super.onDetach()
         callbacks = null
     }
 
-    /*
-    fun switchCropFragment() {
-        //fragmentManager1 = supportFragmentManager
-        fragmentManager1.beginTransaction()
-            .replace(R.id.fragment_container,CropFragment(),"CropFragment").commit()
+    companion object {
+        fun newInstance() = UploadImageFragment()
     }
-*/
-
-
-
 }

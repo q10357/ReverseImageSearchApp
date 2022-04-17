@@ -1,6 +1,11 @@
 package no.kristiania.android.reverseimagesearchapp.presentation
 
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -9,31 +14,46 @@ import dagger.hilt.android.AndroidEntryPoint
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import kotlinx.coroutines.*
 import no.kristiania.android.reverseimagesearchapp.R
-import no.kristiania.android.reverseimagesearchapp.core.util.Constants.SPLASH_SCREEN_TIME
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayResultFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.UploadImageFragment
+import no.kristiania.android.reverseimagesearchapp.presentation.service.ResultImageService
 
 private const val TAG = "MainActivityTAG"
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
+    private var displayResultFragment = DisplayResultFragment.newInstance(null)
+    private lateinit var bottomNavigationView: BottomNavigationView
+    private lateinit var mService: ResultImageService
+    private var mBound: Boolean = false
+
+    private val connection = object: ServiceConnection {
+        override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
+            val binder = service as ResultImageService.LocalBinder
+            mService = binder.getService()
+            mBound = true
+        }
+
+        override fun onServiceDisconnected(componentName: ComponentName) {
+            mBound = false
+        }
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         //installing the splashscreen and letting a coroutine splashscreen gets screen time
         installSplashScreen()
+        val uploadImageFragment = UploadImageFragment.newInstance()
 
         val scope = CoroutineScope(Dispatchers.Main)
         scope.launch { delay(10000) }
 
         setContentView(R.layout.activity_main)
 
-        val uploadImageFragment = UploadImageFragment.newInstance()
-        val displayResultFragment = DisplayResultFragment.newInstance(null)
-
-        val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottom_navigation_view)
+        bottomNavigationView = findViewById(R.id.bottom_navigation_view)
         //We initialize with the uploadFragment
         setFragment(uploadImageFragment, R.id.upload)
         var selectedItem = bottomNavigationView.menu.findItem(R.id.upload)
@@ -51,7 +71,6 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
             true
         }
     }
-
 
     private fun setFragment(currentFragment: Fragment, pos: Int) {
         if(checkIfFragmentVisible(pos)) return
@@ -73,10 +92,9 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
         return supportFragmentManager.findFragmentByTag("$i")!!.isInLayout
     }
 
-
-
     override fun onImageSelected(image: UploadedImage) {
-        Log.i(TAG, "IN MAIN: THIS IS CALLBACK ${image.urlOnServer}")
+        //We change the property to now be
+        displayResultFragment = DisplayResultFragment.newInstance(image)
     }
 
 }
