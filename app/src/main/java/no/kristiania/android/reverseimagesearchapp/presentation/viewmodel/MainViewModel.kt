@@ -13,7 +13,6 @@ import no.kristiania.android.reverseimagesearchapp.presentation.service.ResultIm
 
 class MainViewModel: ViewModel() {
     private val mBinder = MutableLiveData<ResultImageService.LocalBinder?>()
-    private var mIsFetching = MutableLiveData<Boolean>()
 
     private val connection = object: ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
@@ -24,14 +23,6 @@ class MainViewModel: ViewModel() {
         override fun onServiceDisconnected(componentName: ComponentName) {
             mBinder.postValue(null)
         }
-    }
-
-    fun isFetching(): LiveData<Boolean> {
-        return mIsFetching
-    }
-
-    fun setIsFetching(b: Boolean) {
-        mIsFetching.postValue(b)
     }
 
     fun getBinder(): LiveData<ResultImageService.LocalBinder?> {
