@@ -91,6 +91,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
                 }
             }
         }
+
         cropImageView.apply {
             setOnClickListener {
                 observer.selectImage()
