@@ -1,10 +1,8 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
-import android.content.ComponentName
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.os.IBinder
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -22,14 +20,15 @@ import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedIma
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.observer.RegisterActivityResultsObserver
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.UploadImageViewModel
 import java.io.File
+import java.lang.NullPointerException
 
 private const val TAG = "MainActivityTAG"
+private const val ARG_CHOSEN_IMAGE = "chosen_image"
 
 @AndroidEntryPoint
 class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
     private lateinit var observer: RegisterActivityResultsObserver
     private lateinit var selectedImage: UploadedImage
-    private var mProgress: Int = 0
 
     //UI components
     private lateinit var selectImageBtn: Button
@@ -38,8 +37,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
     private lateinit var rotateRightBtn: Button
     private lateinit var rotateLeftBtn: Button
 
-
-    private lateinit var captureImageBtn: Button
     private var callbacks: Callbacks? = null
     private lateinit var cropFragmentBtn : Button
 
@@ -59,8 +56,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
         super.onCreate(savedInstanceState)
         observer = RegisterActivityResultsObserver(requireActivity().activityResultRegistry, requireContext())
         lifecycle.addObserver(observer)
-
-
     }
 
     override fun onCreateView(
@@ -78,6 +73,8 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
         rotateRightBtn = view.findViewById(R.id.rotate_right_button)
         cropImageView = view.findViewById(R.id.image_view)
 
+        //to avoid NullPointerExceptions
+        updateButtonFunctionality(false)
 
         //This btn is used for instantiating upload to server
         uploadImageBtn.apply {
@@ -108,21 +105,12 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
 
         //simple button to rotate the cropview left
         rotateLeftBtn.setOnClickListener {
-            if ( !wasInit { selectedImage } ) {
-                Toast.makeText(this.context, "Select Image First", Toast.LENGTH_SHORT).show()
-            } else {
-
-                cropImageView.rotateImage(270);
-            }
+            cropImageView.rotateImage(270);
         }
 
         //simple button to rotate cropview to the right
         rotateRightBtn.setOnClickListener {
-            if ( !wasInit { selectedImage } ) {
-                Toast.makeText(this.context, "Select Image First", Toast.LENGTH_SHORT).show()
-            } else {
-                cropImageView.rotateImage(90);
-            }
+            cropImageView.rotateImage(90);
         }
 
         return view
@@ -141,7 +129,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
             "first_one",
             bitmap
         )
-
         val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
         createFileFromBitmap(selectedImage.bitmap, file)
 
@@ -158,9 +145,16 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
             {
                 it?.let {
                     initSelectedPhoto(it)
+                    updateButtonFunctionality(true)
                 }
             }
         )
+    }
+
+    private fun updateButtonFunctionality(isEnabled: Boolean) {
+        rotateLeftBtn.isEnabled = isEnabled
+        rotateRightBtn.isEnabled = isEnabled
+        uploadImageBtn.isEnabled = isEnabled
     }
 
     private fun observeImageUrl(){
@@ -178,11 +172,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
     override fun onAttach(context: Context) {
         super.onAttach(context)
         callbacks = context as Callbacks?
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        callbacks = null
     }
 
     override fun onDetach() {

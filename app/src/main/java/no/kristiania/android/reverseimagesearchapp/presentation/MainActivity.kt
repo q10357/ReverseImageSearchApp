@@ -46,12 +46,12 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
 
         //installing the splashscreen and letting a coroutine splashscreen gets screen time
         installSplashScreen()
-        val uploadImageFragment = UploadImageFragment.newInstance()
 
         val scope = CoroutineScope(Dispatchers.Main)
         scope.launch { delay(10000) }
 
         setContentView(R.layout.activity_main)
+        var uploadImageFragment = UploadImageFragment.newInstance()
 
         bottomNavigationView = findViewById(R.id.bottom_navigation_view)
         //We initialize with the uploadFragment
