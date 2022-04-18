@@ -1,11 +1,11 @@
-package no.kristiania.android.reverseimagesearchapp.data.local.sqlLite
+package no.kristiania.android.reverseimagesearchapp.data.local
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.provider.BaseColumns
 import no.kristiania.android.reverseimagesearchapp.core.util.provider.Constants
-import no.kristiania.android.reverseimagesearchapp.data.local.sqlLite.FeedReaderContract.UploadedImageTable
+import no.kristiania.android.reverseimagesearchapp.data.local.FeedReaderContract.UploadedImageTable
 import javax.inject.Inject
 
 class ImageDatabaseHelper @Inject constructor(context: Context): SQLiteOpenHelper(
