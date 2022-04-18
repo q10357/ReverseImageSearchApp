@@ -10,23 +10,23 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.edmodo.cropper.CropImageView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import com.edmodo.cropper.CropImageView
 import dagger.hilt.android.AndroidEntryPoint
 import no.kristiania.android.reverseimagesearchapp.R
-import no.kristiania.android.reverseimagesearchapp.core.util.*
+import no.kristiania.android.reverseimagesearchapp.core.util.createFileFromBitmap
+import no.kristiania.android.reverseimagesearchapp.core.util.wasInit
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.observer.RegisterActivityResultsObserver
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.UploadImageViewModel
 import java.io.File
-import java.lang.NullPointerException
 
 private const val TAG = "MainActivityTAG"
 private const val ARG_CHOSEN_IMAGE = "chosen_image"
 
 @AndroidEntryPoint
-class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
+class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     private lateinit var observer: RegisterActivityResultsObserver
     private lateinit var selectedImage: UploadedImage
 
@@ -38,7 +38,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
     private lateinit var rotateLeftBtn: Button
 
     private var callbacks: Callbacks? = null
-    private lateinit var cropFragmentBtn : Button
+    private lateinit var cropFragmentBtn: Button
 
 
     interface Callbacks {
@@ -54,11 +54,14 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        observer = RegisterActivityResultsObserver(requireActivity().activityResultRegistry, requireContext())
+        observer = RegisterActivityResultsObserver(
+            requireActivity().activityResultRegistry,
+            requireContext()
+        )
 
-        try{
+        try {
             selectedImage = arguments?.getParcelable(ARG_CHOSEN_IMAGE)!!
-        }catch(e: NullPointerException){
+        } catch (e: NullPointerException) {
             Log.e(TAG, "Image not in bundle")
         }
 
@@ -81,17 +84,18 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
         rotateRightBtn = view.findViewById(R.id.rotate_right_button)
         cropImageView = view.findViewById(R.id.image_view)
 
-        if( wasInit { selectedImage }){
+        if (wasInit { selectedImage }) {
             cropImageView.setImageBitmap(selectedImage.bitmap)
+            updateButtonFunctionality(true)
+        } else {
+            //to avoid NullPointerExceptions
+            updateButtonFunctionality(false)
         }
-
-        //to avoid NullPointerExceptions
-        updateButtonFunctionality(false)
 
         //This btn is used for instantiating upload to server
         uploadImageBtn.apply {
             setOnClickListener {
-                if ( !wasInit { selectedImage } ) {
+                if (!wasInit { selectedImage }) {
                     Toast.makeText(this.context, "Select Image First", Toast.LENGTH_SHORT).show()
                 } else {
                     //setting bitmap for selected image to the cropped uri
@@ -139,7 +143,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
         writeToFile(selectedImage)
     }
 
-    private fun writeToFile(image: UploadedImage){
+    private fun writeToFile(image: UploadedImage) {
         val file = File(requireActivity().cacheDir, image.photoFileName)
         createFileFromBitmap(image.bitmap, file)
     }
@@ -176,7 +180,8 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
         uploadImageBtn.isEnabled = isEnabled
     }
 
-    private fun observeImageUrl(){
+    private fun observeImageUrl() {
+        //T
         viewModel.uploadedImage.observe(
             viewLifecycleOwner,
             Observer {

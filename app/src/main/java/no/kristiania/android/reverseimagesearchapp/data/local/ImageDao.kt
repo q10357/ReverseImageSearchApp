@@ -3,7 +3,6 @@ package no.kristiania.android.reverseimagesearchapp.data.local
 import android.content.ContentValues
 import no.kristiania.android.reverseimagesearchapp.core.util.bitmapToByteArray
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
-import no.kristiania.android.reverseimagesearchapp.data.local.sqlLite.ImageDatabaseHelper
 import javax.inject.Inject
 
 private const val TAG = "ImageDAO"
