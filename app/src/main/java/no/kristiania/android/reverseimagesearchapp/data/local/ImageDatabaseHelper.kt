@@ -4,7 +4,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.provider.BaseColumns
-import no.kristiania.android.reverseimagesearchapp.core.util.Constants
+import no.kristiania.android.reverseimagesearchapp.core.util.provider.Constants
 import no.kristiania.android.reverseimagesearchapp.data.local.sqlLite.FeedReaderContract.UploadedImageTable
 import javax.inject.Inject
 

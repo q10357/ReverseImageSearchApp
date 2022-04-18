@@ -8,13 +8,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import no.kristiania.android.reverseimagesearchapp.core.util.*
 import no.kristiania.android.reverseimagesearchapp.data.local.ImageDao
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.data.remote.use_case.GetUploadedImageUrl
-import no.kristiania.android.reverseimagesearchapp.presentation.service.ProgressBarService
 import java.io.File
 import java.lang.NumberFormatException
 import javax.inject.Inject
@@ -26,14 +26,12 @@ private const val TAGProgress = "Process"
 class UploadImageViewModel @Inject constructor(
     private val getUploadedImageUrl: GetUploadedImageUrl,
     private val dao: ImageDao
-) : ViewModel() {
-
+) : ViewModel(), ProgressRequestBody.UploadCallback {
     var uploadedImage = MutableLiveData<UploadedImage?>()
-    var mBinder = MutableLiveData<ProgressBarService.LocalBinder?>()
     private var isLoading: Boolean = false
     private var bitmapScaling = 2
     private var scaleFactor = 1
-
+    val mProgress = MutableStateFlow(0)
     //We return the ID of the selected image when inserted in our SQLLite database
     private fun addUploadedImage(image: UploadedImage): Long {
         return dao.insertUploadedImage(image)
@@ -41,7 +39,7 @@ class UploadImageViewModel @Inject constructor(
 
     fun onUpload(image: UploadedImage, file: File) {
         //In case job is not cancelled
-        val body = getMultiPartBody(file, ProgressBarService())
+        val body = getMultiPartBody(file, this)
 //            val uploadedImageJob = async { getImageData(body) }
 //            uploadedImageJob.await()
         getUploadedImageUrl(body).onEach { result ->
@@ -90,5 +88,20 @@ class UploadImageViewModel @Inject constructor(
             return true
         }
         return false
+    }
+
+    override fun onProgressUpdate(percentage: Int) {
+        mProgress.value = percentage
+        Log.i(TAG, "THIS IS PROGRESS: $percentage")
+    }
+
+    override fun onError() {
+        mProgress.value = 0
+        Log.e(TAG, "Error in upload")
+    }
+
+    override fun onFinish() {
+        mProgress.value = 0
+        Log.i(TAG, "Upload finish")
     }
 }

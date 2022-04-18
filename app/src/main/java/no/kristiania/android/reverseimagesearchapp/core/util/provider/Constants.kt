@@ -1,4 +1,4 @@
-package no.kristiania.android.reverseimagesearchapp.core.util
+package no.kristiania.android.reverseimagesearchapp.core.util.provider
 
 object Constants {
     const val UPLOAD_URI = "http://api-edu.gtl.ai/api/v1/imagesearch/upload"

@@ -19,12 +19,8 @@ private const val TAG = "ResultImageDataFetchr"
 class ResultImageService: Service() {
     private val binder = LocalBinder()
     private var url: String = ""
-    private var listResults = MutableStateFlow(mutableListOf<ReverseImageSearchItem>())
+    var listResults = MutableStateFlow(mutableListOf<ReverseImageSearchItem>())
     var isFetching = MutableStateFlow(false)
-    @Inject
-    lateinit var dao: ImageDao
-    @Inject
-    lateinit var getReverseImageSearchItemData: GetReverseImageSearchItemData
 
     val getImages: List<ReverseImageSearchItem>? = listResults.value
 
@@ -41,17 +37,5 @@ class ResultImageService: Service() {
 
     override fun onBind(intent: Intent): IBinder {
         return binder
-    }
-
-    suspend fun fetchImageData(url: String): List<ReverseImageSearchItem>? {
-        val result = getReverseImageSearchItemData(url)
-        if(result.status == Status.SUCCESS){
-            return result.data
-        }
-        return null
-    }
-
-    fun fetchPhoto(url: String): Bitmap? {
-        return getReverseImageSearchItemData.fetchPhoto(url)
     }
 }

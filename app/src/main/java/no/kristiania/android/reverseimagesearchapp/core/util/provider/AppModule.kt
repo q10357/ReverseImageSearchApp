@@ -1,4 +1,4 @@
-package no.kristiania.android.reverseimagesearchapp.core.util
+package no.kristiania.android.reverseimagesearchapp.core.util.provider
 
 import android.content.Context
 import com.google.gson.Gson
