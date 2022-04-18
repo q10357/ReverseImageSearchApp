@@ -63,7 +63,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results) {
                 layoutManager = GridLayoutManager(context, 3)
             }
         }
-        Log.i(TAG, "THIS IS LISTVALURESVALUE: ${mainViewModel.resultItems.value}")
+
         mainViewModel.resultItems.observe(
             viewLifecycleOwner, {
                 photoRecyclerView.adapter = PhotoAdapter(it)

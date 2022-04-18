@@ -18,7 +18,6 @@ import javax.inject.Inject
 class SharedViewModel @Inject constructor(
     private val getReverseImageSearchItemData: GetReverseImageSearchItemData
 ): ViewModel() {
-    private val mBinder = MutableLiveData<ResultImageService.LocalBinder?>()
     private val _resultItems = MutableLiveData<List<ReverseImageSearchItem>>()
     val resultItems: LiveData<List<ReverseImageSearchItem>> = _resultItems
 
@@ -30,7 +29,7 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun saveResponse(response: MutableList<ReverseImageSearchItem>) {
+    private fun saveResponse(response: MutableList<ReverseImageSearchItem>) {
         _resultItems.value = response
     }
 
