@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.*
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
@@ -79,11 +80,10 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
     override fun onImageSelected(image: UploadedImage) {
         val url = image.urlOnServer ?: return
         //Blocking main thread so no onclick can happen
-        runBlocking {
+        lifecycleScope.launch{
             val job = async {
                 viewModel.fetchImageData(url)
             }
-            job.await()
         }
         //We change the property to now be
         displayResultFragment = DisplayResultFragment.newInstance(image)
