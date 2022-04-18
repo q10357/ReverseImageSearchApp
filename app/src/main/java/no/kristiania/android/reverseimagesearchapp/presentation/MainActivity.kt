@@ -1,27 +1,51 @@
 package no.kristiania.android.reverseimagesearchapp.presentation
 
+import android.content.Context
+import android.content.Intent
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.forEach
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.*
 import no.kristiania.android.reverseimagesearchapp.R
-import no.kristiania.android.reverseimagesearchapp.core.util.Constants.SPLASH_SCREEN_TIME
+import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayResultFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.UploadImageFragment
+import no.kristiania.android.reverseimagesearchapp.presentation.service.ResultImageService
+import no.kristiania.android.reverseimagesearchapp.presentation.service.ThumbnailDownloader
+import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.MainViewModel
 
 private const val TAG = "MainActivityTAG"
+private const val ARG_PARENT_IMAGE_URL = "parent_url"
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
+    private var displayResultFragment = DisplayResultFragment.newInstance(null)
+    private var mService: ResultImageService? = null
+    private lateinit var bottomNavigationView: BottomNavigationView
+
+    private val viewModel by viewModels<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        viewModel.getBinder().observe(this, {
+            if(it != null){
+                Log.d(TAG, "Connected to service")
+                mService = it.getService()
+            }else {
+                mService = null
+                Log.d(TAG, "Disconnected from service")
+            }
+        })
         //installing the splashscreen and letting a coroutine splashscreen gets screen time
         installSplashScreen()
 
@@ -29,11 +53,9 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
         scope.launch { delay(10000) }
 
         setContentView(R.layout.activity_main)
+        var uploadImageFragment = UploadImageFragment.newInstance()
 
-        val uploadImageFragment = UploadImageFragment.newInstance()
-        val displayResultFragment = DisplayResultFragment.newInstance(null)
-
-        val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottom_navigation_view)
+        bottomNavigationView = findViewById(R.id.bottom_navigation_view)
         //We initialize with the uploadFragment
         setFragment(uploadImageFragment, R.id.upload)
         var selectedItem = bottomNavigationView.menu.findItem(R.id.upload)
@@ -51,7 +73,6 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
             true
         }
     }
-
 
     private fun setFragment(currentFragment: Fragment, pos: Int) {
         if(checkIfFragmentVisible(pos)) return
@@ -73,10 +94,33 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
         return supportFragmentManager.findFragmentByTag("$i")!!.isInLayout
     }
 
-
-
     override fun onImageSelected(image: UploadedImage) {
-        Log.i(TAG, "IN MAIN: THIS IS CALLBACK ${image.urlOnServer}")
+        val url = image.urlOnServer ?: return
+        var response = mutableListOf<ReverseImageSearchItem>()
+        lifecycleScope.launch {
+            val job = async { response =
+                mService?.fetchImageData(url) as MutableList<ReverseImageSearchItem>
+            }
+            job.await()
+            Log.i(TAG, "RESPONSE ${response}")
+        }
+        //We change the property to now be
+        displayResultFragment = DisplayResultFragment.newInstance(image)
     }
 
+    override fun onResume() {
+        super.onResume()
+        startService()
+    }
+
+    private fun startService(){
+        val serviceIntent = Intent(this, ResultImageService::class.java)
+        startService(serviceIntent)
+        bindService()
+    }
+
+    private fun bindService(){
+        val serviceIntent = Intent(this, ResultImageService::class.java)
+        bindService(serviceIntent, viewModel.getConnection(), Context.BIND_AUTO_CREATE)
+    }
 }

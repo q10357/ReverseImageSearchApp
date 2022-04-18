@@ -1,16 +1,20 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.viewmodel
 
+import android.content.ComponentName
+import android.content.ServiceConnection
+import android.os.IBinder
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import no.kristiania.android.reverseimagesearchapp.core.util.*
 import no.kristiania.android.reverseimagesearchapp.data.local.ImageDao
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
-import no.kristiania.android.reverseimagesearchapp.data.remote.use_case.GetImageData
-import no.kristiania.android.reverseimagesearchapp.presentation.UploadedImageState
+import no.kristiania.android.reverseimagesearchapp.data.remote.use_case.GetUploadedImageUrl
+import no.kristiania.android.reverseimagesearchapp.presentation.service.ProgressBarService
 import java.io.File
 import java.lang.NumberFormatException
 import javax.inject.Inject
@@ -20,16 +24,15 @@ private const val TAGProgress = "Process"
 
 @HiltViewModel
 class UploadImageViewModel @Inject constructor(
-    private val getImageData: GetImageData,
+    private val getUploadedImageUrl: GetUploadedImageUrl,
     private val dao: ImageDao
-) : ViewModel(), ProgressRequestBody.UploadCallback {
+) : ViewModel() {
 
     var uploadedImage = MutableLiveData<UploadedImage?>()
-    private var isLoading = UploadedImageState().isLoading
-    private var uploadeImageJob: Job? = null
+    var mBinder = MutableLiveData<ProgressBarService.LocalBinder?>()
+    private var isLoading: Boolean = false
     private var bitmapScaling = 2
     private var scaleFactor = 1
-    private lateinit var response: Resource<String>
 
     //We return the ID of the selected image when inserted in our SQLLite database
     private fun addUploadedImage(image: UploadedImage): Long {
@@ -38,41 +41,37 @@ class UploadImageViewModel @Inject constructor(
 
     fun onUpload(image: UploadedImage, file: File) {
         //In case job is not cancelled
-        val body = getMultiPartBody(file, this)
-
-        uploadeImageJob?.cancel()
-        viewModelScope.launch(Dispatchers.IO) {
-
-            isLoading = true
-            Log.i(TAG, "Loading...")
-
-            //To get to display our nice progressbar <3
-            delay(500)
-            val uploadedImageJob = async { response = getImageData(body) }
-            uploadedImageJob.await()
-
-            when(response.status){
+        val body = getMultiPartBody(file, ProgressBarService())
+//            val uploadedImageJob = async { getImageData(body) }
+//            uploadedImageJob.await()
+        getUploadedImageUrl(body).onEach { result ->
+            when(result.status) {
                 Status.SUCCESS -> {
                     Log.i(TAG, "SUCCESS")
-                    Log.i(TAG, "This is retrieved Url: ${response.data}")
-                    image.urlOnServer = response.data.toString()
+                    Log.i(TAG, "This is retrieved Url: ${result.data}")
+                    image.urlOnServer = result.data.toString()
                     uploadedImage.postValue(image)
                     addUploadedImage(image)
+                    //Retrieving list of results
                     //response.data?.let { getImageData(it) }
                     isLoading = false
                 }
                 Status.ERROR -> {
                     Log.i(TAG, "ERROR")
                     isLoading = false
-                    if(isCode13(response.data)){
+                    if (isCode13(result.data)) {
                         image.bitmap = getScaledBitmap(image.bitmap, bitmapScaling * scaleFactor)
-                        scaleFactor ++
+                        scaleFactor++
                         createFileFromBitmap(image.bitmap, file)
                         onUpload(image, file)
                     }
                 }
+                Status.LOADING -> {
+                    isLoading = true
+                    Log.i(TAG, "Loading...")
+                }
             }
-        }
+        }.launchIn(GlobalScope)
     }
 
     //If the code is 413, we know the image is too large,
@@ -92,18 +91,4 @@ class UploadImageViewModel @Inject constructor(
         }
         return false
     }
-
-
-    override fun onProgressUpdate(percentage: Int) {
-        Log.i(TAGProgress, "This is percentage $percentage")
-    }
-
-    override fun onError() {
-        Log.e(TAGProgress, "Error in upload")
-    }
-
-    override fun onFinish() {
-        Log.i(TAGProgress, "Upload finish")
-    }
-
 }

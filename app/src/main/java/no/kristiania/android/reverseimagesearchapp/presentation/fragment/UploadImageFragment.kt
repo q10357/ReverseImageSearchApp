@@ -20,22 +20,23 @@ import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedIma
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.observer.RegisterActivityResultsObserver
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.UploadImageViewModel
 import java.io.File
+import java.lang.NullPointerException
 
 private const val TAG = "MainActivityTAG"
+private const val ARG_CHOSEN_IMAGE = "chosen_image"
 
 @AndroidEntryPoint
 class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
     private lateinit var observer: RegisterActivityResultsObserver
-    private lateinit var selectImageBtn: Button
     private lateinit var selectedImage: UploadedImage
 
+    //UI components
+    private lateinit var selectImageBtn: Button
     private lateinit var uploadImageBtn: Button
     private lateinit var cropImageView: CropImageView
     private lateinit var rotateRightBtn: Button
     private lateinit var rotateLeftBtn: Button
 
-
-    private lateinit var captureImageBtn: Button
     private var callbacks: Callbacks? = null
     private lateinit var cropFragmentBtn : Button
 
@@ -72,6 +73,8 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
         rotateRightBtn = view.findViewById(R.id.rotate_right_button)
         cropImageView = view.findViewById(R.id.image_view)
 
+        //to avoid NullPointerExceptions
+        updateButtonFunctionality(false)
 
         //This btn is used for instantiating upload to server
         uploadImageBtn.apply {
@@ -79,7 +82,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
                 if ( !wasInit { selectedImage } ) {
                     Toast.makeText(this.context, "Select Image First", Toast.LENGTH_SHORT).show()
                 } else {
-
                     //setting bitmap for selected image to the cropped uri
                     cropImage(selectedImage)
                     Log.i(TAG, "Wait for it...")
@@ -89,6 +91,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
                 }
             }
         }
+
         cropImageView.apply {
             setOnClickListener {
                 observer.selectImage()
@@ -103,34 +106,30 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
 
         //simple button to rotate the cropview left
         rotateLeftBtn.setOnClickListener {
-            if ( !wasInit { selectedImage } ) {
-                Toast.makeText(this.context, "Select Image First", Toast.LENGTH_SHORT).show()
-            } else {
-
-                cropImageView.rotateImage(270);
-            }
+            cropImageView.rotateImage(270);
         }
 
         //simple button to rotate cropview to the right
         rotateRightBtn.setOnClickListener {
-            if ( !wasInit { selectedImage } ) {
-                Toast.makeText(this.context, "Select Image First", Toast.LENGTH_SHORT).show()
-            } else {
-                cropImageView.rotateImage(90);
-            }
+            cropImageView.rotateImage(90);
         }
 
         return view
     }
 
-
+    //function to change the bitmap variable in the Uploaded Image Object
+    //to the bitmap of the cropped imageview
+    private fun cropImage(selectedImage: UploadedImage) {
+        val croppedImage = cropImageView.croppedImage
+        selectedImage.bitmap = croppedImage
+        cropImageView.setImageBitmap(croppedImage)
+    }
 
     private fun initSelectedPhoto(bitmap: Bitmap) {
         selectedImage = UploadedImage(
             "first_one",
             bitmap
         )
-
         val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
         createFileFromBitmap(selectedImage.bitmap, file)
 
@@ -147,9 +146,16 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
             {
                 it?.let {
                     initSelectedPhoto(it)
+                    updateButtonFunctionality(true)
                 }
             }
         )
+    }
+
+    private fun updateButtonFunctionality(isEnabled: Boolean) {
+        rotateLeftBtn.isEnabled = isEnabled
+        rotateRightBtn.isEnabled = isEnabled
+        uploadImageBtn.isEnabled = isEnabled
     }
 
     private fun observeImageUrl(){
@@ -169,34 +175,17 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
         callbacks = context as Callbacks?
     }
 
-    //function to change the bitmap variable in the Uploaded Image Object
-    //to the bitmap of the cropped imageview
-    private fun cropImage(selectedImage: UploadedImage) {
-        val croppedImage = cropImageView.croppedImage
-        selectedImage.bitmap = croppedImage
-        cropImageView.setImageBitmap(croppedImage)
-
-
-    }
-
-    companion object {
-        fun newInstance() = UploadImageFragment()
-    }
-
-
     override fun onDetach() {
         super.onDetach()
         callbacks = null
     }
 
-    /*
-    fun switchCropFragment() {
-        //fragmentManager1 = supportFragmentManager
-        fragmentManager1.beginTransaction()
-            .replace(R.id.fragment_container,CropFragment(),"CropFragment").commit()
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewLifecycleOwner.lifecycle.removeObserver(observer)
     }
-*/
 
-
-
+    companion object {
+        fun newInstance() = UploadImageFragment()
+    }
 }
