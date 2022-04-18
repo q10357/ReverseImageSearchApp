@@ -1,8 +1,5 @@
 package no.kristiania.android.reverseimagesearchapp.presentation
 
-import android.content.Context
-import android.content.Intent
-import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
@@ -11,17 +8,13 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.forEach
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.*
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayResultFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.UploadImageFragment
-import no.kristiania.android.reverseimagesearchapp.presentation.service.ResultImageService
-import no.kristiania.android.reverseimagesearchapp.presentation.service.ThumbnailDownloader
-import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.MainViewModel
+import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.SharedViewModel
 
 private const val TAG = "MainActivityTAG"
 private const val ARG_PARENT_IMAGE_URL = "parent_url"
@@ -29,23 +22,12 @@ private const val ARG_PARENT_IMAGE_URL = "parent_url"
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
     private var displayResultFragment = DisplayResultFragment.newInstance(null)
-    private var mService: ResultImageService? = null
     private lateinit var bottomNavigationView: BottomNavigationView
 
-    private val viewModel by viewModels<MainViewModel>()
+    private val viewModel by viewModels<SharedViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        viewModel.getBinder().observe(this, {
-            if(it != null){
-                Log.d(TAG, "Connected to service")
-                mService = it.getService()
-            }else {
-                mService = null
-                Log.d(TAG, "Disconnected from service")
-            }
-        })
         //installing the splashscreen and letting a coroutine splashscreen gets screen time
         installSplashScreen()
 
@@ -97,30 +79,26 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
     override fun onImageSelected(image: UploadedImage) {
         val url = image.urlOnServer ?: return
         var response = mutableListOf<ReverseImageSearchItem>()
-        lifecycleScope.launch {
+        //Blocking main thread so no onclick can happen
+        runBlocking {
             val job = async { response =
-                mService?.fetchImageData(url) as MutableList<ReverseImageSearchItem>
+                viewModel.fetchImageData(url) as MutableList<ReverseImageSearchItem>
             }
             job.await()
-            Log.i(TAG, "RESPONSE ${response}")
         }
         //We change the property to now be
         displayResultFragment = DisplayResultFragment.newInstance(image)
     }
 
-    override fun onResume() {
-        super.onResume()
-        startService()
-    }
-
-    private fun startService(){
-        val serviceIntent = Intent(this, ResultImageService::class.java)
-        startService(serviceIntent)
-        bindService()
-    }
-
-    private fun bindService(){
-        val serviceIntent = Intent(this, ResultImageService::class.java)
-        bindService(serviceIntent, viewModel.getConnection(), Context.BIND_AUTO_CREATE)
-    }
+//    private fun startService(){
+//        val serviceIntent = Intent(this, ResultImageService::class.java)
+//        startService(serviceIntent)
+//        bindService()
+//
+//    }
+//
+//    private fun bindService(){
+//        val serviceIntent = Intent(this, ResultImageService::class.java)
+//        bindService(serviceIntent, viewModel.getConnection(), Context.BIND_AUTO_CREATE)
+//    }
 }

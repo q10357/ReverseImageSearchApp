@@ -123,6 +123,13 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
         val croppedImage = cropImageView.croppedImage
         selectedImage.bitmap = croppedImage
         cropImageView.setImageBitmap(croppedImage)
+
+        writeToFile(selectedImage)
+    }
+
+    private fun writeToFile(image: UploadedImage){
+        val file = File(requireActivity().cacheDir, image.photoFileName)
+        createFileFromBitmap(image.bitmap, file)
     }
 
     private fun initSelectedPhoto(bitmap: Bitmap) {
@@ -130,8 +137,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
             "first_one",
             bitmap
         )
-        val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
-        createFileFromBitmap(selectedImage.bitmap, file)
+        writeToFile(selectedImage)
 
         cropImageView.setImageBitmap(selectedImage.bitmap)
     }

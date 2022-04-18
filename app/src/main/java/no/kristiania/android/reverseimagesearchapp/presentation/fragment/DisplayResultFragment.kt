@@ -1,17 +1,18 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
-import android.content.Context
-import android.content.Intent
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,6 +24,7 @@ import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayRe
 import no.kristiania.android.reverseimagesearchapp.presentation.service.ResultImageService
 import no.kristiania.android.reverseimagesearchapp.presentation.service.ThumbnailDownloader
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.DisplayResultViewModel
+import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.SharedViewModel
 
 private const val PARENT_IMAGE_DATA = "parent_image_data"
 private const val TAG = "DisplayResultImages"
@@ -33,26 +35,36 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results) {
     private lateinit var photoRecyclerView: RecyclerView
     private lateinit var binding: FragmentDisplayResultsBinding
     private lateinit var thumbnailDownloader: ThumbnailDownloader<PhotoHolder>
-    private val viewModel by viewModels<DisplayResultViewModel>()
-
     private var mService: ResultImageService? = null
+    private val viewModel by viewModels<DisplayResultViewModel>()
+    //We have scoped this viewmodel to be shared across our activity,
+    //Hence by activityViewModels
+    private val mainViewModel by activityViewModels<SharedViewModel>()
+
     private var parentImage: UploadedImage? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         parentImage = arguments?.getParcelable(PARENT_IMAGE_DATA) as UploadedImage?
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentDisplayResultsBinding.bind(view)
 
+        val responseHandler = Handler(Looper.getMainLooper())
+        thumbnailDownloader = ThumbnailDownloader(responseHandler, ResultImageService()) { photoHolder, bitmap ->
+            val drawable = BitmapDrawable(resources, bitmap)
+            photoHolder.bindDrawable(drawable)
+        }
+
         photoRecyclerView = binding.rvList.also {
             it.apply {
                 layoutManager = GridLayoutManager(context, 3)
             }
         }
+        Log.i(TAG, "THIS IS LISTVALURESVALUE: ${mainViewModel.resultItems.value}")
+        photoRecyclerView.adapter = mService?.getImages?.let { PhotoAdapter(it) }
     }
 
     companion object {
@@ -66,31 +78,6 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results) {
                 arguments = args
             }
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        viewModel.mBinder.observe(viewLifecycleOwner, {
-            mService = when (it) {
-                null -> {
-                    Log.d(TAG, "Unbound from service")
-                    null
-                }else -> {
-                    Log.d(TAG, "Connected to service")
-                    it.getService()
-                }
-            }
-        })
-        viewModel.mBinder.observe(viewLifecycleOwner, {
-            it?.getService()?.getImages
-            thumbnailDownloader =
-                ThumbnailDownloader(mService!!) { photoHolder, bitmap ->
-                    val drawable = BitmapDrawable(resources, bitmap)
-                    photoHolder.bindDrawable(drawable)
-                }
-            photoRecyclerView.adapter = it?.getService()?.getImages?.let { it1 -> PhotoAdapter(it1) }
-            Log.i(TAG, "WTFFF : ${it?.getService()?.getImages}")
-        })
     }
 
     private inner class PhotoHolder(private val itemImageView: ImageView) :
@@ -117,7 +104,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results) {
                 R.drawable.ic_file_download,
             ) ?: ColorDrawable()
             holder.bindDrawable(placeholder)
-            thumbnailDownloader.queueThumbnail(holder, galleryItem.link)
+            //thumbnailDownloader.queueThumbnail(holder, galleryItem.link)
         }
 
         override fun getItemCount(): Int = galleryItems.size
