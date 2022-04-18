@@ -22,6 +22,7 @@ private const val ARG_PARENT_IMAGE_URL = "parent_url"
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
     private var displayResultFragment = DisplayResultFragment.newInstance(null)
+    private var uploadImageFragment = UploadImageFragment.newInstance(null)
     private lateinit var bottomNavigationView: BottomNavigationView
 
     private val viewModel by viewModels<SharedViewModel>()
@@ -35,7 +36,6 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
         scope.launch { delay(10000) }
 
         setContentView(R.layout.activity_main)
-        var uploadImageFragment = UploadImageFragment.newInstance()
 
         bottomNavigationView = findViewById(R.id.bottom_navigation_view)
         //We initialize with the uploadFragment
@@ -78,11 +78,10 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
 
     override fun onImageSelected(image: UploadedImage) {
         val url = image.urlOnServer ?: return
-        var response = mutableListOf<ReverseImageSearchItem>()
         //Blocking main thread so no onclick can happen
         runBlocking {
-            val job = async { response =
-                viewModel.fetchImageData(url) as MutableList<ReverseImageSearchItem>
+            val job = async {
+                viewModel.fetchImageData(url)
             }
             job.await()
         }

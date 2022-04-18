@@ -19,17 +19,15 @@ class SharedViewModel @Inject constructor(
     private val getReverseImageSearchItemData: GetReverseImageSearchItemData
 ): ViewModel() {
     private val mBinder = MutableLiveData<ResultImageService.LocalBinder?>()
-    private val _resultItems = MutableLiveData<List<ReverseImageSearchItem?>>()
-    val resultItems: LiveData<List<ReverseImageSearchItem?>> = _resultItems
+    private val _resultItems = MutableLiveData<List<ReverseImageSearchItem>>()
+    val resultItems: LiveData<List<ReverseImageSearchItem>> = _resultItems
 
-    suspend fun fetchImageData(url: String): List<ReverseImageSearchItem>? {
+    suspend fun fetchImageData(url: String) {
         _resultItems.value = mutableListOf()
         val result = getReverseImageSearchItemData(url)
         if(result.status == Status.SUCCESS){
             saveResponse(result.data as MutableList<ReverseImageSearchItem>)
-            return result.data
         }
-        return null
     }
 
     fun saveResponse(response: MutableList<ReverseImageSearchItem>) {

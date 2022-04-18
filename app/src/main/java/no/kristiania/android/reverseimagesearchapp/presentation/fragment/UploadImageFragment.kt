@@ -55,7 +55,15 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         observer = RegisterActivityResultsObserver(requireActivity().activityResultRegistry, requireContext())
+
+        try{
+            selectedImage = arguments?.getParcelable(ARG_CHOSEN_IMAGE)!!
+        }catch(e: NullPointerException){
+            Log.e(TAG, "Image not in bundle")
+        }
+
         lifecycle.addObserver(observer)
+
     }
 
     override fun onCreateView(
@@ -72,6 +80,10 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
         rotateLeftBtn = view.findViewById(R.id.rotate_left_button)
         rotateRightBtn = view.findViewById(R.id.rotate_right_button)
         cropImageView = view.findViewById(R.id.image_view)
+
+        if( wasInit { selectedImage }){
+            cropImageView.setImageBitmap(selectedImage.bitmap)
+        }
 
         //to avoid NullPointerExceptions
         updateButtonFunctionality(false)
@@ -192,6 +204,14 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image){
     }
 
     companion object {
-        fun newInstance() = UploadImageFragment()
+        fun newInstance(image: UploadedImage?): UploadImageFragment {
+            val args = Bundle().apply {
+                putParcelable(ARG_CHOSEN_IMAGE, image)
+            }
+
+            return UploadImageFragment().apply {
+                arguments = args
+            }
+        }
     }
 }

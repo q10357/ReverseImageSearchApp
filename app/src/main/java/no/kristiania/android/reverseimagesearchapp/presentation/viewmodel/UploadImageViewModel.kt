@@ -38,10 +38,8 @@ class UploadImageViewModel @Inject constructor(
     }
 
     fun onUpload(image: UploadedImage, file: File) {
-        //In case job is not cancelled
         val body = getMultiPartBody(file, this)
-//            val uploadedImageJob = async { getImageData(body) }
-//            uploadedImageJob.await()
+
         getUploadedImageUrl(body).onEach { result ->
             when(result.status) {
                 Status.SUCCESS -> {
@@ -50,8 +48,6 @@ class UploadImageViewModel @Inject constructor(
                     image.urlOnServer = result.data.toString()
                     uploadedImage.postValue(image)
                     addUploadedImage(image)
-                    //Retrieving list of results
-                    //response.data?.let { getImageData(it) }
                     isLoading = false
                 }
                 Status.ERROR -> {
