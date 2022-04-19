@@ -1,6 +1,7 @@
 package no.kristiania.android.reverseimagesearchapp.data.local
 
 import android.content.ContentValues
+import android.database.sqlite.SQLiteDatabase
 import android.provider.BaseColumns
 import no.kristiania.android.reverseimagesearchapp.core.util.bitmapToByteArray
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
@@ -18,7 +19,6 @@ class ImageDao @Inject constructor(
 
     //We want to know the ID of the uploaded picture, so we return the newRowId
     fun insertUploadedImage(image: UploadedImage): Long {
-        insertResultImages(image)
         val db = database.writableDatabase
         val byteArray = image.bitmap?.let { bitmapToByteArray(it) }
 
@@ -32,12 +32,12 @@ class ImageDao @Inject constructor(
         return newRowId
     }
 
-    fun insertResultImages(image: UploadedImage): Long{
+
+     fun insertResultImages(image: UploadedImage): Long{
 
         val db = database.writableDatabase
         val byteArray = image.bitmap?.let { bitmapToByteArray(it) }
         val newResult = db.insert("result_images", null, ContentValues().apply {
-
             put("image",byteArray )
         })
         return newResult

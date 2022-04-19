@@ -11,7 +11,11 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewOverlay
 import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.PopupWindow
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -41,14 +45,18 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
     private lateinit var thumbnailDownloader: ThumbnailDownloader<PhotoHolder>
     private lateinit var mService: ResultImageService
     private var selectedImages = mutableListOf<ReverseImageSearchItem>()
+    private lateinit var popupWindow: PopupWindow
+    private var overlayImage:ImageView? = null
 
     private val viewModel by viewModels<DisplayResultViewModel>()
     private var parentImage: UploadedImage? = null
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentDisplayResultsBinding.bind(view)
 
+        overlayImage?.findViewById<ImageView>(R.id.overlay_image)
         parentImage = arguments?.getParcelable(PARENT_IMAGE_DATA) as UploadedImage?
         mService = (activity as MainActivity).getService()
 
@@ -148,4 +156,15 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
         super.onDestroy()
         parentImage = null
     }
+
+//    private fun startService(){
+//        val serviceIntent = Intent(requireActivity(), ResultImageService::class.java)
+//        requireActivity().startService(serviceIntent)
+//        bindService()
+//    }
+//
+//    private fun bindService(){
+//        val serviceIntent = Intent(requireActivity(), ResultImageService::class.java)
+//        requireActivity().bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE)
+//    }
 }
