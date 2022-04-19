@@ -43,12 +43,13 @@ class ImageDao @Inject constructor(
         return newResult
     }
 
+    /*
     fun getByResultItem(number: Int): List<ReverseImageSearchItem>{
         val db = database.readableDatabase
         val query = "SELECT * FROM " + FeedReaderContract.ResultImageTable.TABLE_NAME;
-        var selection = "${FeedReaderContract.ResultImageTable.ID} = $number"
+       // var selection = "${FeedReaderContract.ResultImageTable.ID} = $number"
 
-        val cursor = db.query(FeedReaderContract.ResultImageTable.TABLE_NAME,null,selection,null,null,null,null)
+       // val cursor = db.query(FeedReaderContract.ResultImageTable.TABLE_NAME,null,selection,null,null,null,null)
 
         val itemReverse = mutableListOf<ReverseImageSearchItem>()
         with(cursor){
@@ -60,4 +61,6 @@ class ImageDao @Inject constructor(
         }
         return listOf()
     }
+
+     */
 }
