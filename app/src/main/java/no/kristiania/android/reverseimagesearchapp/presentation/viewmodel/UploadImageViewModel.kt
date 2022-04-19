@@ -45,6 +45,7 @@ class UploadImageViewModel @Inject constructor(
     fun onUpload(image: UploadedImage, file: File) {
         originalPhoto = image
         val body = getMultiPartBody(file, this)
+
         getUploadedImageUrl(body).onEach { result ->
             when(result.status) {
                 Status.SUCCESS -> {
@@ -80,9 +81,6 @@ class UploadImageViewModel @Inject constructor(
 
     }
 
-    private fun onSaveToResult(selectedImage: UploadedImage) {
-        addResultDatabase(selectedImage)
-    }
 
     //If the code is 413, we know the image is too large,
     //If this is the case, we will scale the bitmap, and increase the scalingFactor,
