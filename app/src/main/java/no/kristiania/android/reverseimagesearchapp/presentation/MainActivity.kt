@@ -28,7 +28,7 @@ import no.kristiania.android.reverseimagesearchapp.presentation.service.ResultIm
 private const val TAG = "MainActivityTAG"
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks{
+class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
     private var displayResultFragment = DisplayResultFragment.newInstance(null)
     private var uploadImageFragment = UploadImageFragment.newInstance()
     private lateinit var bottomNavigationView: BottomNavigationView
