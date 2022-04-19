@@ -10,6 +10,7 @@ data class UploadedImage(
     val title: String?,
     var bitmap: Bitmap?,
     var urlOnServer: String? = null,
+    var parentId: Int = 0,
     val id: Int = Random().nextInt(1000)
 ) : ImageItem, Parcelable {
 
@@ -20,13 +21,15 @@ data class UploadedImage(
         parcel.readString(),
         null,
         parcel.readString(),
-        parcel.readInt()) {
+        parcel.readInt(),
+    ) {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(title)
         parcel.writeString(urlOnServer)
         parcel.writeInt(id)
+        parcel.writeInt(parentId ++)
     }
 
     override fun describeContents(): Int {

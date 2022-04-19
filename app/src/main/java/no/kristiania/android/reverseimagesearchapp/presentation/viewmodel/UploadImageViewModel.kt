@@ -26,16 +26,25 @@ class UploadImageViewModel @Inject constructor(
     var uploadedImage = MutableLiveData<UploadedImage?>()
     private var isLoading: Boolean = false
     private var bitmapScaling = 2
+    private lateinit var originalPhoto: UploadedImage
     private var scaleFactor = 1
     val mProgress = MutableStateFlow(0)
+    private val uploadedList = arrayListOf<UploadedImage>()
+
     //We return the ID of the selected image when inserted in our SQLLite database
     private fun addUploadedImage(image: UploadedImage): Long {
         return dao.insertUploadedImage(image)
     }
 
-    fun onUpload(image: UploadedImage, file: File) {
-        val body = getMultiPartBody(file, this)
+    private fun addResultDatabase(selectedImage: UploadedImage): Long {
+        return dao.insertSavedResult(selectedImage)
+    }
 
+
+
+    fun onUpload(image: UploadedImage, file: File) {
+        originalPhoto = image
+        val body = getMultiPartBody(file, this)
         getUploadedImageUrl(body).onEach { result ->
             when(result.status) {
                 Status.SUCCESS -> {
@@ -45,6 +54,7 @@ class UploadImageViewModel @Inject constructor(
                     uploadedImage.postValue(image)
                     addUploadedImage(image)
                     isLoading = false
+                    //uploadedList.add(image)
                 }
                 Status.ERROR -> {
                     Log.i(TAG, "ERROR")
@@ -60,8 +70,18 @@ class UploadImageViewModel @Inject constructor(
                     isLoading = true
                     Log.i(TAG, "Loading...")
                 }
+
             }
+           // if(!isLoading && uploadedList.isNotEmpty()){
+           //     onSaveToResult(originalPhoto)
+           // }
         }.launchIn(GlobalScope)
+
+
+    }
+
+    private fun onSaveToResult(selectedImage: UploadedImage) {
+        addResultDatabase(selectedImage)
     }
 
     //If the code is 413, we know the image is too large,

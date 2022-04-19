@@ -14,6 +14,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.edmodo.cropper.CropImageView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.core.util.createFileFromBitmap
 import no.kristiania.android.reverseimagesearchapp.core.util.uriToBitmap
@@ -103,6 +105,8 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                     Log.i(TAG, "Wait for it...")
                     val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
                     viewModel.onUpload(selectedImage, file)
+                    //GlobalScope.launch { suspend { viewModel.onSaveToResult(selectedImage) } }
+                   // viewModel.onSaveToResult(selectedImage)
                     observeImageUrl()
                 }
             }
