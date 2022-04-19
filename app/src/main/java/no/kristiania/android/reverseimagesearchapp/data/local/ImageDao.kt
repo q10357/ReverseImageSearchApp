@@ -46,7 +46,7 @@ class ImageDao @Inject constructor(
     fun getByResultItem(number: Int): List<ReverseImageSearchItem>{
         val db = database.readableDatabase
         val query = "SELECT * FROM " + FeedReaderContract.ResultImageTable.TABLE_NAME;
-        var selection = "€{FeedReaderContract.ResultImageTable.ID} = number"
+        var selection = "${FeedReaderContract.ResultImageTable.ID} = $number"
 
         val cursor = db.query(FeedReaderContract.ResultImageTable.TABLE_NAME,null,selection,null,null,null,null)
 
