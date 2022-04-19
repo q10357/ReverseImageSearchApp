@@ -11,7 +11,11 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewOverlay
 import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.PopupWindow
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -41,6 +45,8 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results) {
     private lateinit var binding: FragmentDisplayResultsBinding
     private lateinit var thumbnailDownloader: ThumbnailDownloader<PhotoHolder>
     private lateinit var mService: ResultImageService
+    private lateinit var popupWindow: PopupWindow
+    private var overlayImage:ImageView? = null
 
     private val viewModel by viewModels<DisplayResultViewModel>()
     private var parentImage: UploadedImage? = null
@@ -50,6 +56,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentDisplayResultsBinding.bind(view)
 
+        overlayImage?.findViewById<ImageView>(R.id.overlay_image)
         parentImage = arguments?.getParcelable(PARENT_IMAGE_DATA) as UploadedImage?
         mService = (activity as MainActivity).getService()
 
@@ -110,6 +117,19 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results) {
             view.setOnClickListener {
                 val highlight = ResourcesCompat.getDrawable(resources, R.drawable.highlight, null)
                 view.background = highlight
+            }
+
+            //trying to make imageview visible when longclick
+            view.setOnLongClickListener {
+                overlayImage?.findViewById<ImageView>(R.id.overlay_image)
+
+                overlayImage?.visibility= View.VISIBLE
+                overlayImage?.setBackgroundResource(R.drawable.circle)
+                //val background = context?.getDrawable(id)
+                Toast.makeText(context, "Long click detected", Toast.LENGTH_SHORT).show()
+                //PopupWindow(200,200).background.
+
+                return@setOnLongClickListener true
             }
             return PhotoHolder(view)
         }

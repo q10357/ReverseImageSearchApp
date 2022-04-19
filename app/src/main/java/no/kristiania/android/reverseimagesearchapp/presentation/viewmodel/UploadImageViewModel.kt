@@ -33,13 +33,12 @@ class UploadImageViewModel @Inject constructor(
     var isSuccess = MutableLiveData(false)
     //We return the ID of the selected image when inserted in our SQLLite database
     private fun addUploadedImage(image: UploadedImage): Long {
-        //addResultToCollection(image)
         return dao.insertUploadedImage(image)
     }
 
-    //private fun addResultToCollection(image: UploadedImage): Long {
-     //   return dao.insertResultImages(image)
-    //}
+    private fun addResultToCollection(image: UploadedImage): Long {
+        return dao.insertResultImages(image)
+    }
 
     fun onUpload(image: UploadedImage, file: File) {
         val body = getMultiPartBody(file, this)
@@ -53,6 +52,7 @@ class UploadImageViewModel @Inject constructor(
                     Log.i(TAG, "SUCCESS")
                     Log.i(TAG, "This is retrieved Url: ${result.data}")
                     addUploadedImage(image)
+                    addResultToCollection(image)
                 }
                 Status.ERROR -> {
                     Log.i(TAG, "ERROR")
