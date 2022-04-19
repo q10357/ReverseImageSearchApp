@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -24,12 +25,13 @@ import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.Upload
 import java.io.File
 
 private const val TAG = "MainActivityTAG"
-private const val ARG_CHOSEN_IMAGE = "chosen_image"
 
 @AndroidEntryPoint
 class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     private lateinit var observer: RegisterActivityResultsObserver
     private lateinit var selectedImage: UploadedImage
+    private lateinit var mProgressBar: ProgressBar
+    private var isLoading = false
 
     //UI components
     private lateinit var selectImageBtn: Button
@@ -39,7 +41,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     private lateinit var rotateLeftBtn: Button
 
     private var callbacks: Callbacks? = null
-    private lateinit var cropFragmentBtn: Button
 
 
     interface Callbacks {
@@ -59,14 +60,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
             requireActivity().activityResultRegistry,
         )
 
-        try {
-            selectedImage = arguments?.getParcelable(ARG_CHOSEN_IMAGE)!!
-        } catch (e: NullPointerException) {
-            Log.e(TAG, "Image not in bundle")
-        }
-
         lifecycle.addObserver(observer)
-
     }
 
     override fun onCreateView(
@@ -76,6 +70,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
 
+
         val view = inflater.inflate(R.layout.fragment_upload_image, container, false)
 
         selectImageBtn = view.findViewById(R.id.select_image_btn)
@@ -83,6 +78,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         rotateLeftBtn = view.findViewById(R.id.rotate_left_button)
         rotateRightBtn = view.findViewById(R.id.rotate_right_button)
         cropImageView = view.findViewById(R.id.image_view)
+        mProgressBar = view.findViewById(R.id.progress_bar_circular)
 
         if (wasInit { selectedImage }) {
             cropImageView.setImageBitmap(selectedImage.bitmap)
@@ -103,7 +99,8 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                     Log.i(TAG, "Wait for it...")
                     val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
                     viewModel.onUpload(selectedImage, file)
-                    observeImageUrl()
+                    observeUpload()
+                    observeCallbackUrl()
                 }
             }
         }
@@ -160,8 +157,8 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     }
 
     //We used an observer to choose image from gallery
-    //When onStarted() is initialized, we will observe the value of the observer's
-    //Bitmap property, if it is not null, the user has chosen an image, and we will update the UI
+    //When onStarted() is called, we will observe the value of the observer's
+    //Uri property, if it is not null, the user has chosen an image, and we will update the UI
     override fun onStart() {
         super.onStart()
         observer.uri.observe(
@@ -181,13 +178,24 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         uploadImageBtn.isEnabled = isEnabled
     }
 
-    private fun observeImageUrl() {
-        viewModel.uploadedImage.observe(
+    private fun observeUpload() {
+        viewModel.mProgress.observe(
             viewLifecycleOwner,
             Observer {
                 it?.let {
-                    callbacks?.onImageSelected(it)
-                    Log.i(TAG, "This is our callback ${it}")
+                    mProgressBar.progress = it
+                    Log.i(TAG, "This is percentage ${it}")
+                }
+            }
+        )
+    }
+
+    private fun observeCallbackUrl() {
+        viewModel.isSuccess.observe(
+            viewLifecycleOwner,
+            {
+                when(it){
+                    true -> callbacks?.onImageSelected(viewModel.uploadedImage.value!!)
                 }
             }
         )
@@ -205,18 +213,11 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        Log.i(TAG, "WE ARE DESTROYING IT")
         viewLifecycleOwner.lifecycle.removeObserver(observer)
     }
 
     companion object {
-        fun newInstance(image: UploadedImage?): UploadImageFragment {
-            val args = Bundle().apply {
-                putParcelable(ARG_CHOSEN_IMAGE, image)
-            }
-
-            return UploadImageFragment().apply {
-                arguments = args
-            }
-        }
+        fun newInstance() = UploadImageFragment()
     }
 }

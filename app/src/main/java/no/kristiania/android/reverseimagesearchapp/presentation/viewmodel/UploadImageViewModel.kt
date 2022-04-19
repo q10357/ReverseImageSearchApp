@@ -1,6 +1,7 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.viewmodel
 
 import android.util.Log
+import android.view.View
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,6 +13,8 @@ import no.kristiania.android.reverseimagesearchapp.core.util.*
 import no.kristiania.android.reverseimagesearchapp.data.local.ImageDao
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.data.remote.use_case.GetUploadedImageUrl
+import no.kristiania.android.reverseimagesearchapp.presentation.MainActivity
+import no.kristiania.android.reverseimagesearchapp.presentation.fragment.UploadImageFragment
 import java.io.File
 import java.lang.NumberFormatException
 import javax.inject.Inject
@@ -22,12 +25,12 @@ private const val TAG = "CoroutineTAG"
 class UploadImageViewModel @Inject constructor(
     private val getUploadedImageUrl: GetUploadedImageUrl,
     private val dao: ImageDao
-) : ViewModel(), ProgressRequestBody.UploadCallback {
-    var uploadedImage = MutableLiveData<UploadedImage?>()
-    private var isLoading: Boolean = false
+) : ViewModel(), ProgressRequestBody.UploadCallback{
+    var uploadedImage = MutableLiveData<UploadedImage>()
     private var bitmapScaling = 2
     private var scaleFactor = 1
-    val mProgress = MutableStateFlow(0)
+    var mProgress = MutableLiveData(0)
+    var isSuccess = MutableLiveData(false)
     //We return the ID of the selected image when inserted in our SQLLite database
     private fun addUploadedImage(image: UploadedImage): Long {
         return dao.insertUploadedImage(image)
@@ -39,26 +42,22 @@ class UploadImageViewModel @Inject constructor(
         getUploadedImageUrl(body).onEach { result ->
             when(result.status) {
                 Status.SUCCESS -> {
-                    Log.i(TAG, "SUCCESS")
-                    Log.i(TAG, "This is retrieved Url: ${result.data}")
                     image.urlOnServer = result.data.toString()
                     uploadedImage.postValue(image)
+                    onFinish()
+                    Log.i(TAG, "SUCCESS")
+                    Log.i(TAG, "This is retrieved Url: ${result.data}")
                     addUploadedImage(image)
-                    isLoading = false
                 }
                 Status.ERROR -> {
                     Log.i(TAG, "ERROR")
-                    isLoading = false
+                    onError()
                     if (isCode13(result.data)) {
                         image.bitmap = getScaledBitmap(image.bitmap!!, bitmapScaling * scaleFactor)
                         scaleFactor++
                         createFileFromBitmap(image.bitmap!!, file)
                         onUpload(image, file)
                     }
-                }
-                Status.LOADING -> {
-                    isLoading = true
-                    Log.i(TAG, "Loading...")
                 }
             }
         }.launchIn(GlobalScope)
@@ -88,12 +87,14 @@ class UploadImageViewModel @Inject constructor(
     }
 
     override fun onError() {
-        mProgress.value = 0
+        mProgress.postValue(0)
+        isSuccess.postValue(false)
         Log.e(TAG, "Error in upload")
     }
 
     override fun onFinish() {
-        mProgress.value = 0
+        mProgress.postValue(0)
+        isSuccess.postValue(true)
         Log.i(TAG, "Upload finish")
     }
 }

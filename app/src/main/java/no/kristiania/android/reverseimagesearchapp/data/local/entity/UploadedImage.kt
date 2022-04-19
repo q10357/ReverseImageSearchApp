@@ -11,7 +11,7 @@ data class UploadedImage(
     var bitmap: Bitmap?,
     var urlOnServer: String? = null,
     val id: Int = Random().nextInt(1000)
-) : ImageItem, Parcelable {
+) : Parcelable {
 
     val photoFileName
         get() = "IMG_$id.png"

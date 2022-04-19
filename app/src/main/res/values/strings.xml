@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">ReverseImageSearchApp</string>
     <string name="select_upload">Select/Upload</string>
-    <string name="saved_results">Saved Results</string>
+    <string name="saved_results">Collection</string>
     <string name="results">Results</string>
     <string name="select_text">Select</string>
     <string name="upload_text">Upload</string>

@@ -7,6 +7,9 @@ import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import android.view.View
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -16,18 +19,18 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.*
 import no.kristiania.android.reverseimagesearchapp.R
+import no.kristiania.android.reverseimagesearchapp.core.util.ProgressRequestBody
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayResultFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.UploadImageFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.service.ResultImageService
 
 private const val TAG = "MainActivityTAG"
-private const val ARG_PARENT_IMAGE_URL = "parent_url"
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
+class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks{
     private var displayResultFragment = DisplayResultFragment.newInstance(null)
-    private var uploadImageFragment = UploadImageFragment.newInstance(null)
+    private var uploadImageFragment = UploadImageFragment.newInstance()
     private lateinit var bottomNavigationView: BottomNavigationView
 
     private lateinit var mService: ResultImageService
@@ -52,15 +55,15 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
         installSplashScreen()
 
         val scope = CoroutineScope(Dispatchers.Main)
-        scope.launch { delay(10000) }
+        scope.launch { delay(10) }
 
         setContentView(R.layout.activity_main)
+
 
         bottomNavigationView = findViewById(R.id.bottom_navigation_view)
         //We initialize with the uploadFragment
         setFragment(uploadImageFragment, R.id.upload)
         var selectedItem = bottomNavigationView.menu.findItem(R.id.upload)
-
 
         bottomNavigationView.setOnItemSelectedListener { m ->
             when (m.itemId) {
