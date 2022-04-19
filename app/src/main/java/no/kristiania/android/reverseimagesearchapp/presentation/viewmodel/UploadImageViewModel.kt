@@ -2,6 +2,7 @@ package no.kristiania.android.reverseimagesearchapp.presentation.viewmodel
 
 import android.content.ComponentName
 import android.content.ServiceConnection
+import android.graphics.BitmapFactory
 import android.os.IBinder
 import android.util.Log
 import androidx.lifecycle.MutableLiveData

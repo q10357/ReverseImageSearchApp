@@ -20,9 +20,24 @@ class SharedViewModel @Inject constructor(
 ): ViewModel() {
     private val _resultItems = MutableLiveData<List<ReverseImageSearchItem>>()
     val resultItems: LiveData<List<ReverseImageSearchItem>> = _resultItems
+    lateinit var mService: ResultImageService
+    private var mBound: Boolean = false
+
+    private val connection = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            val binder = service as ResultImageService.LocalBinder
+            mService = binder.getService()
+            mBound = true
+        }
+
+        override fun onServiceDisconnected(arg0: ComponentName) {
+            mBound = false
+        }
+    }
 
     suspend fun fetchImageData(url: String) {
-        _resultItems.value = mutableListOf()
+        _resultItems.value = emptyList()
         val result = getReverseImageSearchItemData(url)
         if(result.status == Status.SUCCESS){
             saveResponse(result.data as MutableList<ReverseImageSearchItem>)
@@ -31,6 +46,10 @@ class SharedViewModel @Inject constructor(
 
     private fun saveResponse(response: MutableList<ReverseImageSearchItem>) {
         _resultItems.value = response
+    }
+
+    fun getConnection(): ServiceConnection {
+        return connection
     }
 
 }

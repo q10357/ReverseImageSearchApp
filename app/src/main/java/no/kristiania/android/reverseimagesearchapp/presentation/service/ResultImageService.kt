@@ -6,7 +6,10 @@ import android.graphics.Bitmap
 import android.os.*
 import android.util.Log
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import no.kristiania.android.reverseimagesearchapp.core.util.*
 import no.kristiania.android.reverseimagesearchapp.data.local.ImageDao
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
@@ -18,16 +21,9 @@ private const val TAG = "ResultImageDataFetchr"
 @AndroidEntryPoint
 class ResultImageService: Service() {
     private val binder = LocalBinder()
-    private var url: String = ""
-    var listResults = MutableStateFlow(mutableListOf<ReverseImageSearchItem>())
-    var isFetching = MutableStateFlow(false)
 
-    val getImages: List<ReverseImageSearchItem>? = listResults.value
-
-    override fun onCreate() {
-        super.onCreate()
-        Log.i(TAG, "OnCreate")
-    }
+    @Inject
+    lateinit var getReverseImageSearchItemData: GetReverseImageSearchItemData
 
     //Provides instance of service to client
     inner class LocalBinder: Binder() {
@@ -37,5 +33,14 @@ class ResultImageService: Service() {
 
     override fun onBind(intent: Intent): IBinder {
         return binder
+    }
+
+    suspend fun fetchPhoto(url: String): Bitmap? {
+        return getReverseImageSearchItemData.fetchPhoto(url)
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        stopSelf()
     }
 }

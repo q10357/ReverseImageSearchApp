@@ -1,5 +1,7 @@
 package no.kristiania.android.reverseimagesearchapp.presentation
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
@@ -15,6 +17,7 @@ import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImag
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayResultFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.UploadImageFragment
+import no.kristiania.android.reverseimagesearchapp.presentation.service.ResultImageService
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.SharedViewModel
 
 private const val TAG = "MainActivityTAG"
@@ -78,6 +81,7 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
     }
 
     override fun onImageSelected(image: UploadedImage) {
+        startService()
         val url = image.urlOnServer ?: return
         //Blocking main thread so no onclick can happen
         lifecycleScope.launch{
@@ -89,15 +93,14 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
         displayResultFragment = DisplayResultFragment.newInstance(image)
     }
 
-//    private fun startService(){
-//        val serviceIntent = Intent(this, ResultImageService::class.java)
-//        startService(serviceIntent)
-//        bindService()
-//
-//    }
-//
-//    private fun bindService(){
-//        val serviceIntent = Intent(this, ResultImageService::class.java)
-//        bindService(serviceIntent, viewModel.getConnection(), Context.BIND_AUTO_CREATE)
-//    }
+    private fun startService(){
+        val serviceIntent = Intent(this, ResultImageService::class.java)
+        startService(serviceIntent)
+        bindService()
+    }
+
+    private fun bindService(){
+        val serviceIntent = Intent(this, ResultImageService::class.java)
+        bindService(serviceIntent, viewModel.getConnection(), Context.BIND_AUTO_CREATE)
+    }
 }

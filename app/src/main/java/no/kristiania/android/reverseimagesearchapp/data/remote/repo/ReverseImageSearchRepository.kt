@@ -16,5 +16,5 @@ interface ReverseImageSearchRepository {
 
     suspend fun getReverseImageSearchResults(url: String): List<ResultImageDto>
 
-    fun fetchBytes(url: String): Response<ResponseBody>
+    suspend fun fetchBytes(url: String): Call<ResponseBody>
 }

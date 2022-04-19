@@ -181,7 +181,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     }
 
     private fun observeImageUrl() {
-        //T
         viewModel.uploadedImage.observe(
             viewLifecycleOwner,
             Observer {

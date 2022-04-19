@@ -1,10 +1,4 @@
 package no.kristiania.android.reverseimagesearchapp.data.remote.repo
-
-import android.util.Log
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import no.kristiania.android.reverseimagesearchapp.core.util.Resource
-import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.data.remote.api.ReverseImageSearchApi
 import no.kristiania.android.reverseimagesearchapp.data.remote.dto.ResultImageDto
 import okhttp3.MediaType
@@ -12,9 +6,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Call
-import retrofit2.HttpException
 import retrofit2.Response
-import java.io.IOException
 import javax.inject.Inject
 
 private const val TAG = "NetworkRepo"
@@ -34,7 +26,7 @@ class ReverseImageSearchRepositoryImpl @Inject constructor(
         return api.fetchResultPhotoData(url)
     }
 
-    override fun fetchBytes(url: String): Response<ResponseBody> {
+    override suspend fun fetchBytes(url: String): Call<ResponseBody> {
         return api.fetchUrlBytes(url)
     }
 

@@ -41,11 +41,12 @@ class GetReverseImageSearchItemData @Inject constructor(
         }
     }
 
-    fun fetchPhoto(url: String): Bitmap? {
-        val bitmap: Bitmap? = null
+    @Suppress("BlockingMethodInNonBlockingContext")
+    suspend fun fetchPhoto(url: String): Bitmap? {
+        var bitmap: Bitmap? = null
         try {
-            val response: Response<ResponseBody> = repository.fetchBytes(url)
-            val bitmap = response.body()?.byteStream()?.use(BitmapFactory::decodeStream)
+            val response: Response<ResponseBody> = repository.fetchBytes(url).execute()
+            bitmap = response.body()?.byteStream()?.use(BitmapFactory::decodeStream)
             Log.i(
                 TAG, "Decoded bitmap=$bitmap from Response=$response\n" +
                         "ResponseBody=${response.body()}"
