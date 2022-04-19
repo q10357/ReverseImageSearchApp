@@ -23,4 +23,11 @@ class ImageDao @Inject constructor(
 
         return newRowId
     }
+
+    fun insertSavedResult(image: UploadedImage){
+
+
+    }
+
+    //todo delete and save
 }

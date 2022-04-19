@@ -16,6 +16,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.*
 import no.kristiania.android.reverseimagesearchapp.R
+import no.kristiania.android.reverseimagesearchapp.data.local.ImageDao
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayResultFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.UploadImageFragment
@@ -103,6 +104,7 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
         }
 
         displayResultFragment = DisplayResultFragment.newInstance(image)
+
     }
 
     override fun onStart() {
