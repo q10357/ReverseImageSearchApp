@@ -5,12 +5,12 @@ import android.os.Parcel
 import android.os.Parcelable
 import java.util.*
 
+
 data class UploadedImage(
     val title: String?,
-    var bitmap: Bitmap,
-    //val date: Date = Calendar.getInstance().time,
+    var bitmap: Bitmap?,
     var urlOnServer: String? = null,
-    val id: UUID? = UUID.randomUUID()
+    val id: Int = Random().nextInt(1000)
 ) : ImageItem, Parcelable {
 
     val photoFileName
@@ -18,21 +18,15 @@ data class UploadedImage(
 
     constructor(parcel: Parcel) : this(
         parcel.readString(),
-        parcel.readParcelable(Bitmap::class.java.classLoader)!!,
+        null,
         parcel.readString(),
-        null
-    ) {
-    }
-
-    fun Parcel.readDate(): Date? {
-        val long = readLong()
-        return if (long != - 1L) Date(long) else null
+        parcel.readInt()) {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(title)
-        parcel.writeParcelable(bitmap, flags)
         parcel.writeString(urlOnServer)
+        parcel.writeInt(id)
     }
 
     override fun describeContents(): Int {
@@ -48,4 +42,5 @@ data class UploadedImage(
             return arrayOfNulls(size)
         }
     }
+
 }

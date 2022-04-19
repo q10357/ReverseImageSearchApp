@@ -5,6 +5,8 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.*
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -21,9 +23,23 @@ private const val TAG = "ResultImageDataFetchr"
 @AndroidEntryPoint
 class ResultImageService: Service() {
     private val binder = LocalBinder()
+    private val _resultItems = MutableLiveData<List<ReverseImageSearchItem>>()
+    val resultItems: LiveData<List<ReverseImageSearchItem>> = _resultItems
 
     @Inject
     lateinit var getReverseImageSearchItemData: GetReverseImageSearchItemData
+
+    suspend fun fetchImageData(url: String) {
+        _resultItems.value = emptyList()
+        val result = getReverseImageSearchItemData(url)
+        if(result.status == Status.SUCCESS){
+            saveResponse(result.data as MutableList<ReverseImageSearchItem>)
+        }
+    }
+
+    private fun saveResponse(response: MutableList<ReverseImageSearchItem>) {
+        _resultItems.value = response
+    }
 
     //Provides instance of service to client
     inner class LocalBinder: Binder() {

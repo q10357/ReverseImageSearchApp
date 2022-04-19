@@ -1,6 +1,7 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
-import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
@@ -11,7 +12,6 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
-import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -21,12 +21,15 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import no.kristiania.android.reverseimagesearchapp.R
+import no.kristiania.android.reverseimagesearchapp.core.util.uriToBitmap
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayResultsBinding
+import no.kristiania.android.reverseimagesearchapp.presentation.MainActivity
+import no.kristiania.android.reverseimagesearchapp.presentation.service.ResultImageService
 import no.kristiania.android.reverseimagesearchapp.presentation.service.ThumbnailDownloader
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.DisplayResultViewModel
-import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.SharedViewModel
+import java.io.File
 
 private const val PARENT_IMAGE_DATA = "parent_image_data"
 private const val TAG = "DisplayResultImages"
@@ -37,25 +40,29 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results) {
     private lateinit var photoRecyclerView: RecyclerView
     private lateinit var binding: FragmentDisplayResultsBinding
     private lateinit var thumbnailDownloader: ThumbnailDownloader<PhotoHolder>
+    private lateinit var mService: ResultImageService
 
     private val viewModel by viewModels<DisplayResultViewModel>()
-
-    //We have scoped this viewmodel to be shared across our activity,
-    //Hence by activityViewModels
-    private val mainViewModel by activityViewModels<SharedViewModel>()
     private var parentImage: UploadedImage? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        parentImage = arguments?.getParcelable(PARENT_IMAGE_DATA) as UploadedImage?
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentDisplayResultsBinding.bind(view)
 
+        parentImage = arguments?.getParcelable(PARENT_IMAGE_DATA) as UploadedImage?
+        mService = (activity as MainActivity).getService()
+
+        if(parentImage != null){
+            val file = File(requireContext().cacheDir, parentImage!!.photoFileName)
+            Log.i(TAG, "THIS IS FILE LENGTH ${file.length()}")
+            val bitmap: Bitmap = BitmapFactory.decodeFile(file.path)
+
+            binding.parentImageView.setImageBitmap(bitmap)
+        }
+
         val responseHandler = Handler(Looper.getMainLooper())
-        thumbnailDownloader = ThumbnailDownloader(responseHandler, mainViewModel.mService) { photoHolder, bitmap ->
+        thumbnailDownloader = ThumbnailDownloader(responseHandler, mService) { photoHolder, bitmap ->
             val drawable = BitmapDrawable(resources, bitmap)
             photoHolder.bindDrawable(drawable)
         }
@@ -68,7 +75,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results) {
             }
         }
 
-        mainViewModel.resultItems.observe(
+        mService.resultItems.observe(
             viewLifecycleOwner, {
                 photoRecyclerView.adapter = PhotoAdapter(it)
             }

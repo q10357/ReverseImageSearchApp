@@ -1,7 +1,7 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
 import android.content.Context
-import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,6 +16,7 @@ import com.edmodo.cropper.CropImageView
 import dagger.hilt.android.AndroidEntryPoint
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.core.util.createFileFromBitmap
+import no.kristiania.android.reverseimagesearchapp.core.util.uriToBitmap
 import no.kristiania.android.reverseimagesearchapp.core.util.wasInit
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.observer.RegisterActivityResultsObserver
@@ -56,7 +57,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         super.onCreate(savedInstanceState)
         observer = RegisterActivityResultsObserver(
             requireActivity().activityResultRegistry,
-            requireContext()
         )
 
         try {
@@ -145,13 +145,14 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
 
     private fun writeToFile(image: UploadedImage) {
         val file = File(requireActivity().cacheDir, image.photoFileName)
-        createFileFromBitmap(image.bitmap, file)
+        //We get the rightly scaled bitmap here
+        selectedImage.bitmap?.let { createFileFromBitmap(it, file) }
     }
 
-    private fun initSelectedPhoto(bitmap: Bitmap) {
+    private fun initSelectedPhoto(uri: Uri) {
         selectedImage = UploadedImage(
-            "first_one",
-            bitmap
+            title = "first_one",
+            bitmap = uriToBitmap(requireContext(), uri),
         )
         writeToFile(selectedImage)
 
@@ -163,7 +164,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     //Bitmap property, if it is not null, the user has chosen an image, and we will update the UI
     override fun onStart() {
         super.onStart()
-        observer.bitmap.observe(
+        observer.uri.observe(
             viewLifecycleOwner,
             {
                 it?.let {

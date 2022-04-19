@@ -2,6 +2,7 @@ package no.kristiania.android.reverseimagesearchapp.presentation.fragment.observ
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
@@ -14,16 +15,14 @@ private const val TAG = "MainActivityTAG"
 
 class RegisterActivityResultsObserver(
     private val registry: ActivityResultRegistry,
-    private val context: Context,
 ) : DefaultLifecycleObserver {
     lateinit var getContent: ActivityResultLauncher<String>
-    var bitmap = MutableLiveData<Bitmap>()
+    var uri = MutableLiveData<Uri>()
 
     override fun onCreate(owner: LifecycleOwner) {
         getContent = registry.register("key", owner, GetContent()) {
             if (it != null) {
-                val photoUri = it
-                bitmap.value = uriToBitmap(context, photoUri)
+                uri.value = it
             }
         }
     }

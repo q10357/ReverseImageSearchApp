@@ -1,8 +1,11 @@
 package no.kristiania.android.reverseimagesearchapp.presentation
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -13,12 +16,10 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.*
 import no.kristiania.android.reverseimagesearchapp.R
-import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayResultFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.UploadImageFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.service.ResultImageService
-import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.SharedViewModel
 
 private const val TAG = "MainActivityTAG"
 private const val ARG_PARENT_IMAGE_URL = "parent_url"
@@ -29,7 +30,21 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
     private var uploadImageFragment = UploadImageFragment.newInstance(null)
     private lateinit var bottomNavigationView: BottomNavigationView
 
-    private val viewModel by viewModels<SharedViewModel>()
+    private lateinit var mService: ResultImageService
+    private var mBound: Boolean = false
+
+    private val connection = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            val binder = service as ResultImageService.LocalBinder
+            mService = binder.getService()
+            mBound = true
+        }
+
+        override fun onServiceDisconnected(arg0: ComponentName) {
+            mBound = false
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,16 +96,18 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
     }
 
     override fun onImageSelected(image: UploadedImage) {
-        startService()
         val url = image.urlOnServer ?: return
-        //Blocking main thread so no onclick can happen
+
         lifecycleScope.launch{
-            val job = async {
-                viewModel.fetchImageData(url)
-            }
+            mService.fetchImageData(url)
         }
-        //We change the property to now be
+
         displayResultFragment = DisplayResultFragment.newInstance(image)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        startService()
     }
 
     private fun startService(){
@@ -101,6 +118,14 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
 
     private fun bindService(){
         val serviceIntent = Intent(this, ResultImageService::class.java)
-        bindService(serviceIntent, viewModel.getConnection(), Context.BIND_AUTO_CREATE)
+        bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE)
+    }
+
+    fun getService(): ResultImageService {
+        return mService
+    }
+
+    fun getConnection(): ServiceConnection {
+        return connection
     }
 }

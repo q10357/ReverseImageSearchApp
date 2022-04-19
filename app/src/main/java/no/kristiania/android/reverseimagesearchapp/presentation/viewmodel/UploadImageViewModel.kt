@@ -1,9 +1,5 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.viewmodel
 
-import android.content.ComponentName
-import android.content.ServiceConnection
-import android.graphics.BitmapFactory
-import android.os.IBinder
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -21,7 +17,6 @@ import java.lang.NumberFormatException
 import javax.inject.Inject
 
 private const val TAG = "CoroutineTAG"
-private const val TAGProgress = "Process"
 
 @HiltViewModel
 class UploadImageViewModel @Inject constructor(
@@ -55,9 +50,9 @@ class UploadImageViewModel @Inject constructor(
                     Log.i(TAG, "ERROR")
                     isLoading = false
                     if (isCode13(result.data)) {
-                        image.bitmap = getScaledBitmap(image.bitmap, bitmapScaling * scaleFactor)
+                        image.bitmap = getScaledBitmap(image.bitmap!!, bitmapScaling * scaleFactor)
                         scaleFactor++
-                        createFileFromBitmap(image.bitmap, file)
+                        createFileFromBitmap(image.bitmap!!, file)
                         onUpload(image, file)
                     }
                 }
@@ -73,8 +68,8 @@ class UploadImageViewModel @Inject constructor(
     //If this is the case, we will scale the bitmap, and increase the scalingFactor,
     //If the image still is too large, it will be scaled down until "infinity"
     private fun isCode13(data: String?): Boolean {
-        val isNull = data ?: return false
-        var code = 0
+        data ?: return false
+        var code: Int
         try {
             code = data.toInt()
         }catch (e: NumberFormatException){
