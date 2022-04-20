@@ -2,6 +2,7 @@ package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
@@ -11,11 +12,9 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewOverlay
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.PopupWindow
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -44,9 +43,12 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
     private lateinit var binding: FragmentDisplayResultsBinding
     private lateinit var thumbnailDownloader: ThumbnailDownloader<PhotoHolder>
     private lateinit var mService: ResultImageService
-    private var selectedImages = mutableListOf<ReverseImageSearchItem>()
     private lateinit var popupWindow: PopupWindow
     private var overlayImage:ImageView? = null
+
+    //Temporary containers before sending to db, on users request
+    private var imageIsChosen = mutableListOf<ReverseImageSearchItem>()
+    private var bitmapContainer = mutableListOf<Bitmap>()
 
     private val viewModel by viewModels<DisplayResultViewModel>()
     private var parentImage: UploadedImage? = null
@@ -59,10 +61,11 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
         overlayImage?.findViewById<ImageView>(R.id.overlay_image)
         parentImage = arguments?.getParcelable(PARENT_IMAGE_DATA) as UploadedImage?
         mService = (activity as MainActivity).getService()
+        var counter = 0
 
         if (parentImage != null) {
             val file = File(requireContext().cacheDir, parentImage!!.photoFileName)
-            Log.i(TAG, "THIS IS FILE LENGTH ${file.length()}")
+            Log.i(TAG, "Size of file: ${file.length()}")
             val bitmap: Bitmap = BitmapFactory.decodeFile(file.path)
 
             binding.parentImageView.setImageBitmap(bitmap)
@@ -72,7 +75,10 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
         thumbnailDownloader =
             ThumbnailDownloader(responseHandler, mService) { photoHolder, bitmap ->
                 val drawable = BitmapDrawable(resources, bitmap)
-                photoHolder.bindDrawable(drawable)
+                imageIsChosen[counter].bitmap = bitmap
+
+                photoHolder.setBitmap(drawable)
+                counter++
             }
 
         lifecycle.addObserver(thumbnailDownloader.fragmentLifecycleObserver)
@@ -86,6 +92,9 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
         mService.resultItems.observe(
             viewLifecycleOwner, {
                 photoRecyclerView.adapter = PhotoAdapter(it, this)
+                for(i in it){
+                    imageIsChosen.add(i)
+                }
             }
         )
     }
@@ -111,7 +120,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
             itemImageButton.setOnClickListener(this)
         }
 
-        val bindDrawable: (Drawable) -> Unit = itemImageButton::setImageDrawable
+        val setBitmap: (Drawable) -> Unit = itemImageButton::setImageDrawable
 
         override fun onClick(view: View) {
             onPhotoListener.onPhotoClick(layoutPosition, view)
@@ -138,7 +147,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
                 requireContext(),
                 R.drawable.ic_file_download,
             ) ?: ColorDrawable()
-            holder.bindDrawable(placeholder)
+            holder.setBitmap(placeholder)
             thumbnailDownloader.queueThumbnail(holder, galleryItem.link)
         }
 
@@ -146,25 +155,29 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
     }
 
     override fun onPhotoClick(position: Int, view: View) {
-        val highlight = ResourcesCompat.getDrawable(resources, R.drawable.highlight, null)
-        view.background = highlight
+        Log.i(TAG, "Photo clicked, check if add or remove")
+//        val highlight = ResourcesCompat.getDrawable(resources, R.drawable.highlight, null)
+//        view.background = highlight
 
-        mService.resultItems.value?.get(position)?.let { selectedImages.add(it) }
+        imageIsChosen[position].apply {
+            when(this.chosenByUser){
+                true -> this.chosenByUser = false
+                false -> this.chosenByUser = true
+            }
+        }.also {
+            view.background = treatOnClick(it.chosenByUser)
+        }
+    }
+
+    private fun treatOnClick(isChosen: Boolean): Drawable? {
+        return when(isChosen){
+                true -> ResourcesCompat.getDrawable(resources, R.drawable.highlight, null)
+                false -> ColorDrawable(Color.TRANSPARENT)
+            }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         parentImage = null
     }
-
-//    private fun startService(){
-//        val serviceIntent = Intent(requireActivity(), ResultImageService::class.java)
-//        requireActivity().startService(serviceIntent)
-//        bindService()
-//    }
-//
-//    private fun bindService(){
-//        val serviceIntent = Intent(requireActivity(), ResultImageService::class.java)
-//        requireActivity().bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE)
-//    }
 }

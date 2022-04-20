@@ -14,8 +14,13 @@ import javax.inject.Inject
 private const val TAG = "DisplayResultImages"
 
 @HiltViewModel
-class DisplayResultViewModel@Inject constructor(
+class DisplayResultViewModel @Inject constructor(
     private val dao: ImageDao
 )  : ViewModel() {
 
+    fun savePhotos(items: List<ReverseImageSearchItem>){
+        for (i in items){
+            dao.insertResultImages(i)
+        }
+    }
 }

@@ -29,7 +29,8 @@ class ImageDatabaseHelper @Inject constructor(context: Context): SQLiteOpenHelpe
         db.execSQL("CREATE TABLE ${UploadedImageTable.TABLE_NAME}" +
                 " ( ${BaseColumns._ID} INTEGER PRIMARY KEY, " +
                 "${UploadedImageTable.COLUMN_NAME_TITLE} TEXT, " +
-                "${UploadedImageTable.COLUMN_NAME_IMAGE} BLOB);")
+                "${UploadedImageTable.COLUMN_NAME_IMAGE} BLOB" +
+                "\"${ResultImageTable.COLUMN_DATE} DATETIME DEFAULT CURRENT_TIMESTAMP,);")
 
 
 

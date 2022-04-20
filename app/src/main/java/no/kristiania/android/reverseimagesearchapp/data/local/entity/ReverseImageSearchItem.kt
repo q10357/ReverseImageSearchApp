@@ -7,21 +7,23 @@ data class ReverseImageSearchItem(
     val link: String = "",
     val thumbnailLink: String = "",
     var bitmap: Bitmap? = null,
-    val parentImageId: Long = 0L
+    val parentImageId: Long = 0L,
+    var chosenByUser: Boolean = false
 ): Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString().toString(),
-        parcel.readString().toString()
-    ) {
-    }
-
-    override fun toString(): String {
-        return "Link: $link\nThumbnailLink: $thumbnailLink"
+        parcel.readString().toString(),
+        parcel.readParcelable(Bitmap::class.java.classLoader),
+        parcel.readLong(),
+        parcel.readByte() != 0.toByte()) {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(link)
         parcel.writeString(thumbnailLink)
+        parcel.writeParcelable(bitmap, flags)
+        parcel.writeLong(parentImageId)
+        parcel.writeByte(if (chosenByUser) 1 else 0)
     }
 
     override fun describeContents(): Int {
@@ -37,4 +39,6 @@ data class ReverseImageSearchItem(
             return arrayOfNulls(size)
         }
     }
+
+
 }

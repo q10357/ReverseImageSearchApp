@@ -23,7 +23,6 @@ class ImageDao @Inject constructor(
         val byteArray = image.bitmap?.let { bitmapToByteArray(it) }
 
 
-
         val newRowId = db.insert("uploaded_images", null, ContentValues().apply {
             put("title", image.title)
             put("image", byteArray)
@@ -33,7 +32,7 @@ class ImageDao @Inject constructor(
     }
 
 
-     fun insertResultImages(image: UploadedImage): Long{
+     fun insertResultImages(image: ReverseImageSearchItem): Long{
 
         val db = database.writableDatabase
         val byteArray = image.bitmap?.let { bitmapToByteArray(it) }
