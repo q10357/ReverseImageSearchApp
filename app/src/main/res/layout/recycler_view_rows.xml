@@ -61,7 +61,7 @@
                 android:layout_width="48dp"
                 android:layout_height="51dp"
                 android:background="@drawable/arrow"
-                android:contentDescription="picture of arrow to open up the results of image"
+                android:contentDescription="@string/descibe_arrow_in_list"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/tvMeta"

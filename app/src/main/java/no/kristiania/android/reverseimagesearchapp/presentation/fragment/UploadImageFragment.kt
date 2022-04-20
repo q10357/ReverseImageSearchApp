@@ -33,7 +33,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     private lateinit var observer: RegisterActivityResultsObserver
     private lateinit var selectedImage: UploadedImage
     private lateinit var mProgressBar: ProgressBar
-    private var isLoading = false
 
     //UI components
     private lateinit var selectImageBtn: Button
@@ -62,8 +61,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         observer = RegisterActivityResultsObserver(
             requireActivity().activityResultRegistry,
         )
-
-        lifecycle.addObserver(observer)
     }
 
     override fun onCreateView(
@@ -72,7 +69,20 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         savedInstanceState: Bundle?
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
+        viewLifecycleOwner.lifecycle.addObserver(observer)
 
+        //We used an observer to choose image from gallery
+        //When onStarted() is called, we will observe the value of the observer's
+        //Uri property, if it is not null, the user has chosen an image, and we will update the UI
+        observer.uri.observe(
+            viewLifecycleOwner,
+            {
+                it?.let {
+                    initSelectedPhoto(it)
+                    updateButtonFunctionality(true)
+                }
+            }
+        )
 
         val view = inflater.inflate(R.layout.fragment_upload_image, container, false)
 
@@ -122,12 +132,12 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
 
         //simple button to rotate the cropview left
         rotateLeftBtn.setOnClickListener {
-            cropImageView.rotateImage(270);
+            cropImageView.rotateImage(270)
         }
 
         //simple button to rotate cropview to the right
         rotateRightBtn.setOnClickListener {
-            cropImageView.rotateImage(90);
+            cropImageView.rotateImage(90)
         }
 
         return view
@@ -160,22 +170,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         cropImageView.setImageBitmap(bitmap)
     }
 
-    //We used an observer to choose image from gallery
-    //When onStarted() is called, we will observe the value of the observer's
-    //Uri property, if it is not null, the user has chosen an image, and we will update the UI
-    override fun onStart() {
-        super.onStart()
-        observer.uri.observe(
-            viewLifecycleOwner,
-            {
-                it?.let {
-                    initSelectedPhoto(it)
-                    updateButtonFunctionality(true)
-                }
-            }
-        )
-    }
-
     private fun updateButtonFunctionality(isEnabled: Boolean) {
         rotateLeftBtn.isEnabled = isEnabled
         rotateRightBtn.isEnabled = isEnabled
@@ -185,10 +179,9 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     private fun observeUpload() {
         viewModel.mProgress.observe(
             viewLifecycleOwner,
-            Observer {
+            {
                 it?.let {
                     mProgressBar.progress = it
-                    Log.i(TAG, "This is percentage ${it}")
                 }
             }
         )
@@ -201,8 +194,10 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                 when(it.status){
                     Status.SUCCESS -> {
                         selectedImage.urlOnServer = it.data
+                        callbacks?.onImageSelected(selectedImage)
                     }
                     Status.ERROR -> {
+                        val message = it.message
 
                     }
                 }

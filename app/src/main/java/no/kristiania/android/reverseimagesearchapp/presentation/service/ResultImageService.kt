@@ -20,14 +20,12 @@ class ResultImageService: Service() {
     private val binder = LocalBinder()
     private val _resultItems = MutableLiveData<List<ReverseImageSearchItem>>()
     val resultItems: LiveData<List<ReverseImageSearchItem>> = _resultItems
-    var isLoading = MutableLiveData(false)
+    val mResult = MutableLiveData<Resource<String>>()
 
     @Inject
     lateinit var getReverseImageSearchItemData: GetReverseImageSearchItemData
 
     suspend fun fetchImageData(url: String) {
-        isLoading.value = true
-        _resultItems.value = emptyList()
         val result = getReverseImageSearchItemData(url)
         if(result.status == Status.SUCCESS){
             saveResponse(result.data as MutableList<ReverseImageSearchItem>)
@@ -35,7 +33,8 @@ class ResultImageService: Service() {
     }
 
     private fun saveResponse(response: MutableList<ReverseImageSearchItem>) {
-        _resultItems.value = response
+        _resultItems.postValue(emptyList())
+        _resultItems.postValue(response)
     }
 
     //Provides instance of service to client

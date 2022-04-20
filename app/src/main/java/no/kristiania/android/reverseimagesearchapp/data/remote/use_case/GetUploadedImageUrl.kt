@@ -1,6 +1,5 @@
 package no.kristiania.android.reverseimagesearchapp.data.remote.use_case
 
-import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import no.kristiania.android.reverseimagesearchapp.core.util.Resource
@@ -27,7 +26,7 @@ class GetUploadedImageUrl @Inject constructor(
             e.printStackTrace()
             emit(
                 Resource.error(
-                    msg = "Something went wrong...\nTry again?",
+                    message = "Something went wrong...\nTry again?",
                     data = "${e.code()}"
                 )
             )
@@ -35,7 +34,7 @@ class GetUploadedImageUrl @Inject constructor(
             e.printStackTrace()
             emit(
                 Resource.error(
-                    msg = "Connection Error"
+                    message = "Connection Error"
                 )
             )
         }

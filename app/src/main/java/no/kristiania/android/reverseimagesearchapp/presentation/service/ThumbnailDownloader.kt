@@ -6,12 +6,14 @@ import android.os.HandlerThread
 import android.os.Message
 import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.ConcurrentHashMap
 
 private const val TAG = "ThumbnailDownloader"
 private const val MESSAGE_DOWNLOAD = 0
+
 
 class ThumbnailDownloader<in T>(
     private val responseHandler: Handler,
@@ -23,14 +25,26 @@ class ThumbnailDownloader<in T>(
     val fragmentLifecycleObserver: DefaultLifecycleObserver =
         object: DefaultLifecycleObserver {
             override fun onCreate(owner: LifecycleOwner) {
+                super.onCreate(owner)
                 Log.i(TAG, "Starting background thread")
                 start()
                 looper
             }
 
             override fun onDestroy(owner: LifecycleOwner) {
+                super.onDestroy(owner)
                 Log.i(TAG, "Destroying background thread")
                 quit()
+            }
+        }
+
+    val viewLifecycleObserver: DefaultLifecycleObserver =
+        object: DefaultLifecycleObserver {
+            override fun onDestroy(owner: LifecycleOwner) {
+                super.onDestroy(owner)
+                Log.i(TAG, "Clearing queue")
+                requestHandler.removeMessages(MESSAGE_DOWNLOAD)
+                requestMap.clear()
             }
         }
 

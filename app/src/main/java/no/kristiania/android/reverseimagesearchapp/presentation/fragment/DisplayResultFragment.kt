@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
@@ -54,15 +55,42 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
     private val viewModel by viewModels<DisplayResultViewModel>()
     private var parentImage: UploadedImage? = null
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        parentImage = arguments?.getParcelable(PARENT_IMAGE_DATA) as UploadedImage?
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return super.onCreateView(inflater, container, savedInstanceState)
+    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentDisplayResultsBinding.bind(view)
 
-        overlayImage?.findViewById<ImageView>(R.id.overlay_image)
-        parentImage = arguments?.getParcelable(PARENT_IMAGE_DATA) as UploadedImage?
         mService = (activity as MainActivity).getService()
-        var counter: Int = 0
+
+        var counter = 0
+
+        val responseHandler = Handler(Looper.getMainLooper())
+        thumbnailDownloader =
+            ThumbnailDownloader(responseHandler, mService) { photoHolder, bitmap ->
+                val drawable = BitmapDrawable(resources, bitmap)
+                resultItems[counter].bitmap = bitmap
+
+                photoHolder.setBitmap(drawable)
+                counter++
+            }
+
+        lifecycle.addObserver(thumbnailDownloader.fragmentLifecycleObserver)
+        viewLifecycleOwner.lifecycle.addObserver(thumbnailDownloader.viewLifecycleObserver)
+
+        overlayImage?.findViewById<ImageView>(R.id.overlay_image)
 
         if (parentImage != null) {
             val file = File(requireContext().cacheDir, parentImage!!.photoFileName)
@@ -79,18 +107,6 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
                 addCollectionToDb()
             }
         }
-
-        val responseHandler = Handler(Looper.getMainLooper())
-        thumbnailDownloader =
-            ThumbnailDownloader(responseHandler, mService) { photoHolder, bitmap ->
-                val drawable = BitmapDrawable(resources, bitmap)
-                resultItems[counter].bitmap = bitmap
-
-                photoHolder.setBitmap(drawable)
-                counter++
-            }
-
-        lifecycle.addObserver(thumbnailDownloader.fragmentLifecycleObserver)
 
         photoRecyclerView = binding.rvList.also {
             it.apply {
@@ -195,8 +211,16 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewLifecycleOwner.lifecycle.removeObserver(
+            thumbnailDownloader.viewLifecycleObserver
+        )
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         parentImage = null
+        lifecycle.removeObserver(thumbnailDownloader.fragmentLifecycleObserver)
     }
 }

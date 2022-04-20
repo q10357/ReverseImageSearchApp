@@ -24,18 +24,18 @@ class GetReverseImageSearchItemData @Inject constructor(
             val imageSearchItems = repository.getReverseImageSearchResults(url).map {
                 it.toReverseImageSearchItem()
             }
-            Log.i(TAG, "This is items: ${imageSearchItems}")
+            Log.i(TAG, "This is items: imageSearchItems")
             return Resource.success(data = imageSearchItems)
 
         } catch (e: HttpException) {
             e.printStackTrace()
             return Resource.error(
-                msg = "Somehing went wrong...\nTry again?"
+                message = "Somehing went wrong...\nTry again?"
             )
         } catch (e: IOException) {
             e.printStackTrace()
             return Resource.error(
-                msg = "Connection Error"
+                message = "Connection Error"
 
             )
         }

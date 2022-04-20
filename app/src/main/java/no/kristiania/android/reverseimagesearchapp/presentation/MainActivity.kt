@@ -106,12 +106,6 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
 
     override fun onStart() {
         super.onStart()
-        startService()
-    }
-
-    private fun startService(){
-        val serviceIntent = Intent(this, ResultImageService::class.java)
-        startService(serviceIntent)
         bindService()
     }
 

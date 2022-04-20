@@ -1,22 +1,27 @@
 package no.kristiania.android.reverseimagesearchapp
 
 import android.app.Application
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.os.Build
 import dagger.hilt.android.HiltAndroidApp
+import android.os.StrictMode
+import android.os.StrictMode.ThreadPolicy
+import android.os.StrictMode.VmPolicy
+
 
 @HiltAndroidApp
 class ReverseImageSearchApp: Application(){
-//    override fun onCreate() {
-//        super.onCreate()
-//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            val channel = NotificationChannel(
-//                "download_channel",
-//                "File download",
-//                NotificationManager.IMPORTANCE_HIGH
-//            )
-//            val notificationManager = getSystemService(NotificationManager::class.java)
-//        }
-//    }
+    override fun onCreate() {
+        StrictMode.setThreadPolicy(ThreadPolicy.Builder()
+            .detectDiskReads()
+            .detectDiskWrites()
+            .detectNetwork() // or .detectAll() for all detectable problems
+            .penaltyLog()
+            .build())
+        StrictMode.setVmPolicy(VmPolicy.Builder()
+            .detectLeakedSqlLiteObjects()
+            .detectLeakedClosableObjects()
+            .penaltyLog()
+            .penaltyDeath()
+            .build())
+        super.onCreate()
+    }
 }
