@@ -1,4 +1,4 @@
-//package no.kristiania.android.reverseimagesearchapp.presentation.fragment
+package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 //
 //import android.app.Activity
 //import android.content.Intent
