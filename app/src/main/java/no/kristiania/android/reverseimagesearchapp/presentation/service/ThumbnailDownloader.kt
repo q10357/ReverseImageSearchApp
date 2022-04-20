@@ -17,7 +17,7 @@ private const val MESSAGE_DOWNLOAD = 0
 
 class ThumbnailDownloader<in T>(
     private val responseHandler: Handler,
-    private val mService: ResultImageService,
+    private val mService: ResultImageService?,
     val onThumbnailDownloaded: (T, Bitmap) -> Unit
 ) : HandlerThread(TAG)
 {
@@ -63,7 +63,12 @@ class ThumbnailDownloader<in T>(
 
     private fun handleRequest(target: T) {
         val url = requestMap[target] ?: return
-        var bitmap: Bitmap?
+        var bitmap: Bitmap? = null
+
+        if(mService == null){
+            Log.e(TAG, "mService is null")
+            return
+        }
 
         runBlocking {
             val networkResult = mService.fetchPhoto(url)

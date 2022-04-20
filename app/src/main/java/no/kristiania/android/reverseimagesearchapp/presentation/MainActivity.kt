@@ -1,11 +1,7 @@
 package no.kristiania.android.reverseimagesearchapp.presentation
 
-import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
 import android.os.Bundle
-import android.os.IBinder
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -15,12 +11,12 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.*
 import no.kristiania.android.reverseimagesearchapp.R
-import no.kristiania.android.reverseimagesearchapp.core.util.ProgressRequestBody
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayResultFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.UploadImageFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.service.ResultImageService
 
+private const val ARG_NAV_POSITION = "nav_position"
 private const val TAG = "MainActivityTAG"
 
 @AndroidEntryPoint
@@ -28,22 +24,10 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
     private var displayResultFragment = DisplayResultFragment.newInstance(null)
     private var uploadImageFragment = UploadImageFragment.newInstance()
     private lateinit var bottomNavigationView: BottomNavigationView
+    private var navPos: Int? = null
 
     private lateinit var mService: ResultImageService
-    private var mBound: Boolean = false
-
-    private val connection = object : ServiceConnection {
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            val binder = service as ResultImageService.LocalBinder
-            mService = binder.getService()
-            mBound = true
-        }
-
-        override fun onServiceDisconnected(arg0: ComponentName) {
-            mBound = false
-        }
-    }
+    private var serviceStarted: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,15 +35,20 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
         installSplashScreen()
 
         val scope = CoroutineScope(Dispatchers.Main)
-        scope.launch { delay(10) }
+        scope.launch { delay(1000) }
 
         setContentView(R.layout.activity_main)
 
-
+        navPos = Bundle().getInt(ARG_NAV_POSITION)
+        if(navPos == null){
+            //If Bundle() empty
+            //We initialize with the uploadFragment
+            navPos = R.id.upload
+        }
         bottomNavigationView = findViewById(R.id.bottom_navigation_view)
-        //We initialize with the uploadFragment
-        setFragment(uploadImageFragment, R.id.upload)
-        var selectedItem = bottomNavigationView.menu.findItem(R.id.upload)
+
+        setFragment(getCurrentFragment(navPos!!), navPos!!)
+        var navMenuItem = bottomNavigationView.menu.findItem(R.id.upload)
 
         bottomNavigationView.setOnItemSelectedListener { m ->
             when (m.itemId) {
@@ -67,15 +56,24 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
                 R.id.display_result -> setFragment(displayResultFragment, m.itemId)
                 R.id.display_collection -> Log.i(TAG, "Not Implemented")
             }
-            selectedItem.apply { isEnabled = true }
-            selectedItem = m
-            selectedItem.isEnabled = false
+            navPos = m.itemId
+            navMenuItem.apply { isEnabled = true }
+            navMenuItem = m
+            navMenuItem.isEnabled = false
             true
         }
     }
 
+    private fun getCurrentFragment(navPos: Int): Fragment {
+        return when(navPos){
+            R.id.upload -> uploadImageFragment
+            R.id.display_result -> displayResultFragment
+            else -> {return uploadImageFragment}
+        }
+    }
+
     private fun setFragment(currentFragment: Fragment, pos: Int) {
-        if(checkIfFragmentVisible(pos)) return
+        if (checkIfFragmentVisible(pos)) return
         //If we are already on the selected fragment, we will return
         //We check this by adding a tag, related to the id of it's placement on the navbar,
         //If the if check is true, it means that fragment is already in layout
@@ -96,29 +94,25 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
 
     override fun onImageSelected(image: UploadedImage) {
         val url = image.urlOnServer ?: return
-
-        lifecycleScope.launch(Dispatchers.IO){
-            mService.fetchImageData(url)
-        }
+        startService(Intent(this, ResultImageService::class.java))
+        serviceStarted = true
 
         displayResultFragment = DisplayResultFragment.newInstance(image)
     }
 
-    override fun onStart() {
-        super.onStart()
-        bindService()
+    private fun startService(){
+        val intent = Intent(this, ResultImageService::class.java)
+        startService(intent)
     }
 
-    private fun bindService(){
-        val serviceIntent = Intent(this, ResultImageService::class.java)
-        bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE)
+    override fun onDestroy() {
+        super.onDestroy()
+        navPos?.let { Bundle().putInt(ARG_NAV_POSITION, it) }
     }
 
-    fun getService(): ResultImageService {
-        return mService
+    override fun onResume() {
+        super.onResume()
+        startService()
     }
 
-    fun getConnection(): ServiceConnection {
-        return connection
-    }
 }

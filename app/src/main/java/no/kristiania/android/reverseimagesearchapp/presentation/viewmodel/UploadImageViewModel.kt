@@ -38,7 +38,7 @@ class UploadImageViewModel @Inject constructor(
                     onFinish()
                 }
                 Status.ERROR -> {
-                    Log.i(TAG, "ERROR")
+                    Log.e(TAG, "ERROR")
                     onError()
                     if (isCode13(result.data)) {
                         var bitmap = fileToBitmap(file)
@@ -53,7 +53,7 @@ class UploadImageViewModel @Inject constructor(
                 }
             }
             mResult.postValue(result)
-        }.launchIn(CoroutineScope(IO))
+        }.launchIn(GlobalScope)
     }
 
     //If the code is 413, we know the image is too large,
