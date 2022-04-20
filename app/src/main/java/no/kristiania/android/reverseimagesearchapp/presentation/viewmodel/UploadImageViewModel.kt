@@ -5,6 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -51,7 +53,7 @@ class UploadImageViewModel @Inject constructor(
                 }
             }
             mResult.postValue(result)
-        }.launchIn(GlobalScope)
+        }.launchIn(CoroutineScope(IO))
     }
 
     //If the code is 413, we know the image is too large,

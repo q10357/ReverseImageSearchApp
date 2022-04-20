@@ -18,14 +18,15 @@ private const val TAG = "ResultImageDataFetchr"
 @AndroidEntryPoint
 class ResultImageService: Service() {
     private val binder = LocalBinder()
-    private val _resultItems = MutableLiveData<List<ReverseImageSearchItem>>()
-    val resultItems: LiveData<List<ReverseImageSearchItem>> = _resultItems
+    private val _resultItems = MutableLiveData<List<ReverseImageSearchItem?>>()
+    var resultItems: LiveData<List<ReverseImageSearchItem?>> = _resultItems
     val mResult = MutableLiveData<Resource<String>>()
 
     @Inject
     lateinit var getReverseImageSearchItemData: GetReverseImageSearchItemData
 
     suspend fun fetchImageData(url: String) {
+
         val result = getReverseImageSearchItemData(url)
         if(result.status == Status.SUCCESS){
             saveResponse(result.data as MutableList<ReverseImageSearchItem>)

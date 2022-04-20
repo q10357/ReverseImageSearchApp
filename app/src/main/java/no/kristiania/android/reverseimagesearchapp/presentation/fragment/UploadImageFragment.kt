@@ -16,6 +16,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.edmodo.cropper.CropImageView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.launch
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.core.util.Status
 import no.kristiania.android.reverseimagesearchapp.core.util.createFileFromBitmap
@@ -154,9 +157,11 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     }
 
     private fun writeToFile() {
-        val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
-        //We get the rightly scaled bitmap here
-        createFileFromBitmap(bitmap, file)
+        CoroutineScope(IO).launch{
+            val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
+            //We get the rightly scaled bitmap here
+            createFileFromBitmap(bitmap, file)
+        }
     }
 
     private fun initSelectedPhoto(uri: Uri) {

@@ -24,7 +24,12 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import no.kristiania.android.reverseimagesearchapp.R
+import no.kristiania.android.reverseimagesearchapp.core.util.wasInit
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayResultsBinding
@@ -34,6 +39,7 @@ import no.kristiania.android.reverseimagesearchapp.presentation.service.ResultIm
 import no.kristiania.android.reverseimagesearchapp.presentation.service.ThumbnailDownloader
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.DisplayResultViewModel
 import java.io.File
+import java.lang.NullPointerException
 
 private const val PARENT_IMAGE_DATA = "parent_image_data"
 private const val TAG = "DisplayResultImages"
@@ -46,6 +52,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
     private lateinit var thumbnailDownloader: ThumbnailDownloader<PhotoHolder>
     private lateinit var mService: ResultImageService
     private lateinit var popupWindow: PopupWindow
+    private var bitmap: Bitmap? = null
     private var overlayImage: ImageView? = null
     private var imageCount: Int = 0
 
@@ -58,47 +65,40 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         parentImage = arguments?.getParcelable(PARENT_IMAGE_DATA) as UploadedImage?
-    }
+        if(!wasInit { mService }){
+            mService = (activity as MainActivity).getService()
+        }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return super.onCreateView(inflater, container, savedInstanceState)
-    }
+        var counter = 0
+        val responseHandler = Handler(Looper.getMainLooper())
+        thumbnailDownloader =
+            ThumbnailDownloader(responseHandler, mService) { photoHolder, bitmap ->
+                val drawable = BitmapDrawable(resources, bitmap)
+                if(counter < resultItems.size){
+                    resultItems[counter].bitmap = bitmap
 
+                    photoHolder.setBitmap(drawable)
+                    counter++
+                }
+            }
+
+        lifecycle.addObserver(thumbnailDownloader.fragmentLifecycleObserver)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentDisplayResultsBinding.bind(view)
 
-        mService = (activity as MainActivity).getService()
+        //overlayImage?.findViewById<ImageView>(R.id.overlay_image)
 
-        var counter = 0
-
-        val responseHandler = Handler(Looper.getMainLooper())
-        thumbnailDownloader =
-            ThumbnailDownloader(responseHandler, mService) { photoHolder, bitmap ->
-                val drawable = BitmapDrawable(resources, bitmap)
-                resultItems[counter].bitmap = bitmap
-
-                photoHolder.setBitmap(drawable)
-                counter++
-            }
-
-        lifecycle.addObserver(thumbnailDownloader.fragmentLifecycleObserver)
-        viewLifecycleOwner.lifecycle.addObserver(thumbnailDownloader.viewLifecycleObserver)
-
-        overlayImage?.findViewById<ImageView>(R.id.overlay_image)
-
-        if (parentImage != null) {
+        if (parentImage != null && bitmap == null) {
             val file = File(requireContext().cacheDir, parentImage!!.photoFileName)
             Log.i(TAG, "Size of file: ${file.length()}")
-            val bitmap: Bitmap = BitmapFactory.decodeFile(file.path)
-
-            binding.parentImageView.setImageBitmap(bitmap)
+            bitmap = BitmapFactory.decodeFile(file.path)
         }
+
+        bitmap?.let {binding.parentImageView.setImageBitmap(it)}
+
 
         binding.buttonSave.setOnClickListener {
             if (imageCount <= 0) {
@@ -116,19 +116,28 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
 
         mService.resultItems.observe(
             viewLifecycleOwner, {
-                resultItems.addAll(it)
+                for(i in it)
+                    i?.let { it1 -> resultItems.add(it1) }
                 photoRecyclerView.adapter = PhotoAdapter(resultItems, this)
             }
         )
     }
 
     private fun addCollectionToDb() {
-        val parentId = viewModel.saveParentImage(parentImage!!)
         val chosenImages = resultItems.filter { it.chosenByUser }
+        viewModel
 
-        chosenImages.forEach { it.parentImageId = parentId }
-        for(i in chosenImages){
-            viewModel.saveChildImage(i)
+        CoroutineScope(IO).launch {
+            val parentId = withContext(IO) {
+                viewModel.saveParentImage(parentImage!!)
+            }
+            withContext(IO) {
+                chosenImages.forEach { it.parentImageId = parentId }
+                for(i in chosenImages){
+                    viewModel.saveChildImage(i)
+
+                }
+            }
         }
     }
 
@@ -212,13 +221,13 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
     }
 
     override fun onDestroyView() {
+        Log.i(TAG, "THIS IS LENGTH OF RESULT: ${resultItems.size}")
         super.onDestroyView()
-        viewLifecycleOwner.lifecycle.removeObserver(
-            thumbnailDownloader.viewLifecycleObserver
-        )
+        thumbnailDownloader.onDestroyView(this)
     }
 
     override fun onDestroy() {
+        resultItems = arrayListOf()
         super.onDestroy()
         parentImage = null
         lifecycle.removeObserver(thumbnailDownloader.fragmentLifecycleObserver)

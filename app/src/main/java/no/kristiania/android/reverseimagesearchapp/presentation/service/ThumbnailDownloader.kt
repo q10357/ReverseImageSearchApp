@@ -38,15 +38,13 @@ class ThumbnailDownloader<in T>(
             }
         }
 
-    val viewLifecycleObserver: DefaultLifecycleObserver =
-        object: DefaultLifecycleObserver {
-            override fun onDestroy(owner: LifecycleOwner) {
-                super.onDestroy(owner)
-                Log.i(TAG, "Clearing queue")
-                requestHandler.removeMessages(MESSAGE_DOWNLOAD)
-                requestMap.clear()
-            }
-        }
+
+    fun onDestroyView(owner: LifecycleOwner) {
+        Log.i(TAG, "Clearing queue")
+        requestHandler.removeMessages(MESSAGE_DOWNLOAD)
+        requestMap.clear()
+    }
+
 
     private lateinit var requestHandler: Handler
     private var hasQuit = false
