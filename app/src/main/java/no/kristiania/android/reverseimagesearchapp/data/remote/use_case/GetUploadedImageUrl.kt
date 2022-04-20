@@ -27,7 +27,7 @@ class GetUploadedImageUrl @Inject constructor(
             e.printStackTrace()
             emit(
                 Resource.error(
-                    msg = "Oopsie... something went wrong, try again?",
+                    msg = "Something went wrong...\nTry again?",
                     data = "${e.code()}"
                 )
             )
@@ -35,7 +35,7 @@ class GetUploadedImageUrl @Inject constructor(
             e.printStackTrace()
             emit(
                 Resource.error(
-                    msg = "You got dat wifi straight?"
+                    msg = "Connection Error"
                 )
             )
         }

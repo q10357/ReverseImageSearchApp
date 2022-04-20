@@ -20,11 +20,13 @@ class ResultImageService: Service() {
     private val binder = LocalBinder()
     private val _resultItems = MutableLiveData<List<ReverseImageSearchItem>>()
     val resultItems: LiveData<List<ReverseImageSearchItem>> = _resultItems
+    var isLoading = MutableLiveData(false)
 
     @Inject
     lateinit var getReverseImageSearchItemData: GetReverseImageSearchItemData
 
     suspend fun fetchImageData(url: String) {
+        isLoading.value = true
         _resultItems.value = emptyList()
         val result = getReverseImageSearchItemData(url)
         if(result.status == Status.SUCCESS){

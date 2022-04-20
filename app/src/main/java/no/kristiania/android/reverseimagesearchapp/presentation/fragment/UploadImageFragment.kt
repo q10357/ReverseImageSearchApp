@@ -17,6 +17,7 @@ import androidx.lifecycle.Observer
 import com.edmodo.cropper.CropImageView
 import dagger.hilt.android.AndroidEntryPoint
 import no.kristiania.android.reverseimagesearchapp.R
+import no.kristiania.android.reverseimagesearchapp.core.util.Status
 import no.kristiania.android.reverseimagesearchapp.core.util.createFileFromBitmap
 import no.kristiania.android.reverseimagesearchapp.core.util.uriToBitmap
 import no.kristiania.android.reverseimagesearchapp.core.util.wasInit
@@ -102,7 +103,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                     val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
                     viewModel.onUpload(selectedImage, file)
                     observeUpload()
-                    observeCallbackUrl()
+                    observeResponse()
                 }
             }
         }
@@ -193,12 +194,17 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         )
     }
 
-    private fun observeCallbackUrl() {
-        viewModel.isSuccess.observe(
+    private fun observeResponse() {
+        viewModel.mResult.observe(
             viewLifecycleOwner,
             {
-                when(it){
-                    true -> callbacks?.onImageSelected(viewModel.uploadedImage.value!!)
+                when(it.status){
+                    Status.SUCCESS -> {
+                        selectedImage.urlOnServer = it.data
+                    }
+                    Status.ERROR -> {
+
+                    }
                 }
             }
         )

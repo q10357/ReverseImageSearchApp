@@ -7,10 +7,6 @@ import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
-import android.view.View
-import android.widget.ProgressBar
-import android.widget.TextView
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -101,7 +97,7 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
     override fun onImageSelected(image: UploadedImage) {
         val url = image.urlOnServer ?: return
 
-        lifecycleScope.launch{
+        lifecycleScope.launch(Dispatchers.IO){
             mService.fetchImageData(url)
         }
 

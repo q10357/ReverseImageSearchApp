@@ -1,6 +1,7 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.viewmodel
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,11 +20,10 @@ private const val TAG = "CoroutineTAG"
 class UploadImageViewModel @Inject constructor(
     private val getUploadedImageUrl: GetUploadedImageUrl,
 ) : ViewModel(), ProgressRequestBody.UploadCallback {
-    var uploadedImage = MutableLiveData<UploadedImage>()
     private var bitmapScaling = 2
     private var scaleFactor = 1
     var mProgress = MutableLiveData(0)
-    var isSuccess = MutableLiveData(false)
+    var mResult = MutableLiveData<Resource<String>>()
     //We return the ID of the selected image when inserted in our SQLLite database
 
     fun onUpload(image: UploadedImage, file: File) {
@@ -32,11 +32,8 @@ class UploadImageViewModel @Inject constructor(
         getUploadedImageUrl(body).onEach { result ->
             when (result.status) {
                 Status.SUCCESS -> {
-                    image.urlOnServer = result.data.toString()
-                    uploadedImage.postValue(image)
-                    onFinish()
                     Log.i(TAG, "SUCCESS")
-                    Log.i(TAG, "This is retrieved Url: ${result.data}")
+                    onFinish()
                 }
                 Status.ERROR -> {
                     Log.i(TAG, "ERROR")
@@ -49,7 +46,11 @@ class UploadImageViewModel @Inject constructor(
                         onUpload(image, file)
                     }
                 }
+                Status.LOADING -> {
+                    Log.i(TAG, "Loading...")
+                }
             }
+            mResult.postValue(result)
         }.launchIn(GlobalScope)
     }
 
@@ -73,18 +74,15 @@ class UploadImageViewModel @Inject constructor(
 
     override fun onProgressUpdate(percentage: Int) {
         mProgress.value = percentage
-        Log.i(TAG, "THIS IS PROGRESS: $percentage")
     }
 
     override fun onError() {
         mProgress.postValue(0)
-        isSuccess.postValue(false)
         Log.e(TAG, "Error in upload")
     }
 
     override fun onFinish() {
         mProgress.postValue(0)
-        isSuccess.postValue(true)
         Log.i(TAG, "Upload finish")
     }
 }
