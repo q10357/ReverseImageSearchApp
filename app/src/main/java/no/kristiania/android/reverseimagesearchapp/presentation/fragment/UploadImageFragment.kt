@@ -1,6 +1,7 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -39,6 +40,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     private lateinit var cropImageView: CropImageView
     private lateinit var rotateRightBtn: Button
     private lateinit var rotateLeftBtn: Button
+    private lateinit var bitmap: Bitmap
 
     private var callbacks: Callbacks? = null
 
@@ -80,8 +82,8 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         cropImageView = view.findViewById(R.id.image_view)
         mProgressBar = view.findViewById(R.id.progress_bar_circular)
 
-        if (wasInit { selectedImage }) {
-            cropImageView.setImageBitmap(selectedImage.bitmap)
+        if (wasInit { bitmap }) {
+            cropImageView.setImageBitmap(bitmap)
             updateButtonFunctionality(true)
         } else {
             //to avoid NullPointerExceptions
@@ -95,7 +97,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                     Toast.makeText(this.context, "Select Image First", Toast.LENGTH_SHORT).show()
                 } else {
                     //setting bitmap for selected image to the cropped uri
-                    cropImage(selectedImage)
+                    cropImage()
                     Log.i(TAG, "Wait for it...")
                     val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
                     viewModel.onUpload(selectedImage, file)
@@ -132,28 +134,29 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
 
     //function to change the bitmap variable in the Uploaded Image Object
     //to the bitmap of the cropped imageview
-    private fun cropImage(selectedImage: UploadedImage) {
+    private fun cropImage() {
         val croppedImage = cropImageView.croppedImage
-        selectedImage.bitmap = croppedImage
+        bitmap = croppedImage
         cropImageView.setImageBitmap(croppedImage)
 
-        writeToFile(selectedImage)
+        writeToFile()
     }
 
-    private fun writeToFile(image: UploadedImage) {
-        val file = File(requireActivity().cacheDir, image.photoFileName)
+    private fun writeToFile() {
+        val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
         //We get the rightly scaled bitmap here
-        selectedImage.bitmap?.let { createFileFromBitmap(it, file) }
+        createFileFromBitmap(bitmap, file)
     }
 
     private fun initSelectedPhoto(uri: Uri) {
-        selectedImage = UploadedImage(
-            title = "first_one",
-            bitmap = uriToBitmap(requireContext(), uri),
-        )
-        writeToFile(selectedImage)
+        bitmap = uriToBitmap(requireContext(), uri)
 
-        cropImageView.setImageBitmap(selectedImage.bitmap)
+        selectedImage = UploadedImage(
+            title = "default"
+        )
+        writeToFile()
+
+        cropImageView.setImageBitmap(bitmap)
     }
 
     //We used an observer to choose image from gallery

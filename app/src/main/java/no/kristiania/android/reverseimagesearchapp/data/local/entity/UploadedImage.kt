@@ -7,18 +7,16 @@ import java.util.*
 
 
 data class UploadedImage(
-    val title: String?,
-    var bitmap: Bitmap?,
+    val title: String,
     var urlOnServer: String? = null,
-    val id: Int = Random().nextInt(10000)
+    val id: Int = Random().nextInt(1000),
 ) : Parcelable {
 
     val photoFileName
         get() = "IMG_$id.png"
 
     constructor(parcel: Parcel) : this(
-        parcel.readString(),
-        null,
+        parcel.readString().toString(),
         parcel.readString(),
         parcel.readInt()) {
     }

@@ -15,6 +15,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.PopupWindow
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -44,11 +45,11 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
     private lateinit var thumbnailDownloader: ThumbnailDownloader<PhotoHolder>
     private lateinit var mService: ResultImageService
     private lateinit var popupWindow: PopupWindow
-    private var overlayImage:ImageView? = null
+    private var overlayImage: ImageView? = null
+    private var imageCount: Int = 0
 
     //Temporary containers before sending to db, on users request
-    private var imageIsChosen = mutableListOf<ReverseImageSearchItem>()
-    private var bitmapContainer = mutableListOf<Bitmap>()
+    private var resultItems = mutableListOf<ReverseImageSearchItem>()
 
     private val viewModel by viewModels<DisplayResultViewModel>()
     private var parentImage: UploadedImage? = null
@@ -61,7 +62,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
         overlayImage?.findViewById<ImageView>(R.id.overlay_image)
         parentImage = arguments?.getParcelable(PARENT_IMAGE_DATA) as UploadedImage?
         mService = (activity as MainActivity).getService()
-        var counter = 0
+        var counter: Int = 0
 
         if (parentImage != null) {
             val file = File(requireContext().cacheDir, parentImage!!.photoFileName)
@@ -71,11 +72,19 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
             binding.parentImageView.setImageBitmap(bitmap)
         }
 
+        binding.buttonSave.setOnClickListener {
+            if (imageCount <= 0) {
+                Toast.makeText(requireContext(), "No pictures selected", Toast.LENGTH_SHORT).show()
+            } else {
+                addCollectionToDb()
+            }
+        }
+
         val responseHandler = Handler(Looper.getMainLooper())
         thumbnailDownloader =
             ThumbnailDownloader(responseHandler, mService) { photoHolder, bitmap ->
                 val drawable = BitmapDrawable(resources, bitmap)
-                imageIsChosen[counter].bitmap = bitmap
+                resultItems[counter].bitmap = bitmap
 
                 photoHolder.setBitmap(drawable)
                 counter++
@@ -91,12 +100,20 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
 
         mService.resultItems.observe(
             viewLifecycleOwner, {
-                photoRecyclerView.adapter = PhotoAdapter(it, this)
-                for(i in it){
-                    imageIsChosen.add(i)
-                }
+                resultItems.addAll(it)
+                photoRecyclerView.adapter = PhotoAdapter(resultItems, this)
             }
         )
+    }
+
+    private fun addCollectionToDb() {
+        val parentId = viewModel.saveParentImage(parentImage!!)
+        val chosenImages = resultItems.filter { it.chosenByUser }
+
+        chosenImages.forEach { it.parentImageId = parentId }
+        for(i in chosenImages){
+            viewModel.saveChildImage(i)
+        }
     }
 
     companion object {
@@ -159,21 +176,23 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
 //        val highlight = ResourcesCompat.getDrawable(resources, R.drawable.highlight, null)
 //        view.background = highlight
 
-        imageIsChosen[position].apply {
-            when(this.chosenByUser){
-                true -> this.chosenByUser = false
-                false -> this.chosenByUser = true
+        resultItems[position].apply {
+            when (this.chosenByUser) {
+                true -> this.chosenByUser = false.also { imageCount-- }
+                false -> this.chosenByUser = true.also { imageCount++ }
             }
         }.also {
             view.background = treatOnClick(it.chosenByUser)
         }
+
+        Log.i(TAG, "Number of images chosen: $imageCount")
     }
 
     private fun treatOnClick(isChosen: Boolean): Drawable? {
-        return when(isChosen){
-                true -> ResourcesCompat.getDrawable(resources, R.drawable.highlight, null)
-                false -> ColorDrawable(Color.TRANSPARENT)
-            }
+        return when (isChosen) {
+            true -> ResourcesCompat.getDrawable(resources, R.drawable.highlight, null)
+            false -> ColorDrawable(Color.TRANSPARENT)
+        }
     }
 
     override fun onDestroy() {

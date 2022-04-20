@@ -6,24 +6,23 @@ import android.os.Parcelable
 data class ReverseImageSearchItem(
     val link: String = "",
     val thumbnailLink: String = "",
-    var bitmap: Bitmap? = null,
-    val parentImageId: Long = 0L,
-    var chosenByUser: Boolean = false
+    var parentImageId: Long = 0L,
+    var chosenByUser: Boolean = false,
+    var bitmap: Bitmap? = null
 ): Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString().toString(),
-        parcel.readString().toString(),
-        parcel.readParcelable(Bitmap::class.java.classLoader),
-        parcel.readLong(),
-        parcel.readByte() != 0.toByte()) {
+        parcel.readString().toString()
+    ) {
+    }
+
+    override fun toString(): String {
+        return "Link: $link\nThumbnailLink: $thumbnailLink"
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(link)
         parcel.writeString(thumbnailLink)
-        parcel.writeParcelable(bitmap, flags)
-        parcel.writeLong(parentImageId)
-        parcel.writeByte(if (chosenByUser) 1 else 0)
     }
 
     override fun describeContents(): Int {
@@ -39,6 +38,4 @@ data class ReverseImageSearchItem(
             return arrayOfNulls(size)
         }
     }
-
-
 }

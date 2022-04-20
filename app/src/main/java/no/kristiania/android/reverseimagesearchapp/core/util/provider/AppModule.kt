@@ -71,8 +71,8 @@ object AppModule {
     }
     @Provides
     @Singleton
-    fun provideImageDao(db: ImageDatabaseHelper): ImageDao {
-        return ImageDao(db)
+    fun provideImageDao(context: Context, db: ImageDatabaseHelper): ImageDao {
+        return ImageDao(context, db)
     }
 
     @Provides
