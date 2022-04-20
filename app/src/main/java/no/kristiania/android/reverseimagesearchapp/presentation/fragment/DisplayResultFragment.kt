@@ -15,26 +15,23 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import no.kristiania.android.reverseimagesearchapp.R
+import no.kristiania.android.reverseimagesearchapp.core.util.wasInit
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayResultsBinding
-import no.kristiania.android.reverseimagesearchapp.presentation.MainActivity
 import no.kristiania.android.reverseimagesearchapp.presentation.OnPhotoListener
 import no.kristiania.android.reverseimagesearchapp.presentation.service.ResultImageService
 import no.kristiania.android.reverseimagesearchapp.presentation.service.ThumbnailDownloader
@@ -62,34 +59,46 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
     private val viewModel by viewModels<DisplayResultViewModel>()
     private var parentImage: UploadedImage? = null
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        viewModel
-        viewModel.getBinder().observe(this, Observer {
-            if(it != null){
-                mService = it.getService()
-            }else{
-                mService = null
-            }
-        })
-
         parentImage = arguments?.getParcelable(PARENT_IMAGE_DATA) as UploadedImage?
 
         var counter = 0
-        val responseHandler = Handler(Looper.getMainLooper())
         thumbnailDownloader =
-            ThumbnailDownloader(responseHandler, mService) { photoHolder, bitmap ->
-                val drawable = BitmapDrawable(resources, bitmap)
-                if(counter < resultItems.size){
-                    resultItems[counter].bitmap = bitmap
-
-                    photoHolder.setBitmap(drawable)
-                    counter++
-                }
+            ThumbnailDownloader(Handler(Looper.getMainLooper()), mService)
+        { holder, bitmap ->
+            val drawable = BitmapDrawable(resources, bitmap)
+            if (counter < resultItems.size) {
+                resultItems[counter].bitmap = bitmap
+                holder.setBitmap(drawable)
+                counter++
             }
-
+        }
         lifecycle.addObserver(thumbnailDownloader.fragmentLifecycleObserver)
+
+        viewModel
+        viewModel.getBinder().observe(this, Observer {
+            if (it != null) {
+                mService = it.getService()
+                serviceInit()
+            } else {
+                mService = null
+            }
+        })
+    }
+
+    private fun serviceInit() {
+        thumbnailDownloader.service = mService
+
+            mService!!.resultItems.observe(
+            viewLifecycleOwner
+        ) {
+            Log.i(TAG, "This is list size ${it.size}")
+            for (i in it)
+                i?.let { it1 -> resultItems.add(it1) }
+            photoRecyclerView.adapter = PhotoAdapter(resultItems, this)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -104,7 +113,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
             bitmap = BitmapFactory.decodeFile(file.path)
         }
 
-        bitmap?.let {binding.parentImageView.setImageBitmap(it)}
+        bitmap?.let { binding.parentImageView.setImageBitmap(it) }
 
 
         binding.buttonSave.setOnClickListener {
@@ -120,32 +129,24 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
                 layoutManager = GridLayoutManager(context, 3)
             }
         }
-
-        mService?.resultItems?.observe(
-            viewLifecycleOwner, {
-                for(i in it)
-                    i?.let { it1 -> resultItems.add(it1) }
-                photoRecyclerView.adapter = PhotoAdapter(resultItems, this)
-            }
-        )
     }
 
     private fun addCollectionToDb() {
-//        val chosenImages = resultItems.filter { it.chosenByUser }
-//        viewModel
-//
-//        CoroutineScope(IO).launch {
-//            val parentId = withContext(IO) {
-//                viewModel.saveParentImage(parentImage!!)
-//            }
-//            withContext(IO) {
-//                chosenImages.forEach { it.parentImageId = parentId }
-//                for(i in chosenImages){
-//                    viewModel.saveChildImage(i)
-//
-//                }
-//            }
-//        }
+        val chosenImages = resultItems.filter { it.chosenByUser }
+        viewModel
+
+        CoroutineScope(IO).launch {
+            val parentId = withContext(IO) {
+                viewModel.saveParentImage(parentImage!!)
+            }
+            withContext(IO) {
+                chosenImages.forEach { it.parentImageId = parentId }
+                for (i in chosenImages) {
+                    viewModel.saveChildImage(i)
+
+                }
+            }
+        }
     }
 
     companion object {
@@ -160,7 +161,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
         }
     }
 
-    private inner class PhotoHolder(
+    class PhotoHolder(
         private val itemImageButton: ImageButton,
         private val onPhotoListener: OnPhotoListener,
     ) :
@@ -229,36 +230,34 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
 
     private fun bindService() {
         val serviceIntent = Intent(this.requireActivity(), ResultImageService::class.java)
-        requireActivity().bindService(serviceIntent, viewModel.getConnection(), Context.BIND_AUTO_CREATE)
+        requireActivity().bindService(serviceIntent,
+            viewModel.getConnection(),
+            Context.BIND_AUTO_CREATE)
         mBound = true
-    }
-
-    override fun onDestroyView() {
-        Log.i(TAG, "THIS IS LENGTH OF RESULT: ${resultItems.size}")
-        super.onDestroyView()
-        thumbnailDownloader.onDestroyView(this)
-    }
-
-    override fun onDestroy() {
-        resultItems = arrayListOf()
-        super.onDestroy()
-        parentImage = null
-        lifecycle.removeObserver(thumbnailDownloader.fragmentLifecycleObserver)
     }
 
     override fun onResume() {
         super.onResume()
-        if(viewModel.getBinder() != null){
-            bindService()
-        }
+        bindService()
     }
 
     override fun onPause() {
         super.onPause()
-        if(mBound){
+        if (viewModel.getBinder().value != null) {
             requireActivity().unbindService(viewModel.getConnection())
             mBound = false
         }
+    }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        lifecycle.removeObserver(
+            thumbnailDownloader.fragmentLifecycleObserver
+        )
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        thumbnailDownloader.onDestroyView(this)
     }
 }

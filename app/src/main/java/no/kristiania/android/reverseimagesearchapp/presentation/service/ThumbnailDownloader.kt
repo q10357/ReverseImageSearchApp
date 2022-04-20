@@ -9,6 +9,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.runBlocking
+import no.kristiania.android.reverseimagesearchapp.core.util.wasInit
 import java.util.concurrent.ConcurrentHashMap
 
 private const val TAG = "ThumbnailDownloader"
@@ -17,22 +18,20 @@ private const val MESSAGE_DOWNLOAD = 0
 
 class ThumbnailDownloader<in T>(
     private val responseHandler: Handler,
-    private val mService: ResultImageService?,
-    val onThumbnailDownloaded: (T, Bitmap) -> Unit
+    var service: ResultImageService?,
+    val onThumbnailDownloaded: (T, Bitmap) -> Unit,
 ) : HandlerThread(TAG)
 {
 
     val fragmentLifecycleObserver: DefaultLifecycleObserver =
         object: DefaultLifecycleObserver {
             override fun onCreate(owner: LifecycleOwner) {
-                super.onCreate(owner)
                 Log.i(TAG, "Starting background thread")
                 start()
                 looper
             }
 
             override fun onDestroy(owner: LifecycleOwner) {
-                super.onDestroy(owner)
                 Log.i(TAG, "Destroying background thread")
                 quit()
             }
@@ -65,15 +64,12 @@ class ThumbnailDownloader<in T>(
         val url = requestMap[target] ?: return
         var bitmap: Bitmap? = null
 
-        if(mService == null){
-            Log.e(TAG, "mService is null")
-            return
-        }
-
         runBlocking {
-            val networkResult = mService.fetchPhoto(url)
+            val networkResult = service?.fetchPhoto(url)
             bitmap = networkResult
         }
+
+        Log.i(TAG, "IS SERVICE NULL??? ${wasInit { service }}")
 
         if(bitmap == null) return
 
