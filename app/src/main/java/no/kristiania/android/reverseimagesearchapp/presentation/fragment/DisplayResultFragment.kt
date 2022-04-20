@@ -109,7 +109,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
             if (imageCount <= 0) {
                 Toast.makeText(requireContext(), "No pictures selected", Toast.LENGTH_SHORT).show()
             } else {
-                showPopoutForSaving()
+                showPopupForSaving()
             }
         }
 
@@ -221,29 +221,29 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
 
 
 
-     fun showPopoutForSaving(){
+     private fun showPopupForSaving(){
         val builder = AlertDialog.Builder(requireContext())
         val inflater = layoutInflater
-        val popoutLayout = inflater.inflate(R.layout.save_collection,null)
-        val editText = popoutLayout.findViewById<EditText>(R.id.new_collection_name)
+        val popupLayout = inflater.inflate(R.layout.save_collection,null)
+        val editText = popupLayout.findViewById<EditText>(R.id.new_collection_name)
         val list = arrayListOf<String>()
 
 
 
-
+        //make a popup which the user names collection of the parent image
         with(builder){
             setTitle("Name your collection")
             setPositiveButton("OK") { dialog, which ->
                 //list.add(editText.text.toString())
                 Toast.makeText(requireContext(), editText.text.toString(), Toast.LENGTH_SHORT).show()
+                //parentImage?.collectionName = editText.text.toString()
                 collectionName = editText.text.toString()
-
             }
             setNegativeButton("cancel"){ dialog, which ->
                 Toast.makeText(requireContext(), "Cancel the popout", Toast.LENGTH_SHORT).show()
 
             }
-            setView(popoutLayout)
+            setView(popupLayout)
             show()
 
         }

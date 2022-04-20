@@ -8,7 +8,6 @@ data class ReverseImageSearchItem(
     val thumbnailLink: String = "",
     var parentImageId: Long = 0L,
     var chosenByUser: Boolean = false,
-    var collectionName: String = "default",
     var bitmap: Bitmap? = null
 ): Parcelable {
     constructor(parcel: Parcel) : this(
