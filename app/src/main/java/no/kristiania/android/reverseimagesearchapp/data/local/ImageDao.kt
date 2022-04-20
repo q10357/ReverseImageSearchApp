@@ -57,6 +57,7 @@ class ImageDao @Inject constructor(
         val byteArray = image.bitmap?.let { bitmapToByteArray(it) }
         val newResult = db.insert("result_images", null, ContentValues().apply {
             put("image",byteArray )
+            put("name_collection", image.collectionName )
             put("parent_id", image.parentImageId)
         })
         return newResult

@@ -1,5 +1,6 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -14,10 +15,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.PopupWindow
-import android.widget.Toast
+import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -26,15 +24,10 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayResultsBinding
-import no.kristiania.android.reverseimagesearchapp.presentation.MainActivity
 import no.kristiania.android.reverseimagesearchapp.presentation.OnPhotoListener
 import no.kristiania.android.reverseimagesearchapp.presentation.service.ResultImageService
 import no.kristiania.android.reverseimagesearchapp.presentation.service.ThumbnailDownloader
@@ -51,10 +44,12 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
     private lateinit var photoRecyclerView: RecyclerView
     private lateinit var binding: FragmentDisplayResultsBinding
     private lateinit var thumbnailDownloader: ThumbnailDownloader<PhotoHolder>
+
     private var mBound = false
     private var mService: ResultImageService? = null
     private var bitmap: Bitmap? = null
     private var imageCount: Int = 0
+    private var collectionName = ""
 
     //Temporary containers before sending to db, on users request
     private var resultItems = mutableListOf<ReverseImageSearchItem>()
@@ -65,7 +60,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel
+
         viewModel.getBinder().observe(this, Observer {
             if(it != null){
                 mService = it.getService()
@@ -90,6 +85,8 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
             }
 
         lifecycle.addObserver(thumbnailDownloader.fragmentLifecycleObserver)
+
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -97,6 +94,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
         binding = FragmentDisplayResultsBinding.bind(view)
 
         //overlayImage?.findViewById<ImageView>(R.id.overlay_image)
+
 
         if (parentImage != null && bitmap == null) {
             val file = File(requireContext().cacheDir, parentImage!!.photoFileName)
@@ -111,7 +109,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
             if (imageCount <= 0) {
                 Toast.makeText(requireContext(), "No pictures selected", Toast.LENGTH_SHORT).show()
             } else {
-                addCollectionToDb()
+                showPopoutForSaving()
             }
         }
 
@@ -131,6 +129,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
     }
 
     private fun addCollectionToDb() {
+
 //        val chosenImages = resultItems.filter { it.chosenByUser }
 //        viewModel
 //
@@ -220,12 +219,44 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
         Log.i(TAG, "Number of images chosen: $imageCount")
     }
 
+
+
+     fun showPopoutForSaving(){
+        val builder = AlertDialog.Builder(requireContext())
+        val inflater = layoutInflater
+        val popoutLayout = inflater.inflate(R.layout.save_collection,null)
+        val editText = popoutLayout.findViewById<EditText>(R.id.new_collection_name)
+        val list = arrayListOf<String>()
+
+
+
+
+        with(builder){
+            setTitle("Name your collection")
+            setPositiveButton("OK") { dialog, which ->
+                //list.add(editText.text.toString())
+                Toast.makeText(requireContext(), editText.text.toString(), Toast.LENGTH_SHORT).show()
+                collectionName = editText.text.toString()
+
+            }
+            setNegativeButton("cancel"){ dialog, which ->
+                Toast.makeText(requireContext(), "Cancel the popout", Toast.LENGTH_SHORT).show()
+
+            }
+            setView(popoutLayout)
+            show()
+
+        }
+    }
+
     private fun treatOnClick(isChosen: Boolean): Drawable? {
         return when (isChosen) {
             true -> ResourcesCompat.getDrawable(resources, R.drawable.highlight, null)
             false -> ColorDrawable(Color.TRANSPARENT)
         }
     }
+
+
 
     private fun bindService() {
         val serviceIntent = Intent(this.requireActivity(), ResultImageService::class.java)
