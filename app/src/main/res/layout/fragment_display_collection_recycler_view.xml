@@ -5,7 +5,7 @@
     android:id="@+id/frameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.fragment.DisplayCollectionRecyclerView" >
+    tools:context=".presentation.fragment.`DisplayCollectionFragment.kt`" >
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/collection_recycler_view"
