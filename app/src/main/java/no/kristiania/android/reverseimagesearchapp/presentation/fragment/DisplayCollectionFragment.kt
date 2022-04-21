@@ -16,19 +16,11 @@ private const val TAG = "DisplayCollection"
 class DisplayCollectionFragment : Fragment() {
 
     val list = mutableListOf<CollectionRecyclerItem>()
+    var adapter: CollectionAdapter? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         dummyCollection()
-        val adapter = CollectionAdapter(list)
-        val recycler = view?.findViewById<RecyclerView>(R.id.collection_recycler_view)
-        recycler?.adapter = adapter
-        recycler?.layoutManager = LinearLayoutManager(context)
-
-
-
-        Log.i(TAG, "ARE WE HERE YET?")
-
     }
 
     override fun onCreateView(
@@ -36,14 +28,33 @@ class DisplayCollectionFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
+        val view = inflater.inflate(R.layout.fragment_display_collection,container,false )
+        val recycler: RecyclerView = view.findViewById(R.id.collection_recycler_view)
+        dummyCollection()
+        var onItemClickListener = object : View.OnClickListener{
+            override fun onClick(p0: View?) {
+                Log.i(TAG, "CLICK ITEM")
+
+
+            }
+
+        }
 
 
 
-        return inflater.inflate(
-            R.layout.fragment_display_collection,
-            container,
-            false
-        )
+
+
+        val adapter = CollectionAdapter(list,onItemClickListener)
+
+        recycler?.adapter = adapter
+        recycler?.layoutManager = LinearLayoutManager(context)
+
+
+
+        Log.i(TAG, "ARE WE HERE YET?")
+
+
+        return view
 
 
     }
@@ -54,6 +65,7 @@ class DisplayCollectionFragment : Fragment() {
             val lol =
                 CollectionRecyclerItem("ur${i}srs", "na${i}me", "time is $i", R.drawable.ic_logo)
             list.add(lol)
+            Log.i(TAG, lol.toString())
         }
     }
     companion object {

@@ -5,16 +5,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.CollectionRecyclerItem
 
 class CollectionAdapter(
-    var collection: List<CollectionRecyclerItem>
+    var collection: List<CollectionRecyclerItem>,
+    val onItemClickLister: View.OnClickListener
 ): RecyclerView.Adapter<CollectionAdapter.CollectionViewHolder>() {
 
-    inner class CollectionViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    inner class CollectionViewHolder(private val itemView: View) : RecyclerView.ViewHolder(itemView)
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CollectionViewHolder {
@@ -23,7 +25,12 @@ class CollectionAdapter(
     }
 
     override fun onBindViewHolder(holder: CollectionViewHolder, position: Int) {
-       // holder.itemView.
+
+
+        val collectionInformation: CollectionRecyclerItem
+
+
+        /*
         holder.itemView.apply {
             val image = findViewById<ImageView>(R.id.recycler_image)
             val text = findViewById<TextView>(R.id.recycler_text)
@@ -33,6 +40,7 @@ class CollectionAdapter(
 
 
         }
+         */
     }
 
     override fun getItemCount(): Int {

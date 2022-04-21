@@ -15,4 +15,8 @@ data class CollectionRecyclerItem(
     var collectionName: String? = null,
     var date: String,
     var image: Int
-)
+) {
+    override fun toString(): String {
+        return "CollectionRecyclerItem(urlOnServer=$urlOnServer, collectionName=$collectionName, date='$date', image=$image)"
+    }
+}
