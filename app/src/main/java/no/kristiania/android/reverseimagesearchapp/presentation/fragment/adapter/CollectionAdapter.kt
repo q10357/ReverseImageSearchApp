@@ -3,52 +3,30 @@ package no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapte
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import no.kristiania.android.reverseimagesearchapp.R
-import no.kristiania.android.reverseimagesearchapp.data.local.entity.CollectionRecyclerItem
+import no.kristiania.android.reverseimagesearchapp.data.local.entity.CollectionItem
+import no.kristiania.android.reverseimagesearchapp.databinding.CollectionItemBinding
+import no.kristiania.android.reverseimagesearchapp.presentation.OnClickCollectionListener
 
 class CollectionAdapter(
-    var collection: List<CollectionRecyclerItem>,
-    val onItemClickLister: View.OnClickListener
-): RecyclerView.Adapter<CollectionAdapter.CollectionViewHolder>() {
+    var collection: List<CollectionItem>,
+    private val clickListener: OnClickCollectionListener
+)
+    : RecyclerView.Adapter<CardViewHolder>() {
 
-    inner class CollectionViewHolder(private val itemView: View) : RecyclerView.ViewHolder(itemView){
-        fun bindCollectionItem(collectionRecyclerItem: CollectionRecyclerItem){
-
-
-        }
-    }
-
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CollectionViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.collection_item, parent, false)
-        return CollectionViewHolder(view)
-    }
-
-    override fun onBindViewHolder(holder: CollectionViewHolder, position: Int) {
-
-
-        val collectionInformation: CollectionRecyclerItem
-
-        holder.itemView.setTag(position)
-        /*
-        holder.itemView.apply {
-            val image = findViewById<ImageView>(R.id.recycler_image)
-            val text = findViewById<TextView>(R.id.recycler_text)
-            val imageBtn = findViewById<ImageButton>(R.id.recycler_image_button)
-            image.setImageResource(collection[position].image)
-            text.text = collection[position].collectionName
-
-
-        }
-         */
-    }
 
     override fun getItemCount(): Int {
         return collection.size
+    }
+
+    override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
+        holder.bindCollection(collection[position])
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewHolder {
+        val fromLayout = LayoutInflater.from(parent.context)
+        val binding = CollectionItemBinding.inflate(fromLayout,parent,false)
+        return CardViewHolder(binding,clickListener)
     }
 }

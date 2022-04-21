@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 
-data class CollectionRecyclerItem(
+data class CollectionItem(
     var urlOnServer: String? = null,
     var collectionName: String? = null,
     var date: String,
