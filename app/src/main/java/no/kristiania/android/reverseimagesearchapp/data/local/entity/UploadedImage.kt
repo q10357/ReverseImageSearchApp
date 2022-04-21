@@ -9,8 +9,7 @@ import java.util.*
 data class UploadedImage(
     val title: String,
     var urlOnServer: String? = null,
-    var collectionName: String? = null,
-    val id: Int = Random().nextInt(1000),
+    val id: Int = Random().nextInt(100000),
 ) : Parcelable {
 
     val photoFileName
@@ -19,14 +18,12 @@ data class UploadedImage(
     constructor(parcel: Parcel) : this(
         parcel.readString().toString(),
         parcel.readString(),
-        parcel.readString(),
         parcel.readInt()) {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(title)
         parcel.writeString(urlOnServer)
-        parcel.writeString(collectionName)
         parcel.writeInt(id)
     }
 

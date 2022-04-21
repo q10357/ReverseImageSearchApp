@@ -4,17 +4,16 @@ import android.app.Service
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.*
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.recyclerview.widget.RecyclerView
+import android.util.Log
+import androidx.lifecycle.*
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import no.kristiania.android.reverseimagesearchapp.core.util.*
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.data.remote.use_case.GetReverseImageSearchItemData
+import java.util.*
 import javax.inject.Inject
 
 private const val TAG = "ResultImageDataFetchr"
@@ -26,13 +25,25 @@ class ResultImageService: Service() {
     var resultItems: LiveData<List<ReverseImageSearchItem?>> = _resultItems
     val mResult = MutableLiveData<Resource<String>>()
 
-    lateinit var responseHandler: Handler
-    lateinit var onThumbnailDownloaded: (RecyclerView.ViewHolder, Bitmap) -> Unit
+    //private var thumbnailDownloader: ThumbnailDownloader<PhotoHolder>? = null
 
     @Inject
     lateinit var getReverseImageSearchItemData: GetReverseImageSearchItemData
 
-    suspend fun fetchImageData(url: String) {
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val url = intent?.getStringExtra("image_url")
+
+        if(url != null){
+            GlobalScope.launch {
+                fetchImageData(url)
+            }
+        }
+
+        return super.onStartCommand(intent, flags, startId)
+    }
+
+    private suspend fun fetchImageData(url: String) {
         val result = getReverseImageSearchItemData(url)
         if(result.status == Status.SUCCESS){
             saveResponse(result.data as MutableList<ReverseImageSearchItem>)
@@ -41,6 +52,7 @@ class ResultImageService: Service() {
 
     private fun saveResponse(response: MutableList<ReverseImageSearchItem>) {
         _resultItems.postValue(emptyList())
+        Log.i(TAG, "THIS IS RESPONSE ${response}")
         _resultItems.postValue(response)
     }
 
@@ -62,4 +74,5 @@ class ResultImageService: Service() {
         super.onTaskRemoved(rootIntent)
         stopSelf()
     }
+
 }
