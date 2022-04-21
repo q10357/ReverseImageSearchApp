@@ -10,6 +10,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import kotlinx.coroutines.*
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
+import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayCollectionFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayResultFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.UploadImageFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.service.ResultImageService
@@ -21,7 +22,7 @@ private const val TAG = "MainActivityTAG"
 class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
     private var displayResultFragment = DisplayResultFragment.newInstance(null)
     private var uploadImageFragment = UploadImageFragment.newInstance()
-    private var displayCollectionFragment = DisplayResultFragment.newInstance(null)
+    private var displayCollectionFragment = DisplayCollectionFragment.newInstance()
     private lateinit var bottomNavigationView: BottomNavigationView
     private var navPos: Int? = null
 
@@ -67,6 +68,7 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
         return when(navPos){
             R.id.upload -> uploadImageFragment
             R.id.display_result -> displayResultFragment
+            R.id.display_collection -> displayCollectionFragment
             else -> {return uploadImageFragment}
         }
     }

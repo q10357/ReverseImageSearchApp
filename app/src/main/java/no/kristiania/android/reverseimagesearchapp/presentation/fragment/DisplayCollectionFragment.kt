@@ -1,6 +1,7 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +16,7 @@ class DisplayCollectionFragment : Fragment() {
         super.onCreate(savedInstanceState)
         dummyCollection()
 
+        Log.i(TAG, "ARE WE HERE YET?")
 
     }
 
@@ -37,5 +39,8 @@ class DisplayCollectionFragment : Fragment() {
                 CollectionRecyclerItem("ur${i}srs", "na${i}me", "time is $i", R.drawable.ic_logo)
             list.add(lol)
         }
+    }
+    companion object {
+        fun newInstance() = DisplayCollectionFragment()
     }
 }
