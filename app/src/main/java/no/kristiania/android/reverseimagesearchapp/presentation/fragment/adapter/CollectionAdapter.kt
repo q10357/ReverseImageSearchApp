@@ -16,7 +16,12 @@ class CollectionAdapter(
     val onItemClickLister: View.OnClickListener
 ): RecyclerView.Adapter<CollectionAdapter.CollectionViewHolder>() {
 
-    inner class CollectionViewHolder(private val itemView: View) : RecyclerView.ViewHolder(itemView)
+    inner class CollectionViewHolder(private val itemView: View) : RecyclerView.ViewHolder(itemView){
+        fun bindCollectionItem(collectionRecyclerItem: CollectionRecyclerItem){
+
+
+        }
+    }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CollectionViewHolder {
@@ -29,7 +34,7 @@ class CollectionAdapter(
 
         val collectionInformation: CollectionRecyclerItem
 
-
+        holder.itemView.setTag(position)
         /*
         holder.itemView.apply {
             val image = findViewById<ImageView>(R.id.recycler_image)
