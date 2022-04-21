@@ -30,7 +30,6 @@ class ResultImageService: Service() {
     @Inject
     lateinit var getReverseImageSearchItemData: GetReverseImageSearchItemData
 
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val url = intent?.getStringExtra("image_url")
 
