@@ -12,10 +12,9 @@ import no.kristiania.android.reverseimagesearchapp.presentation.OnClickCollectio
 class CollectionAdapter(
     var collection: List<CollectionItem>,
     private val clickListener: OnClickCollectionListener
-)
-    : RecyclerView.Adapter<CardViewHolder>() {
+) : RecyclerView.Adapter<CardViewHolder>() {
 
-
+    //size of the arraylist of tiems
     override fun getItemCount(): Int {
         return collection.size
     }

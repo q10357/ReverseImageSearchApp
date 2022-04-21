@@ -47,7 +47,7 @@ class DisplayCollectionFragment : Fragment(), OnClickCollectionListener {
     private fun insertDummyDataToCollectionList() {
         for (i in 0..10) {
             val lol =
-                CollectionItem("ur${i}srs", "na${i}me", "time is $i", R.drawable.ic_logo)
+                CollectionItem("ur${i}srs", "na${i}me", "time is $i", R.drawable.ic_collection)
             list.add(lol)
             Log.i(TAG, lol.toString())
         }

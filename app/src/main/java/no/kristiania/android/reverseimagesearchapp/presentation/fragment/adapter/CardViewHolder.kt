@@ -10,6 +10,8 @@ class CardViewHolder(
     private val onClickListener: OnClickCollectionListener
 ) : RecyclerView.ViewHolder(collectionItemBinding.root) {
 
+    //function that binds the xml-file variables and replaces it with the
+    //information we get from the CollectionItem data class object
     fun bindCollection(collectionItem: CollectionItem){
         collectionItemBinding.recyclerImage.setImageResource(collectionItem.image)
         collectionItemBinding.recyclerText.text = collectionItem.collectionName
