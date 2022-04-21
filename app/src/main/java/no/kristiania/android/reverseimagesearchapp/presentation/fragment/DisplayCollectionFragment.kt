@@ -2,7 +2,9 @@ package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
 import android.os.Bundle
 import android.util.Log
-import androidx.databinding.DataBindingUtil.setContentView
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import no.kristiania.android.reverseimagesearchapp.R
@@ -30,8 +32,16 @@ class DisplayCollectionFragment : Fragment(), OnClickCollectionListener {
             adapter = CollectionAdapter(list, collectionFragment)
             Log.i(TAG,"HALLO ")
         }
+    }
 
-
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        //todo IS THIS WHY NO WORK
+        binding.root
+        return super.onCreateView(inflater, container, savedInstanceState)
     }
 
 
