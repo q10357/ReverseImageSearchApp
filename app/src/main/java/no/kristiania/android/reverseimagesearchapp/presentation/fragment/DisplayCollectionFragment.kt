@@ -26,6 +26,7 @@ class DisplayCollectionFragment : Fragment() {
         recycler?.layoutManager = LinearLayoutManager(context)
 
 
+
         Log.i(TAG, "ARE WE HERE YET?")
 
     }
