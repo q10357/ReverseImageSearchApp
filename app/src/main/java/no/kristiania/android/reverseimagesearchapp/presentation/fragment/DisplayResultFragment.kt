@@ -224,7 +224,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
      private fun showPopupForSaving(){
         val builder = AlertDialog.Builder(requireContext())
         val inflater = layoutInflater
-        val popupLayout = inflater.inflate(R.layout.save_collection,null)
+        val popupLayout = inflater.inflate(R.layout.save_collection_popup,null)
         val editText = popupLayout.findViewById<EditText>(R.id.new_collection_name)
         val list = arrayListOf<String>()
 
