@@ -125,7 +125,6 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
                 Toast.makeText(requireContext(), "No pictures selected", Toast.LENGTH_SHORT).show()
             } else {
                 addCollectionToDb()
-                showPopupForSaving()
             }
         }
 
@@ -140,6 +139,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
         val chosenImages = resultItems.filter { it.chosenByUser }
         viewModel
 
+        showPopupForSaving()
         CoroutineScope(IO).launch {
             val parentId = withContext(IO) {
                 viewModel.saveParentImage(parentImage!!)
@@ -228,7 +228,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
 
 
 
-     private fun showPopupForSaving(){
+      private fun showPopupForSaving(){
         val builder = AlertDialog.Builder(requireContext())
         val inflater = layoutInflater
         val popupLayout = inflater.inflate(R.layout.save_collection_popup,null)
@@ -244,7 +244,8 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
                 //list.add(editText.text.toString())
                 Toast.makeText(requireContext(), editText.text.toString(), Toast.LENGTH_SHORT).show()
                 //parentImage?.collectionName = editText.text.toString()
-                collectionName = editText.text.toString()
+                editText.text.toString()
+                parentImage!!.title = editText.text.toString()
             }
             setNegativeButton("cancel"){ dialog, which ->
                 Toast.makeText(requireContext(), "Cancel the popout", Toast.LENGTH_SHORT).show()
