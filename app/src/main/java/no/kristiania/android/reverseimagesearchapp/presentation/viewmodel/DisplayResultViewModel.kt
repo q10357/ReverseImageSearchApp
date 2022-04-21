@@ -55,7 +55,7 @@ class DisplayResultViewModel @Inject constructor(
         return dao.insertUploadedImage(image)
     }
 
-    suspend fun saveChildImage(image: ReverseImageSearchItem, collectionName : String) {
-            dao.insertResultImages(image, collectionName)
+    suspend fun saveChildImage(image: ReverseImageSearchItem) {
+            dao.insertResultImages(image)
     }
 }
