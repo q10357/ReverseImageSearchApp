@@ -1,5 +1,6 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -124,7 +125,14 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
             if (imageCount <= 0) {
                 Toast.makeText(requireContext(), "No pictures selected", Toast.LENGTH_SHORT).show()
             } else {
+
+                /*
+                        val one = async { doSomethingUsefulOne() }
+                        val two = async { doSomethingUsefulTwo() }
+                        one.await() + two.await()
+                 */
                 showPopupForSaving()
+                addCollectionToDb()
             }
         }
 
@@ -146,7 +154,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
             withContext(IO) {
                 chosenImages.forEach { it.parentImageId = parentId }
                 for (i in chosenImages) {
-                    viewModel.saveChildImage(i)
+                    viewModel.saveChildImage(i,collectionName)
 
                 }
             }
@@ -253,6 +261,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
             show()
 
         }
+         addCollectionToDb()
     }
 
     private fun treatOnClick(isChosen: Boolean): Drawable? {
