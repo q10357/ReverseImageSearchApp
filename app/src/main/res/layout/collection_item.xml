@@ -3,27 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="100dp"
+    android:layout_height="120dp"
     android:layout_gravity="top">
 
 
     <androidx.cardview.widget.CardView
         android:layout_width="404dp"
         android:layout_height="100dp"
-        android:layout_margin="10dp"
+        android:layout_margin="4dp"
         app:cardBackgroundColor="@color/white"
         android:background="@color/grey"
-        app:cardCornerRadius="1dp"
+        app:cardCornerRadius="4dp"
         app:cardElevation="10dp"
         app:cardMaxElevation="0dp"
         app:cardPreventCornerOverlap="true"
         app:cardUseCompatPadding="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.473"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0">
+        >
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -35,37 +30,31 @@
                 android:id="@+id/recycler_image"
                 android:layout_width="51dp"
                 android:layout_height="46dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/recycler_text"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="7dp"
+
                 tools:background="@drawable/piclogo" />
 
             <TextView
                 android:id="@+id/recycler_text"
+                android:layout_marginTop="7dp"
                 android:layout_width="232dp"
                 android:layout_height="47dp"
                 android:layout_marginStart="15dp"
                 android:textSize="15sp"
 
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+
                 tools:text="1/4-22 kl 13:32 \n 25 resultater" />
 
 
             <ImageButton
                 android:id="@+id/recycler_image_button"
+                android:layout_marginTop="6dp"
                 android:layout_width="48dp"
                 android:layout_height="51dp"
                 android:background="@drawable/arrow"
                 android:contentDescription="@string/descibe_arrow_in_list"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/recycler_text"
-                app:layout_constraintTop_toTopOf="parent" />
+                />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>
