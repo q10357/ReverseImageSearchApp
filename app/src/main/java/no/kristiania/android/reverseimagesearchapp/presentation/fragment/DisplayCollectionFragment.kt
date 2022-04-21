@@ -25,10 +25,9 @@ class DisplayCollectionFragment : Fragment(), OnClickCollectionListener {
 
         insertDummyDataToCollectionList()
         binding = FragmentDisplayCollectionBinding.inflate(layoutInflater)
-        //setContentView(binding.root)
         val collectionFragment = this
         binding.collectionRecyclerView.apply {
-            layoutManager = GridLayoutManager(context,3)
+            layoutManager = GridLayoutManager(context,1)
             adapter = CollectionAdapter(list, collectionFragment)
             Log.i(TAG,"HALLO ")
         }
@@ -40,8 +39,8 @@ class DisplayCollectionFragment : Fragment(), OnClickCollectionListener {
         savedInstanceState: Bundle?
     ): View? {
         //todo IS THIS WHY NO WORK
-        binding.root
-        return super.onCreateView(inflater, container, savedInstanceState)
+
+        return binding.root
     }
 
 
