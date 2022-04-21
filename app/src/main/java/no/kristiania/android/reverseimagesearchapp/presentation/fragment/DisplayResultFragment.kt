@@ -15,6 +15,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -145,7 +146,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
             withContext(IO) {
                 chosenImages.forEach { it.parentImageId = parentId }
                 for (i in chosenImages) {
-                    viewModel.saveChildImage(i)
+                    viewModel.saveChildImage(i,collectionName)
 
                 }
             }
