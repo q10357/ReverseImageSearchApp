@@ -157,11 +157,9 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     }
 
     private fun writeToFile() {
-        CoroutineScope(IO).launch{
-            val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
-            //We get the rightly scaled bitmap here
-            createFileFromBitmap(bitmap, file)
-        }
+        val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
+        //We get the rightly scaled bitmap here
+        createFileFromBitmap(bitmap, file)
     }
 
     private fun initSelectedPhoto(uri: Uri) {
