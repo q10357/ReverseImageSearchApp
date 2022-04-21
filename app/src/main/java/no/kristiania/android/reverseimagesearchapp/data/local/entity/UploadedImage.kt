@@ -10,7 +10,7 @@ data class UploadedImage(
     val title: String,
     var urlOnServer: String? = null,
     var collectionName: String? = null,
-    val id: Int = Random().nextInt(1000),
+    val id: Int = Random().nextInt(100000),
 ) : Parcelable {
 
     val photoFileName

@@ -95,7 +95,8 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
 
     override fun onImageSelected(image: UploadedImage) {
         val url = image.urlOnServer ?: return
-        startService(Intent(this, ResultImageService::class.java))
+        startService(Intent(this, ResultImageService::class.java)
+            .putExtra("image_url", url))
         serviceStarted = true
 
         displayResultFragment = DisplayResultFragment.newInstance(image)
@@ -110,10 +111,4 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
         super.onDestroy()
         navPos?.let { Bundle().putInt(ARG_NAV_POSITION, it) }
     }
-
-    override fun onResume() {
-        super.onResume()
-        startService()
-    }
-
 }
