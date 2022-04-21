@@ -1,6 +1,7 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.viewmodel
 
 import android.content.ComponentName
+import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
 import android.util.Log
@@ -54,7 +55,7 @@ class DisplayResultViewModel @Inject constructor(
         return dao.insertUploadedImage(image)
     }
 
-    suspend fun saveChildImage(image: ReverseImageSearchItem) {
-        dao.insertResultImages(image)
+    suspend fun saveChildImage(image: ReverseImageSearchItem, collectionName : String) {
+            dao.insertResultImages(image, collectionName)
     }
 }

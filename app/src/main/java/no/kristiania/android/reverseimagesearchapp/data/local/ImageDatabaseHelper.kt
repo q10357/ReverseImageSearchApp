@@ -22,6 +22,7 @@ class ImageDatabaseHelper @Inject constructor(context: Context): SQLiteOpenHelpe
         db.execSQL("CREATE TABLE ${ResultImageTable.TABLE_NAME}" +
                 "( ${BaseColumns._ID} INTEGER PRIMARY KEY," +
                 " ${ResultImageTable.COLUMN_NAME_IMAGE} BLOB, " +
+                "${ResultImageTable.COLUMN_NAME_COLLECTION_NAME} TEXT, " +
                 "${ResultImageTable.COLUMN_NAME_PARENT_ID} INTEGER, " +
                 "CONSTRAINT FK_RESULTS FOREIGN KEY (${ResultImageTable.COLUMN_NAME_PARENT_ID})" +
                 "REFERENCES ${UploadedImageTable.TABLE_NAME}(${BaseColumns._ID}))")
@@ -37,6 +38,7 @@ class ImageDatabaseHelper @Inject constructor(context: Context): SQLiteOpenHelpe
         super.onOpen(db);
         db?.execSQL("PRAGMA foreign_keys = ON;")
     }
+
 
 
     companion object {
@@ -55,6 +57,7 @@ object FeedReaderContract {
 
     object ResultImageTable: BaseColumns {
         const val TABLE_NAME = "result_images"
+        const val COLUMN_NAME_COLLECTION_NAME = "name_collection"
         const val COLUMN_NAME_IMAGE = "image"
         const val COLUMN_NAME_PARENT_ID = "parent_id"
     }
