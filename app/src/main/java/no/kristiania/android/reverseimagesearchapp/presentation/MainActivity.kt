@@ -2,16 +2,15 @@ package no.kristiania.android.reverseimagesearchapp.presentation
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.*
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
+import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayCollectionFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayResultFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.UploadImageFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.service.ResultImageService
@@ -23,6 +22,7 @@ private const val TAG = "MainActivityTAG"
 class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
     private var displayResultFragment = DisplayResultFragment.newInstance(null)
     private var uploadImageFragment = UploadImageFragment.newInstance()
+    private var displayCollectionFragment = DisplayCollectionFragment.newInstance()
     private lateinit var bottomNavigationView: BottomNavigationView
     private var navPos: Int? = null
 
@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
             when (m.itemId) {
                 R.id.upload -> setFragment(uploadImageFragment, m.itemId)
                 R.id.display_result -> setFragment(displayResultFragment, m.itemId)
-                R.id.display_collection -> Log.i(TAG, "Not Implemented")
+                R.id.display_collection -> setFragment(displayCollectionFragment,m.itemId)
             }
             navPos = m.itemId
             navMenuItem.apply { isEnabled = true }
@@ -68,6 +68,7 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
         return when(navPos){
             R.id.upload -> uploadImageFragment
             R.id.display_result -> displayResultFragment
+            R.id.display_collection -> displayCollectionFragment
             else -> {return uploadImageFragment}
         }
     }

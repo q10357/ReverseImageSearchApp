@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import no.kristiania.android.reverseimagesearchapp.data.local.FeedReaderContract.ResultImageTable
 import android.provider.BaseColumns
 import android.util.Log
 import androidx.core.content.ContentProviderCompat.requireContext
@@ -58,10 +59,20 @@ class ImageDao @Inject constructor(
         val newResult = db.insert("result_images", null, ContentValues().apply {
             put("image",byteArray )
             put("parent_id", image.parentImageId)
+
         })
         return newResult
     }
 
+
+    //delete for delete button you press on result page
+    suspend fun deleteResult(id: Int): Int {
+        val db = database.writableDatabase
+        val where = "_id =${id};"
+        val query = db.delete(ResultImageTable.TABLE_NAME, where, null);
+
+        return query
+    }
     /*
     fun getByResultItem(number: Int): List<ReverseImageSearchItem>{
         val db = database.readableDatabase

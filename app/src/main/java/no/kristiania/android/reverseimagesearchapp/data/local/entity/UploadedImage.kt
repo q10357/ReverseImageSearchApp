@@ -7,7 +7,7 @@ import java.util.*
 
 
 data class UploadedImage(
-    val title: String,
+    var title: String = "default",
     var urlOnServer: String? = null,
     val id: Int = Random().nextInt(100000),
 ) : Parcelable {

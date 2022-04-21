@@ -1,5 +1,6 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -16,6 +17,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.Toast
+import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -48,10 +50,12 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
     private lateinit var photoRecyclerView: RecyclerView
     private lateinit var binding: FragmentDisplayResultsBinding
     private lateinit var thumbnailDownloader: ThumbnailDownloader<PhotoHolder>
+
     private var mBound = false
     private var mService: ResultImageService? = null
     private var bitmap: Bitmap? = null
     private var imageCount: Int = 0
+    private var collectionName = ""
 
     //Temporary containers before sending to db, on users request
     private var resultItems = mutableListOf<ReverseImageSearchItem>()
@@ -121,6 +125,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
                 Toast.makeText(requireContext(), "No pictures selected", Toast.LENGTH_SHORT).show()
             } else {
                 addCollectionToDb()
+                showPopupForSaving()
             }
         }
 
@@ -219,6 +224,36 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
         }
 
         Log.i(TAG, "Number of images chosen: $imageCount")
+    }
+
+
+
+     private fun showPopupForSaving(){
+        val builder = AlertDialog.Builder(requireContext())
+        val inflater = layoutInflater
+        val popupLayout = inflater.inflate(R.layout.save_collection_popup,null)
+        val editText = popupLayout.findViewById<EditText>(R.id.new_collection_name)
+        val list = arrayListOf<String>()
+
+
+
+        //make a popup which the user names collection of the parent image
+        with(builder){
+            setTitle("Name your collection")
+            setPositiveButton("OK") { dialog, which ->
+                //list.add(editText.text.toString())
+                Toast.makeText(requireContext(), editText.text.toString(), Toast.LENGTH_SHORT).show()
+                //parentImage?.collectionName = editText.text.toString()
+                collectionName = editText.text.toString()
+            }
+            setNegativeButton("cancel"){ dialog, which ->
+                Toast.makeText(requireContext(), "Cancel the popout", Toast.LENGTH_SHORT).show()
+
+            }
+            setView(popupLayout)
+            show()
+
+        }
     }
 
     private fun treatOnClick(isChosen: Boolean): Drawable? {
