@@ -10,4 +10,6 @@
     <string name="describe_arrow_in_list">picture of arrow to open up the results of image</string>
     <string name="button_to_click_for_saving_image">Button To Click For Saving Image</string>
     <string name="return_to_collections">Return to collections</string>
+    <string name="image_from_your_device">Image from your device</string>
+    <string name="collection">Collection</string>
 </resources>

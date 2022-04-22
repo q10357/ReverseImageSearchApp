@@ -123,7 +123,6 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
                     //Be sure that it is initialized
                     //in the main thread
                     viewModel
-                    val f: () -> Unit = { addCollectionToDb() }
                     showPopupForSaving(parentImage!!) { addCollectionToDb() }
                 }
             }
@@ -183,7 +182,6 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
         val inflater = layoutInflater
         val popupLayout = inflater.inflate(R.layout.save_collection_popup, null)
         val editText = popupLayout.findViewById<EditText>(R.id.new_collection_name)
-        var inputIsGiven = false
 
         //make a popup which the user names collection of the parent image
         with(builder) {
@@ -194,7 +192,6 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
                     .show()
                 //parentImage?.collectionName = editText.text.toString()
                 val text = editText.text.toString()
-                Log.i(TAG, "This is text ${text}")
                 image.title = text
                 f()
             }

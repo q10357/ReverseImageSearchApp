@@ -11,20 +11,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
-import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import com.edmodo.cropper.CropImageView
 import dagger.hilt.android.AndroidEntryPoint
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.core.util.Status
 import no.kristiania.android.reverseimagesearchapp.core.util.createFileFromBitmap
-import no.kristiania.android.reverseimagesearchapp.core.util.uriToBitmap
 import no.kristiania.android.reverseimagesearchapp.core.util.isInit
-import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedImage
+import no.kristiania.android.reverseimagesearchapp.core.util.uriToBitmap
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.observer.RegisterActivityResultsObserver
+import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.UploadImageViewModel
 import java.io.File
 
