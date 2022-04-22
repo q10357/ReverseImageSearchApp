@@ -94,13 +94,14 @@ class ImageDao @Inject constructor(
             val date: Date = Date(TimeUnit.SECONDS.toMillis(dateLongValue * 1000))
 
             val parentImage: ParentImage = ParentImage(
-                id,
-                title,
-                bitmap,
-                date
+                id = id,
+                title = title,
+                bitmap = bitmap,
+                date = date
             )
             parentImages.add(parentImage)
         }
+        cursor.close()
         return parentImages
     }
 
@@ -113,9 +114,30 @@ class ImageDao @Inject constructor(
             BaseColumns._ID,
             ResultImageTable.COLUMN_NAME_IMAGE,
             ResultImageTable.COLUMN_NAME_PARENT_ID,
-        ), id, null, null, null, "${UploadedImageTable.COLUMN_NAME_DATE} ASC" )
+        ), selection, arrayOf(id.toString()), null, null, null )
 
+        while(cursor.moveToNext()){
+            val id = cursor.getLong(cursor.getColumnIndexOrThrow(
+                BaseColumns._ID
+            ))
+            val image = cursor.getBlob(cursor.getColumnIndexOrThrow(
+                ResultImageTable.COLUMN_NAME_IMAGE
+            ))
+            val parentId = cursor.getLong(cursor.getColumnIndexOrThrow(
+                ResultImageTable.COLUMN_NAME_PARENT_ID
+            ))
 
+            val bitmap = BitmapFactory.decodeByteArray(image, 0, image.size)
+
+            val childImage: ChildImage = ChildImage(
+                id = id,
+                bitmap = bitmap,
+                parentId = parentId
+            )
+            childImages.add(childImage)
+        }
+        cursor.close()
+        return childImages
     }
 
 //    fun getByResultItem(number: Int): List<ReverseImageSearchItem>{

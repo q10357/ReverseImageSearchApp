@@ -5,7 +5,7 @@ import no.kristiania.android.reverseimagesearchapp.data.local.entity.ParentImage
 import java.util.*
 
 data class CollectionItem(
-    var collectionName: String? = null,
+    var collectionName: String,
     var date: Date,
     var parentImage: ParentImage,
     var childImages: List<ChildImage>

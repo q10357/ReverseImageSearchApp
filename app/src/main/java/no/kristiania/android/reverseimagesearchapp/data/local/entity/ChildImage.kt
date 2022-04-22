@@ -5,5 +5,5 @@ import android.graphics.Bitmap
 class ChildImage(
     val id: Long,
     val bitmap: Bitmap,
-    val parent_id: Long
+    val parentId: Long
 )

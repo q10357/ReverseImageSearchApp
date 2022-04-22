@@ -21,32 +21,28 @@ class DisplayCollectionViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val list = getParentImages()
-            Log.i(TAG, "THIS IS IT $list")
+            initCollection()
         }
     }
 
-    fun initCollection() {
+    private fun initCollection() {
         viewModelScope.launch {
-            var counter = 0
             var collection: MutableList<CollectionItem> = mutableListOf()
-            val parentImages = async {
-                getParentImages().forEach {
-                    Log.i(TAG, "WE ARE HERE !! ${it.id}")
-                    collection[counter].parentImage = it
-                    collection[counter].date = it.date
-                    collection[counter].collectionName = it.title
-                    counter++
-                }
+            val parentImages = mutableListOf<ParentImage>()
+            var childImages = mutableListOf<ChildImage>()
+            getParentImages().forEach {
+                Log.i(TAG, "WE ARE HERE !! ${it.id}")
+                parentImages.add(it)
+                childImages = getChildImages(it.id) as MutableList<ChildImage>
+                val collectionItem = CollectionItem(
+                    collectionName = it.title,
+                    date = it.date,
+                    parentImage = it,
+                    childImages = childImages
+                )
+                collection.add(collectionItem)
+                Log.i(TAG, "This is or list size: ${collection.size}")
             }
-            parentImages.await()
-            val getCollection = async { collection.forEach{
-                Log.i(TAG, "This is maybe working?????")
-                Log.i(TAG, "${collection.size}")
-                it.childImages = getChildImages(it.parentImage.id)
-            } }
-
-            val childImages = async { getChildImages()}
         }
     }
 
