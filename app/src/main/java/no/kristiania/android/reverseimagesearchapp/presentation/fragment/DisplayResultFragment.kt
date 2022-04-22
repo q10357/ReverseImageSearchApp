@@ -44,12 +44,9 @@ private const val TAG = "DisplayResultImages"
 @AndroidEntryPoint
 class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnClickListener {
 
-    private lateinit var photoRecyclerView: RecyclerView
     private lateinit var binding: FragmentDisplayResultsBinding
     private lateinit var thumbnailDownloader: ThumbnailDownloader<ImageButton>
     private lateinit var observer: DisplayResultObserver<ImageButton>
-    private lateinit var adapter:
-            GenericRecyclerViewAdapter<ReverseImageSearchItem>
     private var bitmap: Bitmap? = null
     private var imageCount: Int = 0
 
@@ -85,13 +82,15 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
             this
         ) {
             resultItems = it as MutableList<ReverseImageSearchItem>
-            adapter = GenericRecyclerViewAdapter(
-                it,
-                R.layout.list_photo_gallery,
-                clickListener,
-                createBindingInterface()
-            )
-            photoRecyclerView.adapter = adapter
+            binding.rvContainer.apply {
+                layoutManager = GridLayoutManager(context, 3)
+                adapter = GenericRecyclerViewAdapter(
+                    it,
+                    R.layout.list_photo_gallery,
+                    clickListener,
+                    createBindingInterface()
+                )
+            }
         }
     }
 
@@ -109,7 +108,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
             bitmap = BitmapFactory.decodeFile(file.path)
         }
 
-        bitmap?.let { binding.parentImageView.setImageBitmap(it) }
+        bitmap?.let { binding.imageView.setImageBitmap(it) }
 
 
         binding.buttonSave.setOnClickListener {
@@ -125,12 +124,6 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
                     viewModel
                     showPopupForSaving(parentImage!!) { addCollectionToDb() }
                 }
-            }
-        }
-
-        photoRecyclerView = binding.rvList.also {
-            it.apply {
-                layoutManager = GridLayoutManager(context, 3)
             }
         }
     }
