@@ -6,6 +6,7 @@ import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -30,6 +31,7 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
     private var displayCollectionFragment = DisplayCollectionFragment.newInstance()
     private lateinit var bottomNavigationView: BottomNavigationView
     private var navPos by Delegates.notNull<Int>()
+    private lateinit var navMenuItem: MenuItem
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,10 +46,10 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
         navPos = savedInstanceState?.getInt(ARG_NAV_POSITION) ?: R.id.upload
         bottomNavigationView = findViewById(R.id.bottom_navigation_view)
 
-        setFragment(getCurrentFragment(navPos), navPos)
-        var navMenuItem = bottomNavigationView.menu.findItem(navPos).apply {
+        navMenuItem = bottomNavigationView.menu.findItem(navPos).apply {
             this.isEnabled = false
         }
+        setFragment(getCurrentFragment(navPos), navPos)
 
         bottomNavigationView.setOnItemSelectedListener { m ->
             when (m.itemId) {
@@ -56,9 +58,6 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
                 R.id.display_collection -> setFragment(displayCollectionFragment,m.itemId)
             }
             navPos = m.itemId
-            navMenuItem.apply { isEnabled = true }
-            navMenuItem = m
-            navMenuItem.isEnabled = false
             true
         }
     }
@@ -81,6 +80,9 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
             .beginTransaction()
             .replace(R.id.fragment_container, currentFragment, "$pos")
             .commit()
+        navMenuItem.apply { isEnabled = true }
+        navMenuItem = bottomNavigationView.menu.findItem(pos)
+        navMenuItem.isEnabled = false
     }
 
     private fun checkIfFragmentVisible(i: Int): Boolean {
@@ -98,6 +100,8 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
             .putExtra("image_url", url))
 
         displayResultFragment = DisplayResultFragment.newInstance(image)
+        navPos = R.id.display_result
+        setFragment(displayResultFragment, navPos)
 
     }
 
