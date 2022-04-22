@@ -39,7 +39,7 @@ fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
 }
 
 //Global function to check if something is initialized
-inline fun wasInit(f: () -> Unit): Boolean {
+inline fun isInit(f: () -> Unit): Boolean {
     try {
         f()
     } catch (e: UninitializedPropertyAccessException) {

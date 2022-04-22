@@ -78,7 +78,6 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
         observer = DisplayResultObserver(
             this.thumbnailDownloader,
             requireActivity(),
-            requireContext()
         )
 
         lifecycle.addObserver(observer)

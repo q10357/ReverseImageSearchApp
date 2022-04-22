@@ -1,6 +1,7 @@
 package no.kristiania.android.reverseimagesearchapp.data.local.entity
 
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
 import java.util.*
@@ -9,7 +10,7 @@ import java.util.*
 data class UploadedImage(
     var title: String = "default",
     var urlOnServer: String? = null,
-    val id: Int = Random().nextInt(100000),
+    val id: Int = Random().nextInt(100000)
 ) : Parcelable {
 
     val photoFileName

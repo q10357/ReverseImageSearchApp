@@ -18,6 +18,7 @@ import no.kristiania.android.reverseimagesearchapp.presentation.fragment.Display
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayResultFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.UploadImageFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.service.ResultImageService
+import kotlin.properties.Delegates
 
 private const val ARG_NAV_POSITION = "nav_position"
 private const val TAG = "MainActivityTAG"
@@ -28,7 +29,7 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
     private var uploadImageFragment = UploadImageFragment.newInstance()
     private var displayCollectionFragment = DisplayCollectionFragment.newInstance()
     private lateinit var bottomNavigationView: BottomNavigationView
-    private var navPos: Int? = null
+    private var navPos by Delegates.notNull<Int>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,16 +41,13 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
 
         setContentView(R.layout.activity_main)
 
-        navPos = Bundle().getInt(ARG_NAV_POSITION)
-        if(navPos == null){
-            //If Bundle() empty
-            //We initialize with the uploadFragment
-            navPos = R.id.upload
-        }
+        navPos = savedInstanceState?.getInt(ARG_NAV_POSITION) ?: R.id.upload
         bottomNavigationView = findViewById(R.id.bottom_navigation_view)
 
-        setFragment(getCurrentFragment(navPos!!), navPos!!)
-        var navMenuItem = bottomNavigationView.menu.findItem(R.id.upload)
+        setFragment(getCurrentFragment(navPos), navPos)
+        var navMenuItem = bottomNavigationView.menu.findItem(navPos).apply {
+            this.isEnabled = false
+        }
 
         bottomNavigationView.setOnItemSelectedListener { m ->
             when (m.itemId) {
@@ -100,10 +98,11 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
             .putExtra("image_url", url))
 
         displayResultFragment = DisplayResultFragment.newInstance(image)
+
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        navPos?.let { Bundle().putInt(ARG_NAV_POSITION, it) }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(ARG_NAV_POSITION, navPos)
     }
 }

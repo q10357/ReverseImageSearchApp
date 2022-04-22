@@ -2,6 +2,7 @@ package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -13,17 +14,13 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import com.edmodo.cropper.CropImageView
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.launch
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.core.util.Status
 import no.kristiania.android.reverseimagesearchapp.core.util.createFileFromBitmap
 import no.kristiania.android.reverseimagesearchapp.core.util.uriToBitmap
-import no.kristiania.android.reverseimagesearchapp.core.util.wasInit
+import no.kristiania.android.reverseimagesearchapp.core.util.isInit
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.observer.RegisterActivityResultsObserver
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.UploadImageViewModel
@@ -74,19 +71,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         super.onCreateView(inflater, container, savedInstanceState)
         viewLifecycleOwner.lifecycle.addObserver(observer)
 
-        //We used an observer to choose image from gallery
-        //When onStarted() is called, we will observe the value of the observer's
-        //Uri property, if it is not null, the user has chosen an image, and we will update the UI
-        observer.uri.observe(
-            viewLifecycleOwner,
-            {
-                it?.let {
-                    initSelectedPhoto(it)
-                    updateButtonFunctionality(true)
-                }
-            }
-        )
-
         val view = inflater.inflate(R.layout.fragment_upload_image, container, false)
 
         selectImageBtn = view.findViewById(R.id.select_image_btn)
@@ -96,7 +80,13 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         cropImageView = view.findViewById(R.id.image_view)
         mProgressBar = view.findViewById(R.id.progress_bar_circular)
 
-        if (wasInit { bitmap }) {
+//        val uri: Uri? = savedInstanceState?.getParcelable("selected_image_uri")
+//        if(uri != null){
+//            initSelectedPhoto(uri)
+//        }
+
+        if (isInit { bitmap }) {
+            Log.i(TAG, "ITS TRUE")
             cropImageView.setImageBitmap(bitmap)
             updateButtonFunctionality(true)
         } else {
@@ -107,7 +97,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         //This btn is used for instantiating upload to server
         uploadImageBtn.apply {
             setOnClickListener {
-                if (!wasInit { selectedImage }) {
+                if (!isInit { selectedImage }) {
                     Toast.makeText(this.context, "Select Image First", Toast.LENGTH_SHORT).show()
                 } else {
                     //setting bitmap for selected image to the cropped uri
@@ -208,6 +198,23 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         )
     }
 
+    override fun onStart() {
+        super.onStart()
+        //We used an observer to choose image from gallery
+        //When onStarted() is called, we will observe the value of the observer's
+        //Uri property, if it is not null, the user has chosen an image, and we will update the UI
+        observer.uri.observe(
+            viewLifecycleOwner,
+            {
+                it?.let {
+                    Log.i(TAG, "WE ARE OBSERVING URI, IT IS NOT NULL")
+                    initSelectedPhoto(it)
+                    updateButtonFunctionality(true)
+                }
+            }
+        )
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         callbacks = context as Callbacks?
@@ -225,5 +232,12 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
 
     companion object {
         fun newInstance() = UploadImageFragment()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if(isInit { selectedImage }){
+            outState.putParcelable("selected_image_uri", observer.uri.value)
+        }
     }
 }
