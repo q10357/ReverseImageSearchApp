@@ -63,10 +63,6 @@ class DisplayResultObserver<T>(
         }
     }
 
-    override fun onPause(owner: LifecycleOwner) {
-        super.onPause(owner)
-    }
-
     override fun onDestroy(owner: LifecycleOwner) {
         super.onDestroy(owner)
         unBindService()

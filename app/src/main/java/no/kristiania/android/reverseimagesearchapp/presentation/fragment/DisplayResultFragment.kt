@@ -27,7 +27,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayResultsBinding
-import no.kristiania.android.reverseimagesearchapp.presentation.OnPhotoListener
+import no.kristiania.android.reverseimagesearchapp.presentation.OnClickListener
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerBindingInterface
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerViewAdapter
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.observer.DisplayResultObserver
@@ -42,7 +42,7 @@ private const val PARENT_IMAGE_DATA = "parent_image_data"
 private const val TAG = "DisplayResultImages"
 
 @AndroidEntryPoint
-class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPhotoListener {
+class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnClickListener {
 
     private lateinit var photoRecyclerView: RecyclerView
     private lateinit var binding: FragmentDisplayResultsBinding
@@ -52,7 +52,6 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
             GenericRecyclerViewAdapter<ReverseImageSearchItem>
     private var bitmap: Bitmap? = null
     private var imageCount: Int = 0
-    private var collectionName = ""
 
     //Temporary containers before sending to db, on users request
     private var resultItems = mutableListOf<ReverseImageSearchItem>()
@@ -86,13 +85,17 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
             this
         ) {
             resultItems = it as MutableList<ReverseImageSearchItem>
-            adapter = GenericRecyclerViewAdapter(it,
+            adapter = GenericRecyclerViewAdapter(
+                it,
                 R.layout.list_results_gallery,
-                this,
-                createBindingInterface())
+                clickListener,
+                createBindingInterface()
+            )
             photoRecyclerView.adapter = adapter
         }
     }
+
+    private val clickListener: (Int, View) -> Unit = { x: Int, y: View -> onClick(x, y) }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -147,7 +150,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
     private fun addCollectionToDb() {
         Log.i(TAG, "We ARE HERE!!!!")
         lifecycleScope.launch(IO) {
-            val parentId = async {viewModel.saveParentImage(parentImage!!)}
+            val parentId = async { viewModel.saveParentImage(parentImage!!) }
             val chosenImages = async { resultItems.filter { it.chosenByUser } }
             chosenImages.await().forEach {
                 it.parentImageId = parentId.await()
@@ -203,7 +206,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
         }
     }
 
-    override fun onPhotoClick(position: Int, view: View) {
+    override fun onClick(position: Int, view: View) {
         Log.i(TAG, "Photo clicked, check if add or remove")
         resultItems[position].apply {
             when (this.chosenByUser) {

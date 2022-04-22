@@ -8,6 +8,8 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
+import android.view.View
+import no.kristiania.android.reverseimagesearchapp.presentation.OnClickListener
 import okhttp3.MultipartBody
 import java.io.ByteArrayOutputStream
 import java.io.File
