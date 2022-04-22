@@ -17,7 +17,7 @@ class ImageDatabaseHelper @Inject constructor(context: Context): SQLiteOpenHelpe
                 " ( ${BaseColumns._ID} INTEGER PRIMARY KEY, " +
                 "${UploadedImageTable.COLUMN_NAME_TITLE} TEXT, " +
                 "${UploadedImageTable.COLUMN_NAME_IMAGE} BLOB," +
-                "${UploadedImageTable.COLUMN_DATE} DATETIME DEFAULT CURRENT_TIMESTAMP);")
+                "${UploadedImageTable.COLUMN_NAME_DATE} DATETIME DEFAULT CURRENT_TIMESTAMP);")
 
         db.execSQL("CREATE TABLE ${ResultImageTable.TABLE_NAME}" +
                 "( ${BaseColumns._ID} INTEGER PRIMARY KEY," +
@@ -51,12 +51,11 @@ object FeedReaderContract {
         const val TABLE_NAME = "uploaded_images"
         const val COLUMN_NAME_TITLE = "title"
         const val COLUMN_NAME_IMAGE = "image"
-        const val COLUMN_DATE = "date"
+        const val COLUMN_NAME_DATE = "date"
     }
 
     object ResultImageTable: BaseColumns {
         const val TABLE_NAME = "result_images"
-        const val COLUMN_NAME_COLLECTION_NAME = "name_collection"
         const val COLUMN_NAME_IMAGE = "image"
         const val COLUMN_NAME_PARENT_ID = "parent_id"
     }

@@ -26,8 +26,8 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import no.kristiania.android.reverseimagesearchapp.R
-import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
-import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
+import no.kristiania.android.reverseimagesearchapp.presentation.model.ReverseImageSearchItem
+import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayResultsBinding
 import no.kristiania.android.reverseimagesearchapp.presentation.OnPhotoListener
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerViewAdapter
@@ -69,7 +69,6 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
         thumbnailDownloader =
             ThumbnailDownloader(Handler(Looper.getMainLooper()), null)
             { holder, bitmap ->
-                val drawable = BitmapDrawable(resources, bitmap)
                 if (counter < resultItems.size) {
                     resultItems[counter].bitmap = bitmap
                     holder.setImageBitmap(bitmap)
@@ -88,7 +87,6 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
             this
         ) {
             resultItems = it as MutableList<ReverseImageSearchItem>
-            Log.i(TAG, "List size: ${resultItems.size}")
             adapter = GenericRecyclerViewAdapter(it, R.layout.list_results_gallery, this, createBindingInterface())
             photoRecyclerView.adapter = adapter
         }
@@ -144,10 +142,11 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
             val parentId = withContext(IO) {
                 viewModel.saveParentImage(parentImage!!)
             }
+
             withContext(IO) {
-                chosenImages.forEach { it.parentImageId = parentId }
-                for (i in chosenImages) {
-                    viewModel.saveChildImage(i)
+                chosenImages.forEach {
+                    it.parentImageId = parentId
+                    viewModel.saveChildImage(it)
                 }
             }
         }
@@ -162,22 +161,6 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
             return DisplayResultFragment().apply {
                 arguments = args
             }
-        }
-    }
-
-    private inner class PhotoHolder(
-        private val itemImageButton: ImageButton,
-        private val onPhotoListener: OnPhotoListener,
-    ) :
-        RecyclerView.ViewHolder(itemImageButton), View.OnClickListener {
-        init {
-            itemImageButton.setOnClickListener(this)
-        }
-
-        val setBitmap: (Drawable) -> Unit = itemImageButton::setImageDrawable
-
-        override fun onClick(view: View) {
-            onPhotoListener.onPhotoClick(layoutPosition, view)
         }
     }
 

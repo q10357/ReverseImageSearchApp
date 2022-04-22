@@ -11,7 +11,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
+import no.kristiania.android.reverseimagesearchapp.presentation.model.ReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.presentation.service.ResultImageService
 import no.kristiania.android.reverseimagesearchapp.presentation.service.ThumbnailDownloader
 

@@ -5,12 +5,8 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.Message
 import android.util.Log
-import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.runBlocking
-import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
-import no.kristiania.android.reverseimagesearchapp.data.remote.use_case.GetReverseImageSearchItemData
-import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerBindingInterface
 import java.util.concurrent.ConcurrentHashMap
 
 private const val TAG = "ThumbnailDownloader"

@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import no.kristiania.android.reverseimagesearchapp.core.util.Resource
-import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
+import no.kristiania.android.reverseimagesearchapp.presentation.model.ReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.data.remote.dto.toReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.data.remote.repo.ReverseImageSearchRepository
 import okhttp3.ResponseBody
@@ -30,7 +30,7 @@ class GetReverseImageSearchItemData @Inject constructor(
         } catch (e: HttpException) {
             e.printStackTrace()
             return Resource.error(
-                message = "Somehing went wrong...\nTry again?"
+                message = "Something went wrong...\nTry again?"
             )
         } catch (e: IOException) {
             e.printStackTrace()

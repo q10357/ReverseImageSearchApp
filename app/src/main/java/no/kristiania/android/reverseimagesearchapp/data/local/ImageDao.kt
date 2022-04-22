@@ -2,31 +2,22 @@ package no.kristiania.android.reverseimagesearchapp.data.local
 
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import no.kristiania.android.reverseimagesearchapp.data.local.FeedReaderContract.ResultImageTable
 import android.provider.BaseColumns
-import android.util.Log
-import androidx.core.content.ContentProviderCompat.requireContext
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.asCoroutineDispatcher
 import no.kristiania.android.reverseimagesearchapp.core.util.bitmapToByteArray
-import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
-import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
-import no.kristiania.android.reverseimagesearchapp.data.remote.dto.ResultImageDto
-import no.kristiania.android.reverseimagesearchapp.data.remote.dto.toReverseImageSearchItem
+import no.kristiania.android.reverseimagesearchapp.data.local.FeedReaderContract.UploadedImageTable
+import no.kristiania.android.reverseimagesearchapp.data.local.entity.ParentImage
+import no.kristiania.android.reverseimagesearchapp.presentation.model.ReverseImageSearchItem
+import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedImage
 import java.io.File
-import java.sql.Blob
-import java.util.concurrent.Executors
+import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 private const val TAG = "ImageDAO"
-
-
-private val DB_DISPATCHER = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()).asCoroutineDispatcher()
-private val DB_CONTEXT: CoroutineContext = DB_DISPATCHER + NonCancellable
 
 class ImageDao @Inject constructor(
     private val context: Context,
@@ -36,7 +27,7 @@ class ImageDao @Inject constructor(
     private val cacheDir = context.applicationContext.cacheDir
 
     //We want to know the ID of the uploaded picture, so we return the newRowId
-    suspend fun insertUploadedImage(image: UploadedImage): Long {
+    fun insertUploadedImage(image: UploadedImage): Long {
         val db = database.writableDatabase
         val file = File(cacheDir, image.photoFileName)
         val bitmap: Bitmap = BitmapFactory.decodeFile(file.path)
@@ -52,7 +43,7 @@ class ImageDao @Inject constructor(
     }
 
 
-     suspend fun insertResultImages(image: ReverseImageSearchItem): Long{
+     fun insertResultImages(image: ReverseImageSearchItem): Long{
 
         val db = database.writableDatabase
         val byteArray = image.bitmap?.let { bitmapToByteArray(it) }
@@ -64,33 +55,71 @@ class ImageDao @Inject constructor(
         return newResult
     }
 
-
     //delete for delete button you press on result page
-    suspend fun deleteResult(id: Int): Int {
+    fun deleteResult(id: Int): Int {
         val db = database.writableDatabase
         val where = "_id =${id};"
         val query = db.delete(ResultImageTable.TABLE_NAME, where, null);
 
         return query
     }
-    /*
-    fun getByResultItem(number: Int): List<ReverseImageSearchItem>{
-        val db = database.readableDatabase
-        val query = "SELECT * FROM " + FeedReaderContract.ResultImageTable.TABLE_NAME;
-       // var selection = "${FeedReaderContract.ResultImageTable.ID} = $number"
 
-       // val cursor = db.query(FeedReaderContract.ResultImageTable.TABLE_NAME,null,selection,null,null,null,null)
+    fun getAllParentImages(): List<ParentImage>{
+        var parentImages = mutableListOf<ParentImage>()
+        val db = database.writableDatabase
 
-        val itemReverse = mutableListOf<ReverseImageSearchItem>()
-        with(cursor){
-            while(moveToNext()){
+        val cursor: Cursor = db.query(UploadedImageTable.TABLE_NAME, arrayOf(
+            BaseColumns._ID,
+            UploadedImageTable.COLUMN_NAME_TITLE,
+            UploadedImageTable.COLUMN_NAME_IMAGE,
+            UploadedImageTable.COLUMN_NAME_DATE
+        ), null, null, null, null, "${UploadedImageTable.COLUMN_NAME_DATE} ASC" )
 
-                val blob = getBlob(getColumnIndexOrThrow(FeedReaderContract.ResultImageTable.COLUMN_NAME_IMAGE))
+        while(cursor.moveToNext()){
+            val id = cursor.getLong(cursor.getColumnIndexOrThrow(
+                BaseColumns._ID
+            ))
+            val title = cursor.getString(cursor.getColumnIndexOrThrow(
+                UploadedImageTable.COLUMN_NAME_TITLE
+            ))
+            val image = cursor.getBlob(cursor.getColumnIndexOrThrow(
+                UploadedImageTable.COLUMN_NAME_IMAGE
+            ))
+            val dateLongValue = cursor.getLong(cursor.getColumnIndexOrThrow(
+                UploadedImageTable.COLUMN_NAME_DATE
+            ))
+            val bitmap = BitmapFactory.decodeByteArray(image, 0, image.size)
+            val date: Date = Date(TimeUnit.SECONDS.toMillis(dateLongValue * 1000))
 
-            }
+            val parentImage: ParentImage = ParentImage(
+                id,
+                title,
+                bitmap,
+                date
+            )
+            parentImages.add(parentImage)
         }
-        return listOf()
+        return parentImages
     }
 
-     */
+    fun getParentsChildImages(id: Long){
+
+    }
+
+//    fun getByResultItem(number: Int): List<ReverseImageSearchItem>{
+//        val db = database.readableDatabase
+//        val query = "SELECT * FROM " + FeedReaderContract.ResultImageTable.TABLE_NAME;
+//        var selection = "${FeedReaderContract.ResultImageTable.ID} = $number"
+//        val cursor = db.query(FeedReaderContract.ResultImageTable.TABLE_NAME,null,selection,null,null,null,null)
+//
+//        val itemReverse = mutableListOf<ReverseImageSearchItem>()
+//        with(cursor){
+//            while(moveToNext()){
+//
+//                val blob = getBlob(getColumnIndexOrThrow(FeedReaderContract.ResultImageTable.COLUMN_NAME_IMAGE))
+//
+//            }
+//        }
+//        return listOf()
+//    }
 }

@@ -11,7 +11,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import no.kristiania.android.reverseimagesearchapp.core.util.*
-import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
+import no.kristiania.android.reverseimagesearchapp.presentation.model.ReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.data.remote.use_case.GetReverseImageSearchItemData
 import java.util.*
 import javax.inject.Inject

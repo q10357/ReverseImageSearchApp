@@ -1,7 +1,7 @@
 package no.kristiania.android.reverseimagesearchapp.data.remote.dto
 
 import com.google.gson.annotations.SerializedName
-import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
+import no.kristiania.android.reverseimagesearchapp.presentation.model.ReverseImageSearchItem
 
 data class ResultImageDto(
     //The decision of having this data transfer object was mainly based on

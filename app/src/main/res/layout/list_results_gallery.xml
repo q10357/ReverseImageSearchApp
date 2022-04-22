@@ -8,4 +8,5 @@
     android:padding="3dp"
     android:layout_gravity="center"
     android:scaleType="centerCrop"
-    android:contentDescription="@string/button_to_click_for_saving_image" />
+    android:contentDescription="@string/button_to_click_for_saving_image"
+    tools:viewBindingIgnore="true"/>

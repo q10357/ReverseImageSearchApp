@@ -1,6 +1,6 @@
 package no.kristiania.android.reverseimagesearchapp.presentation
 
-import no.kristiania.android.reverseimagesearchapp.data.local.entity.CollectionItem
+import no.kristiania.android.reverseimagesearchapp.presentation.model.CollectionItem
 
 interface OnClickCollectionListener {
     fun onClickCollection(collectionItem: CollectionItem)

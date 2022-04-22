@@ -1,4 +1,4 @@
-package no.kristiania.android.reverseimagesearchapp.data.local.entity
+package no.kristiania.android.reverseimagesearchapp.presentation.model
 import android.graphics.Bitmap
 import android.os.Parcel
 import android.os.Parcelable

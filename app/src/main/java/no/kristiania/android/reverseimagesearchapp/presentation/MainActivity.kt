@@ -1,11 +1,7 @@
 package no.kristiania.android.reverseimagesearchapp.presentation
 
-import android.content.ComponentName
 import android.content.Intent
-import android.content.ServiceConnection
 import android.os.Bundle
-import android.os.IBinder
-import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -14,7 +10,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import kotlinx.coroutines.*
 import no.kristiania.android.reverseimagesearchapp.R
-import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
+import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayCollectionFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayResultFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.UploadImageFragment

@@ -2,7 +2,6 @@ package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -21,7 +20,7 @@ import no.kristiania.android.reverseimagesearchapp.core.util.Status
 import no.kristiania.android.reverseimagesearchapp.core.util.createFileFromBitmap
 import no.kristiania.android.reverseimagesearchapp.core.util.uriToBitmap
 import no.kristiania.android.reverseimagesearchapp.core.util.isInit
-import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
+import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.observer.RegisterActivityResultsObserver
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.UploadImageViewModel
 import java.io.File
@@ -86,7 +85,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
 //        }
 
         if (isInit { bitmap }) {
-            Log.i(TAG, "ITS TRUE")
             cropImageView.setImageBitmap(bitmap)
             updateButtonFunctionality(true)
         } else {
