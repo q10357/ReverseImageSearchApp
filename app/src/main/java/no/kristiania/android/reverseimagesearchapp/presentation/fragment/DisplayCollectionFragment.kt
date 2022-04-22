@@ -24,8 +24,7 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
 
     private val viewModel by viewModels<DisplayCollectionViewModel>()
     private lateinit var binding: FragmentDisplayCollectionBinding
-    private lateinit var adapter:
-            GenericRecyclerViewAdapter<CollectionItem>
+
     var list = mutableListOf<CollectionItem>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,11 +70,9 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
             }
         }
 
-
     companion object {
         fun newInstance() = DisplayCollectionFragment()
     }
-
 
     override fun onClick(position: Int, view: View) {
         Log.i(TAG, "WE ARE PRESSING!")
