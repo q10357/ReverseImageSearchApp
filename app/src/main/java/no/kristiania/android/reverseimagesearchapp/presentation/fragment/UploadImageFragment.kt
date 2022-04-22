@@ -196,7 +196,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                         val message = it.message.toString()
                         val f = { upload() }
                         errorMessagePopup(message,f)
-
                        
                     }
                 }
@@ -212,8 +211,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         val builder = AlertDialog.Builder(requireContext())
         val inflater = layoutInflater
         val popupLayout = inflater.inflate(R.layout.tryagain_popup, null)
-
-
 
         with(builder) {
             setTitle(message)

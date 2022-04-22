@@ -25,15 +25,6 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
     private val viewModel by viewModels<DisplayCollectionViewModel>()
     private lateinit var binding: FragmentDisplayCollectionBinding
 
-    var list = mutableListOf<CollectionItem>()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel
-
-        binding = FragmentDisplayCollectionBinding.inflate(layoutInflater)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentDisplayCollectionBinding.bind(view)
@@ -65,6 +56,7 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
                 view.findViewById<TextView>(R.id.recycler_text).apply {
                     this.text = instance.collectionName
                 }
+
                 val imageView = view.findViewById<ImageView>(R.id.recycler_image)
                 imageView.setImageBitmap(instance.parentImage.bitmap)
             }

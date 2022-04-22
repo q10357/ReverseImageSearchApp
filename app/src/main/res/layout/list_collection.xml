@@ -27,7 +27,6 @@
             android:background="@color/grey">
 
             <ImageView
-
                 android:id="@+id/recycler_image"
                 android:layout_width="51dp"
                 android:layout_height="46dp"

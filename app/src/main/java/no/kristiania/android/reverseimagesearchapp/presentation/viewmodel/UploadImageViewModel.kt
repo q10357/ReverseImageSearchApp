@@ -1,6 +1,7 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.viewmodel
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,12 +22,15 @@ class UploadImageViewModel @Inject constructor(
 ) : ViewModel(), ProgressRequestBody.UploadCallback {
     private var bitmapScaling = 2
     private var scaleFactor = 1
+    private var _mResult = MutableLiveData<Resource<String>>()
     var mProgress = MutableLiveData(0)
-    var mResult = MutableLiveData<Resource<String>>()
+    var mResult: LiveData<Resource<String>> = _mResult
     //We return the ID of the selected image when inserted in our SQLLite database
 
     fun onUpload(image: UploadedImage, file: File) {
         val body = getMultiPartBody(file, this)
+        _mResult.value = Resource.loading()
+        Log.i(TAG, "${mResult.value}")
 
         getUploadedImageUrl(body).onEach { result ->
             when (result.status) {
@@ -49,7 +53,7 @@ class UploadImageViewModel @Inject constructor(
                     Log.i(TAG, "Loading...")
                 }
             }
-            mResult.postValue(result)
+            _mResult.postValue(result)
         }.launchIn(GlobalScope)
     }
 
