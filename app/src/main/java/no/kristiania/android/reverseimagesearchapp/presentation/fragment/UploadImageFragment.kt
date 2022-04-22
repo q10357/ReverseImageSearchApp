@@ -1,5 +1,6 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
+import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
@@ -10,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -193,10 +195,34 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                     }
                     Status.ERROR -> {
                         val message = it.message
+                        errorMessagePopup(message)
+
                     }
                 }
             }
         )
+    }
+
+    //error popup asking to try again when the ovserverer gets an status.error
+    //it also prints out the whole error which is not good
+    // practice and something we would not do in a real app
+    private fun errorMessagePopup(message: String?) {
+        val builder = AlertDialog.Builder(requireContext())
+        val inflater = layoutInflater
+        val popupLayout = inflater.inflate(R.layout.tryagain_popup, null)
+        val errorText = popupLayout.findViewById<TextView>(R.id.message_id)
+
+        with(builder) {
+            setTitle("There was an error")
+            setPositiveButton("Try again") { dialog, which ->
+                errorText.text = message
+            }
+            setNegativeButton("Cancel") {dialog, which ->
+                Toast.makeText(requireContext(), "Upload failed", Toast.LENGTH_SHORT).show()
+            }
+            setView(popupLayout)
+                .show()
+        }
     }
 
     override fun onStart() {

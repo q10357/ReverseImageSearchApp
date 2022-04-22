@@ -32,7 +32,6 @@
                 android:layout_height="46dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginStart="7dp"
-
                 tools:background="@drawable/piclogo" />
 
             <TextView
@@ -42,19 +41,16 @@
                 android:layout_height="47dp"
                 android:layout_marginStart="15dp"
                 android:textSize="15sp"
-
-
                 tools:text="1/4-22 kl 13:32 \n 25 resultater" />
 
 
             <ImageButton
                 android:id="@+id/recycler_image_button"
+                android:layout_width="57dp"
+                android:layout_height="55dp"
                 android:layout_marginTop="6dp"
-                android:layout_width="48dp"
-                android:layout_height="51dp"
-                android:background="@drawable/arrow"
-                android:contentDescription="@string/descibe_arrow_in_list"
-                />
+                android:background="@drawable/ic_arrow_item"
+                android:contentDescription="@string/descibe_arrow_in_list" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>
