@@ -32,13 +32,20 @@ class DisplayCollectionViewModel @Inject constructor(
             var collection: MutableList<CollectionItem> = mutableListOf()
             val parentImages = async {
                 getParentImages().forEach {
+                    Log.i(TAG, "WE ARE HERE !! ${it.id}")
                     collection[counter].parentImage = it
                     collection[counter].date = it.date
+                    collection[counter].collectionName = it.title
+                    counter++
                 }
             }
-            val getCollection = async { parentImages.await().forEach{
-                getChildImages(it.id)
+            parentImages.await()
+            val getCollection = async { collection.forEach{
+                Log.i(TAG, "This is maybe working?????")
+                Log.i(TAG, "${collection.size}")
+                it.childImages = getChildImages(it.parentImage.id)
             } }
+
             val childImages = async { getChildImages()}
         }
     }

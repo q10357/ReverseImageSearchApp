@@ -38,8 +38,6 @@ class ImageDatabaseHelper @Inject constructor(context: Context): SQLiteOpenHelpe
         db?.execSQL("PRAGMA foreign_keys = ON;")
     }
 
-
-
     companion object {
         const val DATABASE_NAME = Constants.DATABASE_NAME
         const val DATABASE_VERSION = 1

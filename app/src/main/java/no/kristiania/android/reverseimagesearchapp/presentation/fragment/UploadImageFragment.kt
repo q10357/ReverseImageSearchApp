@@ -101,10 +101,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                     //setting bitmap for selected image to the cropped uri
                     cropImage()
                     Log.i(TAG, "Wait for it...")
-                    val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
-                    viewModel.onUpload(selectedImage, file)
-                    observeUpload()
-                    observeResponse()
+                    upload()
                 }
             }
         }
@@ -132,6 +129,13 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         }
 
         return view
+    }
+
+    private fun upload() {
+        val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
+        viewModel.onUpload(selectedImage, file)
+        observeUpload()
+        observeResponse()
     }
 
     //function to change the bitmap variable in the Uploaded Image Object
@@ -189,7 +193,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                     }
                     Status.ERROR -> {
                         val message = it.message
-
                     }
                 }
             }

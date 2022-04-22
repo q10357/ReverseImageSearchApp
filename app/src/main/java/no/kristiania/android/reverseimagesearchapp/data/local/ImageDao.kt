@@ -5,10 +5,12 @@ import android.content.Context
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import no.kristiania.android.reverseimagesearchapp.data.local.FeedReaderContract.ResultImageTable
 import android.provider.BaseColumns
 import no.kristiania.android.reverseimagesearchapp.core.util.bitmapToByteArray
 import no.kristiania.android.reverseimagesearchapp.data.local.FeedReaderContract.UploadedImageTable
+import no.kristiania.android.reverseimagesearchapp.data.local.entity.ChildImage
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ParentImage
 import no.kristiania.android.reverseimagesearchapp.presentation.model.ReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedImage
@@ -102,7 +104,17 @@ class ImageDao @Inject constructor(
         return parentImages
     }
 
-    fun getParentsChildImages(id: Long){
+    fun getParentsChildImages(id: Long): List<ChildImage>{
+        val selection = ResultImageTable.COLUMN_NAME_PARENT_ID + "= ?"
+        var childImages = mutableListOf<ChildImage>()
+        val db = database.writableDatabase
+
+        val cursor: Cursor = db.query(ResultImageTable.TABLE_NAME, arrayOf(
+            BaseColumns._ID,
+            ResultImageTable.COLUMN_NAME_IMAGE,
+            ResultImageTable.COLUMN_NAME_PARENT_ID,
+        ), id, null, null, null, "${UploadedImageTable.COLUMN_NAME_DATE} ASC" )
+
 
     }
 
