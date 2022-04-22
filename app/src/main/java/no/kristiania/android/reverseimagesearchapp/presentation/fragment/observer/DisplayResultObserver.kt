@@ -70,6 +70,7 @@ class DisplayResultObserver<T>(
 
     override fun onDestroy(owner: LifecycleOwner) {
         super.onDestroy(owner)
+        unBindService()
         thumbnailDownloader.onDestroy(owner)
     }
 
@@ -83,5 +84,9 @@ class DisplayResultObserver<T>(
             connection,
             Context.BIND_AUTO_CREATE)
         mBound = true
+    }
+
+    private fun unBindService(){
+        activity.unbindService(connection)
     }
 }

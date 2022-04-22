@@ -1,7 +1,11 @@
 package no.kristiania.android.reverseimagesearchapp.presentation
 
+import android.content.ComponentName
 import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -25,9 +29,6 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
     private var displayCollectionFragment = DisplayCollectionFragment.newInstance()
     private lateinit var bottomNavigationView: BottomNavigationView
     private var navPos: Int? = null
-
-    private lateinit var mService: ResultImageService
-    private var serviceStarted: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,14 +98,8 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
         val url = image.urlOnServer ?: return
         startService(Intent(this, ResultImageService::class.java)
             .putExtra("image_url", url))
-        serviceStarted = true
 
         displayResultFragment = DisplayResultFragment.newInstance(image)
-    }
-
-    private fun startService(){
-        val intent = Intent(this, ResultImageService::class.java)
-        startService(intent)
     }
 
     override fun onDestroy() {

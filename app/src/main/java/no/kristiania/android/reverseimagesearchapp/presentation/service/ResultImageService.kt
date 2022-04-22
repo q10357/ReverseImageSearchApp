@@ -24,7 +24,6 @@ class ResultImageService: Service() {
     private val _resultItems = MutableLiveData<List<ReverseImageSearchItem>>()
     val resultItems: LiveData<List<ReverseImageSearchItem>> = _resultItems
     val mResult = MutableLiveData<Resource<String>>()
-    var counter = 0
 
     @Inject
     lateinit var getReverseImageSearchItemData: GetReverseImageSearchItemData
@@ -37,7 +36,6 @@ class ResultImageService: Service() {
                 fetchImageData(url)
             }
         }
-
         return super.onStartCommand(intent, flags, startId)
     }
 
@@ -64,8 +62,6 @@ class ResultImageService: Service() {
     }
 
     suspend fun fetchPhoto(url: String): Bitmap? {
-        Log.i("OMGWTF", "WE ARE FETCHING SINGLE $counter!!!")
-        counter++
         return getReverseImageSearchItemData.fetchPhoto(url)
     }
 
