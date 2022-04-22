@@ -1,10 +1,11 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.viewmodel
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import no.kristiania.android.reverseimagesearchapp.data.local.ImageDao
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ChildImage
@@ -19,6 +20,8 @@ class DisplayCollectionViewModel @Inject constructor(
     private val dao: ImageDao,
 ) : ViewModel() {
 
+    var collection = MutableLiveData<List<CollectionItem>>()
+
     init {
         viewModelScope.launch {
             initCollection()
@@ -27,7 +30,7 @@ class DisplayCollectionViewModel @Inject constructor(
 
     private fun initCollection() {
         viewModelScope.launch {
-            var collection: MutableList<CollectionItem> = mutableListOf()
+            var collectionContainer: MutableList<CollectionItem> = mutableListOf()
             val parentImages = mutableListOf<ParentImage>()
             var childImages = mutableListOf<ChildImage>()
             getParentImages().forEach {
@@ -40,9 +43,10 @@ class DisplayCollectionViewModel @Inject constructor(
                     parentImage = it,
                     childImages = childImages
                 )
-                collection.add(collectionItem)
-                Log.i(TAG, "This is or list size: ${collection.size}")
+                collectionContainer.add(collectionItem)
+                Log.i(TAG, "This is or list size: ${collectionContainer.size}")
             }
+            collection.postValue(collectionContainer)
         }
     }
 

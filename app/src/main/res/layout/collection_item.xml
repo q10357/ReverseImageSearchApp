@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="104dp"
-    android:layout_gravity="top"
-    tools:viewBindingIgnore="true">
+    android:layout_gravity="top">
 
     <androidx.cardview.widget.CardView
         android:layout_width="404dp"

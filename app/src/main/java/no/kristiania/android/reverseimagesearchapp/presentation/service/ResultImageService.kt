@@ -41,7 +41,7 @@ class ResultImageService: Service() {
 
     private suspend fun fetchImageData(url: String) {
         val result = getReverseImageSearchItemData(url)
-        Log.i("OMGWTF", "WE ARE FETCHING AGAIN!!!")
+
         if(result.status == Status.SUCCESS){
             saveResponse(result.data as MutableList<ReverseImageSearchItem>)
         }
