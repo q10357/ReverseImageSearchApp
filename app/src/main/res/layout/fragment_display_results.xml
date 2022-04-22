@@ -50,7 +50,7 @@
         android:id="@+id/button_save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="@android:dimen/app_icon_size"
+        android:layout_marginEnd="@android:dimen/app_icon_size"
         android:text="@string/save"
         app:layout_constraintBottom_toTopOf="@+id/parent_image_view"
         app:layout_constraintEnd_toEndOf="parent"

@@ -51,7 +51,7 @@
                 android:layout_height="55dp"
                 android:layout_marginTop="6dp"
                 android:background="@drawable/ic_arrow_item"
-                android:contentDescription="@string/descibe_arrow_in_list" />
+                android:contentDescription="@string/describe_arrow_in_list" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

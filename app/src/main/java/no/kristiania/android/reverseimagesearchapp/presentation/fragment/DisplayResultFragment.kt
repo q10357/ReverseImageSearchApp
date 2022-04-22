@@ -87,7 +87,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
             resultItems = it as MutableList<ReverseImageSearchItem>
             adapter = GenericRecyclerViewAdapter(
                 it,
-                R.layout.list_results_gallery,
+                R.layout.list_photo_gallery,
                 clickListener,
                 createBindingInterface()
             )

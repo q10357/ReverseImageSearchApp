@@ -47,7 +47,7 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
                 layoutManager = GridLayoutManager(context, 1)
                 adapter = GenericRecyclerViewAdapter(
                     it,
-                    R.layout.list_collection_item,
+                    R.layout.list_collection,
                     clickListener,
                     createBindingInterface()
                 )
