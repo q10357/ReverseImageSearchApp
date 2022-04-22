@@ -202,6 +202,19 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
             show()
         }
     }
+    //TODO Give this bitmap of the clicked item
+    private fun onLongClick(image: Bitmap?){
+        val builder = AlertDialog.Builder(requireContext())
+        val inflater = layoutInflater
+        val screenLayout = inflater.inflate(R.layout.image_popout, null)
+        val imageView = screenLayout.findViewById<ImageView>(R.id.image_id)
+        imageView.setImageBitmap(image)
+        with(builder){
+            setNeutralButton("done") {dialog, which ->}
+        }
+            .setView(screenLayout)
+            .show()
+    }
 
     override fun onClick(position: Int, view: View) {
         Log.i(TAG, "Photo clicked, check if add or remove")
