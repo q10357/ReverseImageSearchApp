@@ -220,7 +220,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Log.i(TAG, "WE ARE DESTROYING IT")
         viewLifecycleOwner.lifecycle.removeObserver(observer)
     }
 

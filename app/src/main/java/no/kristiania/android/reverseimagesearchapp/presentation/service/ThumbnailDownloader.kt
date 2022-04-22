@@ -6,10 +6,9 @@ import android.os.HandlerThread
 import android.os.Message
 import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.runBlocking
-import no.kristiania.android.reverseimagesearchapp.core.util.wasInit
+import no.kristiania.android.reverseimagesearchapp.data.remote.use_case.GetReverseImageSearchItemData
 import java.util.concurrent.ConcurrentHashMap
 
 private const val TAG = "ThumbnailDownloader"
@@ -20,22 +19,33 @@ class ThumbnailDownloader<in T>(
     private val responseHandler: Handler,
     var service: ResultImageService?,
     val onThumbnailDownloaded: (T, Bitmap) -> Unit,
-) : HandlerThread(TAG)
-{
+) : HandlerThread(TAG) {
+    lateinit var getReverseImageSearchItemData: GetReverseImageSearchItemData
 
-    val fragmentLifecycleObserver: DefaultLifecycleObserver =
-        object: DefaultLifecycleObserver {
-            override fun onCreate(owner: LifecycleOwner) {
-                Log.i(TAG, "Starting background thread")
-                start()
-                looper
-            }
+//    var fragmentLifecycleObserver: DefaultLifecycleObserver =
+//        object : DefaultLifecycleObserver {
+//            override fun onCreate(owner: LifecycleOwner) {
+//                Log.i(TAG, "Starting background thread")
+//                start()
+//                looper
+//            }
+//
+//            override fun onDestroy(owner: LifecycleOwner) {
+//                Log.i(TAG, "Destroying background thread")
+//                quit()
+//            }
+//        }
 
-            override fun onDestroy(owner: LifecycleOwner) {
-                Log.i(TAG, "Destroying background thread")
-                quit()
-            }
-        }
+    fun onCreate(owner: LifecycleOwner) {
+        Log.i(TAG, "Starting background thread")
+        start()
+        looper
+    }
+
+    fun onDestroy(owner: LifecycleOwner) {
+        Log.i(TAG, "Destroying background thread")
+        quit()
+    }
 
 
     fun onDestroyView(owner: LifecycleOwner) {
@@ -50,9 +60,9 @@ class ThumbnailDownloader<in T>(
     private val requestMap = ConcurrentHashMap<T, String>()
 
     override fun onLooperPrepared() {
-        requestHandler = object: Handler(looper){
+        requestHandler = object : Handler(looper) {
             override fun handleMessage(msg: Message) {
-                if(msg.what == MESSAGE_DOWNLOAD){
+                if (msg.what == MESSAGE_DOWNLOAD) {
                     val target = msg.obj as T
                     handleRequest(target)
                 }
@@ -69,12 +79,10 @@ class ThumbnailDownloader<in T>(
             bitmap = networkResult
         }
 
-        Log.i(TAG, "IS SERVICE NULL??? ${wasInit { service }}")
-
-        if(bitmap == null) return
+        if (bitmap == null) return
 
         responseHandler.post(Runnable {
-            if(requestMap[target] != url || hasQuit){
+            if (requestMap[target] != url || hasQuit) {
                 return@Runnable
             }
 
@@ -84,7 +92,7 @@ class ThumbnailDownloader<in T>(
     }
 
 
-    fun queueThumbnail(target: T, url: String){
+    fun queueThumbnail(target: T, url: String) {
         requestMap[target] = url
         requestHandler.obtainMessage(MESSAGE_DOWNLOAD, target)
             .sendToTarget()

@@ -21,11 +21,10 @@ private const val TAG = "ResultImageDataFetchr"
 @AndroidEntryPoint
 class ResultImageService: Service() {
     private val binder = LocalBinder()
-    private val _resultItems = MutableLiveData<List<ReverseImageSearchItem?>>()
-    var resultItems: LiveData<List<ReverseImageSearchItem?>> = _resultItems
+    private val _resultItems = MutableLiveData<List<ReverseImageSearchItem>>()
+    val resultItems: LiveData<List<ReverseImageSearchItem>> = _resultItems
     val mResult = MutableLiveData<Resource<String>>()
-
-    //private var thumbnailDownloader: ThumbnailDownloader<PhotoHolder>? = null
+    var counter = 0
 
     @Inject
     lateinit var getReverseImageSearchItemData: GetReverseImageSearchItemData
@@ -44,14 +43,13 @@ class ResultImageService: Service() {
 
     private suspend fun fetchImageData(url: String) {
         val result = getReverseImageSearchItemData(url)
+        Log.i("OMGWTF", "WE ARE FETCHING AGAIN!!!")
         if(result.status == Status.SUCCESS){
             saveResponse(result.data as MutableList<ReverseImageSearchItem>)
         }
     }
 
     private fun saveResponse(response: MutableList<ReverseImageSearchItem>) {
-        _resultItems.postValue(emptyList())
-        Log.i(TAG, "THIS IS RESPONSE ${response}")
         _resultItems.postValue(response)
     }
 
@@ -66,11 +64,14 @@ class ResultImageService: Service() {
     }
 
     suspend fun fetchPhoto(url: String): Bitmap? {
+        Log.i("OMGWTF", "WE ARE FETCHING SINGLE $counter!!!")
+        counter++
         return getReverseImageSearchItemData.fetchPhoto(url)
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
+        Log.i(TAG, "Removing task")
         stopSelf()
     }
 
