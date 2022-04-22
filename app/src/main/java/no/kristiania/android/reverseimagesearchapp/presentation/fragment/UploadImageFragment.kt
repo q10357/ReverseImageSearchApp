@@ -196,7 +196,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                     Status.ERROR -> {
                         val message = it.message
                         errorMessagePopup(message)
-
                     }
                 }
             }

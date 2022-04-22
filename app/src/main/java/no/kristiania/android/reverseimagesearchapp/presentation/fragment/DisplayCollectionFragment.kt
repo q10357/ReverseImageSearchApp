@@ -29,7 +29,6 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel
-        Log.i(TAG, "JESUS CHRIST")
 
         //insertDummyDataToCollectionList()
         binding = FragmentDisplayCollectionBinding.inflate(layoutInflater)
@@ -37,17 +36,14 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.i(TAG, "HERE WE ARE")
         binding = FragmentDisplayCollectionBinding.bind(view)
 
         val collectionFragment = this
         viewModel.collection.observe(
             viewLifecycleOwner
         ){
-            Log.i(TAG, "ARE WE HERE???")
             binding.collectionRecyclerView.apply {
                 layoutManager = GridLayoutManager(context,1)
-                Log.i(TAG, "list size in viewModel: ${it.size}")
                 adapter = CollectionAdapter(it, collectionFragment)
                 Log.i(TAG,"HALLO ")
             }

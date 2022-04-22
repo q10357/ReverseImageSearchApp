@@ -14,11 +14,11 @@ class DisplayResultViewModel @Inject constructor(
     private val dao: ImageDao
 ) : ViewModel() {
 
-    fun saveParentImage(image: UploadedImage): Long {
+    suspend fun saveParentImage(image: UploadedImage): Long {
         return dao.insertUploadedImage(image)
     }
 
-    fun saveChildImage(image: ReverseImageSearchItem) {
+    suspend fun saveChildImage(image: ReverseImageSearchItem) {
             dao.insertResultImages(image)
     }
 }
