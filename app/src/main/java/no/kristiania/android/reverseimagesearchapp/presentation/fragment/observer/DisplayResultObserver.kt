@@ -19,8 +19,7 @@ private const val TAG = "DisplayResultObserver"
 
 class DisplayResultObserver<T>(
     private val thumbnailDownloader: ThumbnailDownloader<T>,
-    private val activity: FragmentActivity,
-    private val context: Context
+    private val activity: FragmentActivity
 ): DefaultLifecycleObserver {
     private val mBinder = MutableLiveData<ResultImageService.LocalBinder?>()
     private var mService: ResultImageService? = null
