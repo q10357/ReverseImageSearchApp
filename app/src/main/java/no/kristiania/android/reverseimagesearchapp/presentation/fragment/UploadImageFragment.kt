@@ -15,6 +15,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.edmodo.cropper.CropImageView
 import dagger.hilt.android.AndroidEntryPoint
 import no.kristiania.android.reverseimagesearchapp.R
@@ -194,34 +195,43 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                         callbacks?.onImageSelected(selectedImage)
                     }
                     Status.ERROR -> {
-                        val message = it.message
-                        errorMessagePopup(message)
+                        val message = it.message.toString()
+                        val f = { upload() }
+                        errorMessagePopup(message,f)
+
+                       
                     }
                 }
             }
         )
     }
 
-    //error popup asking to try again when the ovserverer gets an status.error
-    //it also prints out the whole error which is not good
-    // practice and something we would not do in a real app
-    private fun errorMessagePopup(message: String?) {
+    // Display what error you get which we only made dismissable
+    // tried to call the update function but the dialog only stacked on top of eachother
+    // if it failed multiple times
+
+    private fun errorMessagePopup(message: String?, f: () -> Unit){
         val builder = AlertDialog.Builder(requireContext())
         val inflater = layoutInflater
         val popupLayout = inflater.inflate(R.layout.tryagain_popup, null)
-        val errorText = popupLayout.findViewById<TextView>(R.id.message_id)
+
+
 
         with(builder) {
-            setTitle("There was an error")
-            setPositiveButton("Try again") { dialog, which ->
-                errorText.text = message
-            }
-            setNegativeButton("Cancel") {dialog, which ->
-                Toast.makeText(requireContext(), "Upload failed", Toast.LENGTH_SHORT).show()
-            }
+            setTitle(message)
+                .setNeutralButton("Dismiss") {dialog,which ->
+                }
+//
+//            setPositiveButton("Try again") { dialog, which ->
+//                f()
+//            }
+//            setNegativeButton("Cancel") {dialog, which ->
+//
+//            }
             setView(popupLayout)
                 .show()
         }
+
     }
 
     override fun onStart() {
