@@ -12,11 +12,9 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
-import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -32,6 +30,8 @@ import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImag
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayResultsBinding
 import no.kristiania.android.reverseimagesearchapp.presentation.OnPhotoListener
+import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerViewAdapter
+import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerBindingInterface
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.observer.DisplayResultObserver
 import no.kristiania.android.reverseimagesearchapp.presentation.service.ThumbnailDownloader
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.DisplayResultViewModel
@@ -46,8 +46,10 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
 
     private lateinit var photoRecyclerView: RecyclerView
     private lateinit var binding: FragmentDisplayResultsBinding
-    private lateinit var thumbnailDownloader: ThumbnailDownloader<PhotoHolder>
-    private lateinit var observer: DisplayResultObserver<PhotoHolder>
+    private lateinit var thumbnailDownloader: ThumbnailDownloader<ImageButton>
+    private lateinit var observer: DisplayResultObserver<ImageButton>
+    private lateinit var adapter:
+            GenericRecyclerViewAdapter<ReverseImageSearchItem>
     private var bitmap: Bitmap? = null
     private var imageCount: Int = 0
     private var collectionName = ""
@@ -70,7 +72,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
                 val drawable = BitmapDrawable(resources, bitmap)
                 if (counter < resultItems.size) {
                     resultItems[counter].bitmap = bitmap
-                    holder.setBitmap(drawable)
+                    holder.setImageBitmap(bitmap)
                     counter++
                 }
             }
@@ -87,7 +89,8 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
         ) {
             resultItems = it as MutableList<ReverseImageSearchItem>
             Log.i(TAG, "List size: ${resultItems.size}")
-            photoRecyclerView.adapter = PhotoAdapter(it, this)
+            adapter = GenericRecyclerViewAdapter(it, R.layout.list_results_gallery, this, createBindingInterface())
+            photoRecyclerView.adapter = adapter
         }
     }
 
@@ -120,6 +123,17 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
             }
         }
     }
+
+    private fun createBindingInterface() =
+        object: GenericRecyclerBindingInterface<ReverseImageSearchItem>{
+            override fun bindData(
+                instance: ReverseImageSearchItem,
+                view: View
+            ) {
+                val imageButton = view.findViewById<ImageButton>(R.id.item_recycler_view)
+                thumbnailDownloader.queueThumbnail(imageButton, instance.link)
+            }
+        }
 
     private fun addCollectionToDb() {
         val chosenImages = resultItems.filter { it.chosenByUser }
@@ -167,47 +181,6 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
         }
     }
 
-    private inner class PhotoAdapter(
-        private val galleryItems: List<ReverseImageSearchItem>,
-        private val onPhotoListener: OnPhotoListener,
-    ) :
-        RecyclerView.Adapter<PhotoHolder>() {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoHolder {
-            val view = layoutInflater.inflate(
-                R.layout.list_results_gallery,
-                parent,
-                false
-            ) as ImageButton
-            return PhotoHolder(view, onPhotoListener)
-        }
-
-        override fun onBindViewHolder(holder: PhotoHolder, position: Int) {
-            val galleryItem = galleryItems[position]
-            val placeholder: Drawable = ContextCompat.getDrawable(
-                requireContext(),
-                R.drawable.ic_file_download,
-            ) ?: ColorDrawable()
-            holder.setBitmap(placeholder)
-            thumbnailDownloader.queueThumbnail(holder, galleryItem.link)
-        }
-
-        override fun getItemCount(): Int = galleryItems.size
-    }
-
-    override fun onPhotoClick(position: Int, view: View) {
-        Log.i(TAG, "Photo clicked, check if add or remove")
-        resultItems[position].apply {
-            when (this.chosenByUser) {
-                true -> this.chosenByUser = false.also { imageCount-- }
-                false -> this.chosenByUser = true.also { imageCount++ }
-            }
-        }.also {
-            view.background = treatOnClick(it.chosenByUser)
-        }
-        Log.i(TAG, "Number of images chosen: $imageCount")
-    }
-
-
     private fun treatOnClick(isChosen: Boolean): Drawable? {
         return when (isChosen) {
             true -> ResourcesCompat.getDrawable(resources, R.drawable.highlight, null)
@@ -242,6 +215,19 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnPho
             show()
 
         }
+    }
+
+    override fun onPhotoClick(position: Int, view: View) {
+        Log.i(TAG, "Photo clicked, check if add or remove")
+        resultItems[position].apply {
+            when (this.chosenByUser) {
+                true -> this.chosenByUser = false.also { imageCount-- }
+                false -> this.chosenByUser = true.also { imageCount++ }
+            }
+        }.also {
+            view.background = treatOnClick(it.chosenByUser)
+        }
+        Log.i(TAG, "Number of images chosen: $imageCount")
     }
 
     override fun onDestroy() {

@@ -8,7 +8,9 @@ import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.runBlocking
+import no.kristiania.android.reverseimagesearchapp.data.local.entity.ReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.data.remote.use_case.GetReverseImageSearchItemData
+import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerBindingInterface
 import java.util.concurrent.ConcurrentHashMap
 
 private const val TAG = "ThumbnailDownloader"
@@ -20,21 +22,7 @@ class ThumbnailDownloader<in T>(
     var service: ResultImageService?,
     val onThumbnailDownloaded: (T, Bitmap) -> Unit,
 ) : HandlerThread(TAG) {
-    lateinit var getReverseImageSearchItemData: GetReverseImageSearchItemData
-
-//    var fragmentLifecycleObserver: DefaultLifecycleObserver =
-//        object : DefaultLifecycleObserver {
-//            override fun onCreate(owner: LifecycleOwner) {
-//                Log.i(TAG, "Starting background thread")
-//                start()
-//                looper
-//            }
-//
-//            override fun onDestroy(owner: LifecycleOwner) {
-//                Log.i(TAG, "Destroying background thread")
-//                quit()
-//            }
-//        }
+    private var bitmapContainer = mutableMapOf<String, Bitmap>()
 
     fun onCreate(owner: LifecycleOwner) {
         Log.i(TAG, "Starting background thread")
@@ -74,12 +62,21 @@ class ThumbnailDownloader<in T>(
         val url = requestMap[target] ?: return
         var bitmap: Bitmap? = null
 
+        if(bitmapContainer.containsKey(url)){
+            onThumbnailDownloaded(target, bitmapContainer[url]!!)
+            Log.i(TAG, "THIS SHOULD WORK")
+            return
+        }
+
         runBlocking {
+            Log.i(TAG, "THIS SHOULD NOT HAPPEN")
             val networkResult = service?.fetchPhoto(url)
             bitmap = networkResult
         }
 
         if (bitmap == null) return
+        bitmapContainer[url] = bitmap!!
+        Log.i(TAG, "${bitmapContainer.size}")
 
         responseHandler.post(Runnable {
             if (requestMap[target] != url || hasQuit) {
@@ -91,8 +88,8 @@ class ThumbnailDownloader<in T>(
         })
     }
 
-
     fun queueThumbnail(target: T, url: String) {
+        Log.i(TAG, "${bitmapContainer.size}")
         requestMap[target] = url
         requestHandler.obtainMessage(MESSAGE_DOWNLOAD, target)
             .sendToTarget()
