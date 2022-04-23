@@ -45,6 +45,7 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
         navMenuItem = bottomNavigationView.menu.findItem(navPos).apply {
             this.isEnabled = false
         }
+
         setFragment(getCurrentFragment(navPos), navPos)
 
         bottomNavigationView.setOnItemSelectedListener { m ->
@@ -96,7 +97,7 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks {
             .putExtra("image_url", url))
 
         displayResultFragment = DisplayResultFragment.newInstance(image)
-        navPos = R.id.display_result
+        navPos = R.id.display_result.also { bottomNavigationView.selectedItemId = it }
         setFragment(displayResultFragment, navPos)
 
     }
