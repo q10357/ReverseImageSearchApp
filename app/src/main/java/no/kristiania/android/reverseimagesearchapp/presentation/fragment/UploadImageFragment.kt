@@ -1,6 +1,5 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
-import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
@@ -21,6 +20,9 @@ import no.kristiania.android.reverseimagesearchapp.core.util.Status
 import no.kristiania.android.reverseimagesearchapp.core.util.createFileFromBitmap
 import no.kristiania.android.reverseimagesearchapp.core.util.isInit
 import no.kristiania.android.reverseimagesearchapp.core.util.uriToBitmap
+import no.kristiania.android.reverseimagesearchapp.databinding.FragmentUploadImageBinding
+import no.kristiania.android.reverseimagesearchapp.presentation.DialogType
+import no.kristiania.android.reverseimagesearchapp.presentation.PopupView
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.observer.RegisterActivityResultsObserver
 import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.UploadImageViewModel
@@ -32,28 +34,16 @@ private const val TAG = "MainActivityTAG"
 class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     private lateinit var observer: RegisterActivityResultsObserver
     private lateinit var selectedImage: UploadedImage
-    private lateinit var mProgressBar: ProgressBar
 
-    //UI components
-    private lateinit var selectImageBtn: Button
-    private lateinit var uploadImageBtn: Button
-    private lateinit var cropImageView: CropImageView
-    private lateinit var rotateRightBtn: Button
-    private lateinit var rotateLeftBtn: Button
+    private lateinit var binding: FragmentUploadImageBinding
+    private lateinit var imageView: CropImageView
     private lateinit var bitmap: Bitmap
-
     private var callbacks: Callbacks? = null
-
 
     interface Callbacks {
         fun onImageSelected(image: UploadedImage)
     }
 
-    //ViewModels need to be instantiated after onAttach()
-    //So we do not inject them in the constructor, but place them as a property.
-    //ViewModels persist across configuration changes (such as rotation)
-    //They are cleared when the activity/fragment is destroyed,
-    //Until then, this property will remain the same instance
     private val viewModel by viewModels<UploadImageViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,32 +51,18 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         observer = RegisterActivityResultsObserver(
             requireActivity().activityResultRegistry,
         )
+        lifecycle.addObserver(observer)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        super.onCreateView(inflater, container, savedInstanceState)
-        viewLifecycleOwner.lifecycle.addObserver(observer)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding = FragmentUploadImageBinding.bind(view)
+        //To give a cleaner look
+        imageView = binding.cropImageView
 
-        val view = inflater.inflate(R.layout.fragment_upload_image, container, false)
-
-        selectImageBtn = view.findViewById(R.id.select_image_btn)
-        uploadImageBtn = view.findViewById(R.id.upload_image_btn)
-        rotateLeftBtn = view.findViewById(R.id.rotate_left_button)
-        rotateRightBtn = view.findViewById(R.id.rotate_right_button)
-        cropImageView = view.findViewById(R.id.image_view)
-        mProgressBar = view.findViewById(R.id.progress_bar_circular)
-
-//        val uri: Uri? = savedInstanceState?.getParcelable("selected_image_uri")
-//        if(uri != null){
-//            initSelectedPhoto(uri)
-//        }
 
         if (isInit { bitmap }) {
-            cropImageView.setImageBitmap(bitmap)
+            imageView.setImageBitmap(bitmap)
             updateButtonFunctionality(true)
         } else {
             //to avoid NullPointerExceptions
@@ -94,42 +70,36 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         }
 
         //This btn is used for instantiating upload to server
-        uploadImageBtn.apply {
-            setOnClickListener {
-                if (!isInit { selectedImage }) {
-                    Toast.makeText(this.context, "Select Image First", Toast.LENGTH_SHORT).show()
-                } else {
-                    //setting bitmap for selected image to the cropped uri
-                    cropImage()
-                    Log.i(TAG, "Wait for it...")
-                    upload()
-                }
+        binding.uploadImageBtn.setOnClickListener{
+            if (!isInit { selectedImage }) {
+                Toast.makeText(this.context, "Select Image First", Toast.LENGTH_SHORT).show()
+            } else {
+                //setting bitmap for selected image to the cropped uri
+                cropImage()
+                Log.i(TAG, "Wait for it...")
+                upload()
             }
         }
 
-        cropImageView.apply {
-            setOnClickListener {
-                observer.selectImage()
-            }
+        binding.cropImageView.setOnClickListener {
+            observer.selectImage()
         }
 
-        selectImageBtn.apply {
-            setOnClickListener {
-                observer.selectImage()
-            }
+        binding.selectImageBtn.apply {
+            observer.selectImage()
+
         }
 
         //simple button to rotate the cropview left
-        rotateLeftBtn.setOnClickListener {
-            cropImageView.rotateImage(270)
+        binding.rotateLeftBtn.setOnClickListener {
+            binding.cropImageView.rotateImage(270)
         }
 
         //simple button to rotate cropview to the right
-        rotateRightBtn.setOnClickListener {
-            cropImageView.rotateImage(90)
+        binding.rotateRightBtn.setOnClickListener {
+            imageView.rotateImage(90)
         }
 
-        return view
     }
 
     private fun upload() {
@@ -142,9 +112,9 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     //function to change the bitmap variable in the Uploaded Image Object
     //to the bitmap of the cropped imageview
     private fun cropImage() {
-        val croppedImage = cropImageView.croppedImage
+        val croppedImage = imageView.croppedImage
         bitmap = croppedImage
-        cropImageView.setImageBitmap(croppedImage)
+        imageView.setImageBitmap(croppedImage)
 
         writeToFile()
     }
@@ -163,13 +133,13 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         )
         writeToFile()
 
-        cropImageView.setImageBitmap(bitmap)
+        imageView.setImageBitmap(bitmap)
     }
 
     private fun updateButtonFunctionality(isEnabled: Boolean) {
-        rotateLeftBtn.isEnabled = isEnabled
-        rotateRightBtn.isEnabled = isEnabled
-        uploadImageBtn.isEnabled = isEnabled
+        binding.rotateLeftBtn.isEnabled = isEnabled
+        binding.rotateRightBtn.isEnabled = isEnabled
+        binding.uploadImageBtn.isEnabled = isEnabled
     }
 
     private fun observeUpload() {
@@ -177,7 +147,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
             viewLifecycleOwner,
             {
                 it?.let {
-                    mProgressBar.progress = it
+                    binding.progressBar.progress = it
                 }
             }
         )
@@ -195,38 +165,17 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                     Status.ERROR -> {
                         val message = it.message.toString()
                         val f = { upload() }
-                        errorMessagePopup(message,f)
-                       
+                        PopupView.showDialogueWindow(
+                            type = DialogType.ERROR,
+                            message = it.message!!,
+                            {upload()},
+                            requireContext(),
+                            layoutInflater
+                        )
                     }
                 }
             }
         )
-    }
-
-    // Display what error you get which we only made dismissable
-    // tried to call the update function but the dialog only stacked on top of eachother
-    // if it failed multiple times
-
-    private fun errorMessagePopup(message: String?, f: () -> Unit){
-        val builder = AlertDialog.Builder(requireContext())
-        val inflater = layoutInflater
-        val popupLayout = inflater.inflate(R.layout.tryagain_popup, null)
-
-        with(builder) {
-            setTitle(message)
-                .setNeutralButton("Dismiss") {dialog,which ->
-                }
-//
-//            setPositiveButton("Try again") { dialog, which ->
-//                f()
-//            }
-//            setNegativeButton("Cancel") {dialog, which ->
-//
-//            }
-            setView(popupLayout)
-                .show()
-        }
-
     }
 
     override fun onStart() {

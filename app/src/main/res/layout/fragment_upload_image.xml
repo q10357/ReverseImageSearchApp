@@ -6,11 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:viewBindingIgnore="true"
     >
 
     <ProgressBar
-        android:id="@+id/progress_bar_circular"
+        android:id="@+id/progress_bar"
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:indeterminateOnly="false"
@@ -35,7 +34,7 @@
 
 
     <com.edmodo.cropper.CropImageView
-        android:id="@+id/image_view"
+        android:id="@+id/crop_image_view"
         android:layout_width="match_parent"
         android:layout_height="477dp"
         android:background="@drawable/ic_launcher_foreground"
@@ -50,7 +49,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/upload_image_btn"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/image_view" />
+        app:layout_constraintTop_toBottomOf="@+id/crop_image_view" />
 
     <Button
         android:id="@+id/upload_image_btn"
@@ -61,10 +60,10 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/select_image_btn"
-        app:layout_constraintTop_toBottomOf="@+id/image_view" />
+        app:layout_constraintTop_toBottomOf="@+id/crop_image_view" />
 
     <Button
-        android:id="@+id/rotate_left_button"
+        android:id="@+id/rotate_left_btn"
         android:layout_width="89dp"
         android:layout_height="83dp"
         android:layout_marginTop="7dp"
@@ -72,11 +71,11 @@
         android:background="@drawable/ic_logo_rotate_left_foreground"
         app:layout_constraintBottom_toTopOf="@+id/select_image_btn"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/image_view"
+        app:layout_constraintTop_toBottomOf="@+id/crop_image_view"
         app:layout_constraintVertical_bias="0.14" />
 
     <Button
-        android:id="@+id/rotate_right_button"
+        android:id="@+id/rotate_right_btn"
         android:layout_width="89dp"
         android:layout_height="83dp"
         android:layout_marginStart="232dp"
@@ -84,8 +83,8 @@
         android:layout_marginBottom="42dp"
         android:background="@drawable/ic_logo_rotate_right"
         app:layout_constraintBottom_toTopOf="@+id/upload_image_btn"
-        app:layout_constraintStart_toEndOf="@+id/rotate_left_button"
-        app:layout_constraintTop_toBottomOf="@+id/image_view"
+        app:layout_constraintStart_toEndOf="@+id/rotate_left_btn"
+        app:layout_constraintTop_toBottomOf="@+id/crop_image_view"
         app:layout_constraintVertical_bias="0.2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -75,7 +75,7 @@ class ImageDao @Inject constructor(
             UploadedImageTable.COLUMN_NAME_TITLE,
             UploadedImageTable.COLUMN_NAME_IMAGE,
             UploadedImageTable.COLUMN_NAME_DATE
-        ), null, null, null, null, "${UploadedImageTable.COLUMN_NAME_DATE} ASC" )
+        ), null, null, null, null, "${UploadedImageTable.COLUMN_NAME_DATE} DESC" )
 
         while(cursor.moveToNext()){
             val id = cursor.getLong(cursor.getColumnIndexOrThrow(

@@ -28,7 +28,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayResultsBinding
+import no.kristiania.android.reverseimagesearchapp.presentation.DialogType
 import no.kristiania.android.reverseimagesearchapp.presentation.OnClickListener
+import no.kristiania.android.reverseimagesearchapp.presentation.PopupView
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerBindingInterface
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerViewAdapter
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.observer.DisplayResultObserver
@@ -123,7 +125,13 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
                     //Be sure that it is initialized
                     //in the main thread
                     viewModel
-                    showPopupForSaving(parentImage!!) { addCollectionToDb() }
+                    PopupView.showDialogueWindow(
+                        type = DialogType.INSERT,
+                        message = "A name for your collection?",
+                        {addCollectionToDb()},
+                        requireContext(),
+                        layoutInflater
+                    )
                 }
             }
         }
@@ -171,31 +179,6 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
         }
     }
 
-    private fun showPopupForSaving(image: UploadedImage, f: () -> Unit) {
-        val builder = AlertDialog.Builder(requireContext())
-        val inflater = layoutInflater
-        val popupLayout = inflater.inflate(R.layout.save_collection_popup, null)
-        val editText = popupLayout.findViewById<EditText>(R.id.new_collection_name)
-
-        //make a popup which the user names collection of the parent image
-        with(builder) {
-            setTitle("Name your collection")
-            setPositiveButton("OK") { dialog, which ->
-                //list.add(editText.text.toString())
-                Toast.makeText(requireContext(), editText.text.toString(), Toast.LENGTH_SHORT)
-                    .show()
-                //parentImage?.collectionName = editText.text.toString()
-                val text = editText.text.toString()
-                image.title = text
-                f()
-            }
-            setNegativeButton("cancel") { dialog, which ->
-                Toast.makeText(requireContext(), "Cancel the popout", Toast.LENGTH_SHORT).show()
-            }
-            setView(popupLayout)
-            show()
-        }
-    }
     //TODO Give this bitmap of the clicked item
     private fun onLongClick(image: Bitmap?){
         val builder = AlertDialog.Builder(requireContext())

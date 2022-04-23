@@ -8,11 +8,11 @@ package no.kristiania.android.reverseimagesearchapp.core.util
 data class Resource<out T>(val status: Status, val data: T?, val message: String? = null) {
     companion object {
 
-        fun <T> success(data: T?, message: String?= ""): Resource<T> {
+        fun <T> success(data: T, message: String= ""): Resource<T> {
             return Resource(Status.SUCCESS, data, message)
         }
 
-        fun <T> error(data: T? = null, message: String?): Resource<T> {
+        fun <T> error(data: T? = null, message: String): Resource<T> {
             return Resource(Status.ERROR, data, message)
         }
 
