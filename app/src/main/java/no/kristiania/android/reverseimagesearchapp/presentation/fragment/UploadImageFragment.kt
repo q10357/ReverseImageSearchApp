@@ -51,12 +51,12 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         observer = RegisterActivityResultsObserver(
             requireActivity().activityResultRegistry,
         )
-        lifecycle.addObserver(observer)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentUploadImageBinding.bind(view)
+        viewLifecycleOwner.lifecycle.addObserver(observer)
         //To give a cleaner look
         imageView = binding.cropImageView
 
@@ -85,7 +85,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
             observer.selectImage()
         }
 
-        binding.selectImageBtn.apply {
+        binding.selectImageBtn.setOnClickListener {
             observer.selectImage()
 
         }

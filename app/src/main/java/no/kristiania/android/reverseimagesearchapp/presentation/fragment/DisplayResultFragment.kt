@@ -11,7 +11,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
-import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
@@ -20,10 +19,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import no.kristiania.android.reverseimagesearchapp.R
@@ -118,21 +115,19 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
             if (imageCount <= 0) {
                 Toast.makeText(requireContext(), "No pictures selected", Toast.LENGTH_SHORT).show()
             } else {
-                lifecycleScope.launch(Main) {
-                    //ViewModel has lazy init
-                    //ViewModel is an observer, and must be added in the main thread
-                    //So when we plan to use it in a coroutine, we have to
-                    //Be sure that it is initialized
-                    //in the main thread
-                    viewModel
-                    PopupView.showDialogueWindow(
-                        type = DialogType.INSERT,
-                        message = "A name for your collection?",
-                        {addCollectionToDb()},
-                        requireContext(),
-                        layoutInflater
-                    )
-                }
+                //ViewModel has lazy init
+                //ViewModel is an observer, and must be added in the main thread
+                //So when we plan to use it in a coroutine, we have to
+                //Be sure that it is initialized
+                //in the main thread
+                viewModel
+                PopupView.showDialogueWindow(
+                    type = DialogType.INSERT,
+                    message = "A name for your collection?",
+                    { addCollectionToDb() },
+                    requireContext(),
+                    layoutInflater
+                )
             }
         }
     }
@@ -180,14 +175,14 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
     }
 
     //TODO Give this bitmap of the clicked item
-    private fun onLongClick(image: Bitmap?){
+    private fun onLongClick(image: Bitmap?) {
         val builder = AlertDialog.Builder(requireContext())
         val inflater = layoutInflater
         val screenLayout = inflater.inflate(R.layout.image_popout, null)
         val imageView = screenLayout.findViewById<ImageView>(R.id.image_id)
         imageView.setImageBitmap(image)
-        with(builder){
-            setNeutralButton("done") {dialog, which ->}
+        with(builder) {
+            setNeutralButton("done") { dialog, which -> }
         }
             .setView(screenLayout)
             .show()

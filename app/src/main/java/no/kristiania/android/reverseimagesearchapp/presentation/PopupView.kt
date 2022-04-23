@@ -33,5 +33,6 @@ object PopupView {
 
 enum class DialogType(val layoutId: Int) {
     ERROR(R.layout.tryagain_popup),
-    INSERT(R.layout.save_collection_popup)
+    INSERT(R.layout.save_collection_popup),
+    LONGCLICK(R.layout.image_popout)
 }
