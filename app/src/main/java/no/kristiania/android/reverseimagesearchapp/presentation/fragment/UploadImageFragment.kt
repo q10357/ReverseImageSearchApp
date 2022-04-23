@@ -5,11 +5,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -163,14 +159,13 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                         callbacks?.onImageSelected(selectedImage)
                     }
                     Status.ERROR -> {
-                        val message = it.message.toString()
-                        val f = { upload() }
                         PopupView.showDialogueWindow(
                             type = DialogType.ERROR,
-                            message = it.message!!,
+                            message = it.message.toString(),
                             {upload()},
                             requireContext(),
-                            layoutInflater
+                            layoutInflater,
+                            null
                         )
                     }
                 }

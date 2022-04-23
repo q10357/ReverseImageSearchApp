@@ -26,6 +26,11 @@ class GenericRecyclerViewAdapter<T: Any>(
         }
     }
 
+    override fun submitList(list: MutableList<T>?) {
+        super.submitList(list)
+
+    }
+
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): GenericViewHolder {
         val layoutInflater = LayoutInflater.from(viewGroup.context)
         val view = LayoutInflater.from(viewGroup.context)

@@ -5,7 +5,6 @@ import android.content.Context
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.Uri
 import no.kristiania.android.reverseimagesearchapp.data.local.FeedReaderContract.ResultImageTable
 import android.provider.BaseColumns
 import no.kristiania.android.reverseimagesearchapp.core.util.bitmapToByteArray
@@ -46,7 +45,6 @@ class ImageDao @Inject constructor(
 
 
      fun insertResultImages(image: ReverseImageSearchItem): Long{
-
         val db = database.writableDatabase
         val byteArray = image.bitmap?.let { bitmapToByteArray(it) }
         val newResult = db.insert("result_images", null, ContentValues().apply {
@@ -55,6 +53,26 @@ class ImageDao @Inject constructor(
 
         })
         return newResult
+    }
+
+    fun getChildImage(id: Long): ChildImage {
+        val db = database.writableDatabase
+        val where = "_id =${id}"
+        val cursor: Cursor = db.query(ResultImageTable.TABLE_NAME, null, where, null, null, null, null)
+
+        val result = retrieveChildImageData(cursor)
+        assert(result.size == 1)
+        return result[0]
+    }
+
+    fun getParentImage(id: Long): ParentImage {
+        val db = database.writableDatabase
+        val where = "_id =${id}"
+        val cursor: Cursor = db.query(UploadedImageTable.TABLE_NAME, null, where, null, null, null, null)
+
+        val result = retrieveParentImageData(cursor)
+        assert(result.size == 1)
+        return result[0]
     }
 
     //delete for delete button you press on result page
@@ -67,16 +85,50 @@ class ImageDao @Inject constructor(
     }
 
     fun getAllParentImages(): List<ParentImage>{
-        var parentImages = mutableListOf<ParentImage>()
+        val db = database.writableDatabase
+        val cursor: Cursor = db.query(UploadedImageTable.TABLE_NAME, null, null, null, null, null, "${UploadedImageTable.COLUMN_NAME_DATE} DESC" )
+
+        return retrieveParentImageData(cursor)
+    }
+
+    fun getParentsChildImages(id: Long): List<ChildImage>{
+        val selection = ResultImageTable.COLUMN_NAME_PARENT_ID + "= ?"
         val db = database.writableDatabase
 
-        val cursor: Cursor = db.query(UploadedImageTable.TABLE_NAME, arrayOf(
-            BaseColumns._ID,
-            UploadedImageTable.COLUMN_NAME_TITLE,
-            UploadedImageTable.COLUMN_NAME_IMAGE,
-            UploadedImageTable.COLUMN_NAME_DATE
-        ), null, null, null, null, "${UploadedImageTable.COLUMN_NAME_DATE} DESC" )
+        val cursor: Cursor = db.query(ResultImageTable.TABLE_NAME, null, selection, arrayOf(id.toString()), null, null, null )
 
+        return retrieveChildImageData(cursor)
+    }
+
+    private fun retrieveChildImageData(cursor: Cursor): List<ChildImage> {
+        val result = mutableListOf<ChildImage>()
+        while(cursor.moveToNext()){
+            val id = cursor.getLong(cursor.getColumnIndexOrThrow(
+                BaseColumns._ID
+            ))
+            val image = cursor.getBlob(cursor.getColumnIndexOrThrow(
+                ResultImageTable.COLUMN_NAME_IMAGE
+            ))
+            val parentId = cursor.getLong(cursor.getColumnIndexOrThrow(
+                ResultImageTable.COLUMN_NAME_PARENT_ID
+            ))
+
+            val bitmap = BitmapFactory.decodeByteArray(image, 0, image.size)
+
+            val childImage: ChildImage = ChildImage(
+                id = id,
+                bitmap = bitmap,
+                parentId = parentId
+            )
+            result.add(childImage)
+        }
+        cursor.close()
+        return result
+    }
+
+
+    private fun retrieveParentImageData(cursor: Cursor): List<ParentImage> {
+        val result = mutableListOf<ParentImage>()
         while(cursor.moveToNext()){
             val id = cursor.getLong(cursor.getColumnIndexOrThrow(
                 BaseColumns._ID
@@ -99,61 +151,9 @@ class ImageDao @Inject constructor(
                 bitmap = bitmap,
                 date = date
             )
-            parentImages.add(parentImage)
+            result.add(parentImage)
         }
         cursor.close()
-        return parentImages
+        return result
     }
-
-    fun getParentsChildImages(id: Long): List<ChildImage>{
-        val selection = ResultImageTable.COLUMN_NAME_PARENT_ID + "= ?"
-        var childImages = mutableListOf<ChildImage>()
-        val db = database.writableDatabase
-
-        val cursor: Cursor = db.query(ResultImageTable.TABLE_NAME, arrayOf(
-            BaseColumns._ID,
-            ResultImageTable.COLUMN_NAME_IMAGE,
-            ResultImageTable.COLUMN_NAME_PARENT_ID,
-        ), selection, arrayOf(id.toString()), null, null, null )
-
-        while(cursor.moveToNext()){
-            val id = cursor.getLong(cursor.getColumnIndexOrThrow(
-                BaseColumns._ID
-            ))
-            val image = cursor.getBlob(cursor.getColumnIndexOrThrow(
-                ResultImageTable.COLUMN_NAME_IMAGE
-            ))
-            val parentId = cursor.getLong(cursor.getColumnIndexOrThrow(
-                ResultImageTable.COLUMN_NAME_PARENT_ID
-            ))
-
-            val bitmap = BitmapFactory.decodeByteArray(image, 0, image.size)
-
-            val childImage: ChildImage = ChildImage(
-                id = id,
-                bitmap = bitmap,
-                parentId = parentId
-            )
-            childImages.add(childImage)
-        }
-        cursor.close()
-        return childImages
-    }
-
-//    fun getByResultItem(number: Int): List<ReverseImageSearchItem>{
-//        val db = database.readableDatabase
-//        val query = "SELECT * FROM " + FeedReaderContract.ResultImageTable.TABLE_NAME;
-//        var selection = "${FeedReaderContract.ResultImageTable.ID} = $number"
-//        val cursor = db.query(FeedReaderContract.ResultImageTable.TABLE_NAME,null,selection,null,null,null,null)
-//
-//        val itemReverse = mutableListOf<ReverseImageSearchItem>()
-//        with(cursor){
-//            while(moveToNext()){
-//
-//                val blob = getBlob(getColumnIndexOrThrow(FeedReaderContract.ResultImageTable.COLUMN_NAME_IMAGE))
-//
-//            }
-//        }
-//        return listOf()
-//    }
 }

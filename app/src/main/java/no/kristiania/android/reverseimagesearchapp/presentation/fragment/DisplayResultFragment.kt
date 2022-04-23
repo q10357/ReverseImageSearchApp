@@ -11,6 +11,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
@@ -72,7 +73,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
             }
 
         observer = DisplayResultObserver(
-            this.thumbnailDownloader,
+            thumbnailDownloader,
             requireActivity(),
         )
 
@@ -120,15 +121,38 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
                 //So when we plan to use it in a coroutine, we have to
                 //Be sure that it is initialized
                 //in the main thread
+                    //val f: (UploadedImage) -> Unit = { i: UploadedImage -> addCollectionToDb(i)}
                 viewModel
-                PopupView.showDialogueWindow(
-                    type = DialogType.INSERT,
-                    message = "A name for your collection?",
-                    { addCollectionToDb() },
-                    requireContext(),
-                    layoutInflater
-                )
+                showPopupForSaving(parentImage!!) { addCollectionToDb() }
             }
+        }
+    }
+
+    private fun showPopupForSaving(image: UploadedImage, f: () -> Unit) {
+        val builder = AlertDialog.Builder(requireContext())
+        val inflater = layoutInflater
+        val popupLayout = inflater.inflate(R.layout.save_collection_popup, null)
+        val editText = popupLayout.findViewById<EditText>(R.id.new_collection_name)
+        var inputIsGiven = false
+
+        //make a popup which the user names collection of the parent image
+        with(builder) {
+            setTitle("Name your collection")
+            setPositiveButton("OK") { dialog, which ->
+                //list.add(editText.text.toString())
+                Toast.makeText(requireContext(), editText.text.toString(), Toast.LENGTH_SHORT)
+                    .show()
+                //parentImage?.collectionName = editText.text.toString()
+                val text = editText.text.toString()
+                Log.i(TAG, "This is text ${text}")
+                image.title = text
+                f()
+            }
+            setNegativeButton("cancel") { dialog, which ->
+                Toast.makeText(requireContext(), "Cancel the popout", Toast.LENGTH_SHORT).show()
+            }
+            setView(popupLayout)
+            show()
         }
     }
 
@@ -191,9 +215,9 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
     override fun onClick(position: Int, view: View) {
         Log.i(TAG, "Photo clicked, check if add or remove")
         resultItems[position].apply {
-            when (this.chosenByUser) {
-                true -> this.chosenByUser = false.also { imageCount-- }
-                false -> this.chosenByUser = true.also { imageCount++ }
+            chosenByUser = when (chosenByUser) {
+                true -> false.also { imageCount-- }
+                false -> true.also { imageCount++ }
             }
         }.also {
             view.background = treatOnClick(it.chosenByUser)
