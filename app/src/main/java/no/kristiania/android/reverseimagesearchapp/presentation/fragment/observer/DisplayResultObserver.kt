@@ -29,7 +29,7 @@ class DisplayResultObserver<T>(
 
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
-        thumbnailDownloader.onCreate(owner)
+        thumbnailDownloader.onCreate()
         bindService()
     }
 
@@ -66,11 +66,11 @@ class DisplayResultObserver<T>(
     override fun onDestroy(owner: LifecycleOwner) {
         super.onDestroy(owner)
         unBindService()
-        thumbnailDownloader.onDestroy(owner)
+        thumbnailDownloader.onDestroy()
     }
 
     fun onDestroyView(owner: LifecycleOwner){
-        thumbnailDownloader.onDestroyView(owner)
+        thumbnailDownloader.onDestroyView()
     }
 
     private fun bindService() {

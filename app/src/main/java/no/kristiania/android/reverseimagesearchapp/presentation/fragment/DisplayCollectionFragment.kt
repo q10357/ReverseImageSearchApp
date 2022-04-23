@@ -45,14 +45,12 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
                 adapter = GenericRecyclerViewAdapter(
                     it,
                     R.layout.list_collection,
-                    clickListener,
+                    this@DisplayCollectionFragment,
                     createBindingInterface()
                 )
             }
         }
     }
-
-    private val clickListener: (Int, View) -> Unit = { x: Int, y: View -> onClick(x, y) }
 
     private fun createBindingInterface() =
         object : GenericRecyclerBindingInterface<CollectionItem> {
@@ -77,6 +75,10 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
         collections[position].parentImage.id.apply {
             callbacks?.onCollectionSelected(this)
         }
+    }
+
+    override fun onLongClick(position: Int) {
+        Log.i(TAG, "THIS IS CLICKED")
     }
 
     //OnDetach is called when the fragment is removed from it's hosting activity

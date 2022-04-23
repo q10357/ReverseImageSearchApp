@@ -1,12 +1,15 @@
 package no.kristiania.android.reverseimagesearchapp.core.util
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
+import android.graphics.Point
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import no.kristiania.android.reverseimagesearchapp.presentation.OnClickListener
@@ -87,4 +90,14 @@ fun File.writeBytes(array: ByteArray): Unit = FileOutputStream(this).use {it.wri
 
 fun getBitmap(context: Context, id: Int?, uri: String?, decoder: (Context, Int?, String?) -> Bitmap): Bitmap {
     return decoder(context, id, uri)
+}
+
+fun Activity.getSize(): Point {
+    val metrics = DisplayMetrics()
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        display?.getRealMetrics(metrics)
+    } else {
+        windowManager.defaultDisplay.getRealMetrics(metrics)
+    }
+    return Point(metrics.widthPixels, metrics.heightPixels)
 }

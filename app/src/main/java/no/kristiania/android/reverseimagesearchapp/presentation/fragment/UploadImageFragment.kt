@@ -165,7 +165,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                             {upload()},
                             requireContext(),
                             layoutInflater,
-                            null
                         )
                     }
                 }

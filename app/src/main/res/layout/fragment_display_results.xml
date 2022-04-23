@@ -22,9 +22,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/image_view"
+        android:padding="4dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
+        android:layout_height="wrap_content" />
 
     <ImageView
         android:id="@+id/overlay_image"
@@ -44,7 +44,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="@android:dimen/app_icon_size"
         android:text="@string/save"
-        app:layout_constraintBottom_toTopOf="@+id/crop_image_view"
+        app:layout_constraintBottom_toTopOf="@+id/image_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

@@ -29,7 +29,7 @@ class UploadImageViewModel @Inject constructor(
 
     fun onUpload(image: UploadedImage, file: File) {
         val body = getMultiPartBody(file, this)
-        _mResult.value = Resource.loading()
+        _mResult.postValue(Resource.loading())
         Log.i(TAG, "${mResult.value}")
 
         getUploadedImageUrl(body).onEach { result ->

@@ -18,21 +18,19 @@ class ThumbnailDownloader<in T>(
     var service: ResultImageService?,
     val onThumbnailDownloaded: (T, Bitmap) -> Unit,
 ) : HandlerThread(TAG) {
-    private var bitmapContainer = mutableMapOf<String, Bitmap>()
 
-    fun onCreate(owner: LifecycleOwner) {
+    fun onCreate() {
         Log.i(TAG, "Starting background thread")
         start()
         looper
     }
 
-    fun onDestroy(owner: LifecycleOwner) {
+    fun onDestroy() {
         Log.i(TAG, "Destroying background thread")
         quit()
     }
 
-
-    fun onDestroyView(owner: LifecycleOwner) {
+    fun onDestroyView() {
         Log.i(TAG, "Clearing queue")
         requestHandler.removeMessages(MESSAGE_DOWNLOAD)
         requestMap.clear()
@@ -56,23 +54,17 @@ class ThumbnailDownloader<in T>(
 
     private fun handleRequest(target: T) {
         val url = requestMap[target] ?: return
-        var bitmap: Bitmap? = null
+        var bitmap: Bitmap?
 
-        if(bitmapContainer.containsKey(url)){
-            onThumbnailDownloaded(target, bitmapContainer[url]!!)
-            Log.i(TAG, "THIS SHOULD WORK")
-            return
-        }
 
         runBlocking {
-            Log.i(TAG, "THIS SHOULD NOT HAPPEN")
             val networkResult = service?.fetchPhoto(url)
             bitmap = networkResult
         }
 
         if (bitmap == null) return
-        bitmapContainer[url] = bitmap!!
-        Log.i(TAG, "${bitmapContainer.size}")
+        Log.i(TAG, "This is the results size: Width: ${bitmap!!.width}")
+        Log.i(TAG, "This is the results size: Height: ${bitmap!!.height}")
 
         responseHandler.post(Runnable {
             if (requestMap[target] != url || hasQuit) {
@@ -85,7 +77,6 @@ class ThumbnailDownloader<in T>(
     }
 
     fun queueThumbnail(target: T, url: String) {
-        Log.i(TAG, "${bitmapContainer.size}")
         requestMap[target] = url
         requestHandler.obtainMessage(MESSAGE_DOWNLOAD, target)
             .sendToTarget()

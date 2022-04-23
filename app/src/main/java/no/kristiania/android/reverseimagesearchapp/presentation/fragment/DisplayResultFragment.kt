@@ -4,11 +4,13 @@ import android.app.AlertDialog
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.Matrix
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import android.widget.EditText
@@ -25,10 +27,10 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import no.kristiania.android.reverseimagesearchapp.R
+import no.kristiania.android.reverseimagesearchapp.core.util.getSize
+import no.kristiania.android.reverseimagesearchapp.core.util.scaleBitmap
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayResultsBinding
-import no.kristiania.android.reverseimagesearchapp.presentation.DialogType
 import no.kristiania.android.reverseimagesearchapp.presentation.OnClickListener
-import no.kristiania.android.reverseimagesearchapp.presentation.PopupView
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerBindingInterface
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerViewAdapter
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.observer.DisplayResultObserver
@@ -67,6 +69,8 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
             { holder, bitmap ->
                 if (counter < resultItems.size) {
                     resultItems[counter].bitmap = bitmap
+                    Log.i(TAG, "This is the bitmaps height (thumbnail) ${bitmap.height}")
+                    Log.i(TAG, "This is the bitmaps width (thumbnail) ${bitmap.width}")
                     holder.setImageBitmap(bitmap)
                     counter++
                 }
@@ -88,14 +92,12 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
                 adapter = GenericRecyclerViewAdapter(
                     it,
                     R.layout.list_photo_gallery,
-                    clickListener,
+                    this@DisplayResultFragment,
                     createBindingInterface()
                 )
             }
         }
     }
-
-    private val clickListener: (Int, View) -> Unit = { x: Int, y: View -> onClick(x, y) }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -107,6 +109,8 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
             val file = File(requireContext().cacheDir, parentImage!!.photoFileName)
             Log.i(TAG, "Size of file: ${file.length()}")
             bitmap = BitmapFactory.decodeFile(file.path)
+            Log.i(TAG, "This is the bitmaps height (original) ${bitmap!!.height}")
+            Log.i(TAG, "This is the bitmaps width (original) ${bitmap!!.width}")
         }
 
         bitmap?.let { binding.imageView.setImageBitmap(it) }
@@ -133,22 +137,21 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
         val inflater = layoutInflater
         val popupLayout = inflater.inflate(R.layout.save_collection_popup, null)
         val editText = popupLayout.findViewById<EditText>(R.id.new_collection_name)
-        var inputIsGiven = false
 
         //make a popup which the user names collection of the parent image
         with(builder) {
             setTitle("Name your collection")
-            setPositiveButton("OK") { dialog, which ->
+            setPositiveButton("OK") { dialog, _ ->
                 //list.add(editText.text.toString())
                 Toast.makeText(requireContext(), editText.text.toString(), Toast.LENGTH_SHORT)
                     .show()
                 //parentImage?.collectionName = editText.text.toString()
                 val text = editText.text.toString()
-                Log.i(TAG, "This is text ${text}")
+                Log.i(TAG, "This is text $text")
                 image.title = text
                 f()
             }
-            setNegativeButton("cancel") { dialog, which ->
+            setNegativeButton("cancel") { dialog, _ ->
                 Toast.makeText(requireContext(), "Cancel the popout", Toast.LENGTH_SHORT).show()
             }
             setView(popupLayout)
@@ -168,7 +171,6 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
         }
 
     private fun addCollectionToDb() {
-        Log.i(TAG, "We ARE HERE!!!!")
         lifecycleScope.launch(IO) {
             val parentId = async { viewModel.saveParentImage(parentImage!!) }
             val chosenImages = async { resultItems.filter { it.chosenByUser } }
@@ -198,13 +200,22 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
         }
     }
 
-    //TODO Give this bitmap of the clicked item
-    private fun onLongClick(image: Bitmap?) {
+    private fun inflatePhoto(image: Bitmap?) {
         val builder = AlertDialog.Builder(requireContext())
+
+        val size = requireActivity().getSize()
+        val width = size.x
+        val height = size.y
+        Log.i(TAG, "This is screen width: $width")
+        Log.i(TAG, "This is screen height: $height")
+
         val inflater = layoutInflater
         val screenLayout = inflater.inflate(R.layout.image_popout, null)
         val imageView = screenLayout.findViewById<ImageView>(R.id.image_id)
-        imageView.setImageBitmap(image)
+        val scalingFactor: Float = image!!.width.toFloat() / image.height.toFloat()
+        val scaledHeight = image.height / scalingFactor
+        val bitmap = scaleBitmap(image, width.toFloat(), scaledHeight.toFloat())
+        imageView.setImageBitmap(bitmap)
         with(builder) {
             setNeutralButton("done") { dialog, which -> }
         }
@@ -223,6 +234,10 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
             view.background = treatOnClick(it.chosenByUser)
         }
         Log.i(TAG, "Number of images chosen: $imageCount")
+    }
+
+    override fun onLongClick(position: Int) {
+        inflatePhoto(resultItems[position].bitmap)
     }
 
     override fun onDestroy() {
