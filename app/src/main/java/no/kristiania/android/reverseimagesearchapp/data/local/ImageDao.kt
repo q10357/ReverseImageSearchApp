@@ -7,6 +7,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import no.kristiania.android.reverseimagesearchapp.data.local.FeedReaderContract.ResultImageTable
 import android.provider.BaseColumns
+import androidx.lifecycle.LiveData
 import no.kristiania.android.reverseimagesearchapp.core.util.bitmapToByteArray
 import no.kristiania.android.reverseimagesearchapp.data.local.FeedReaderContract.UploadedImageTable
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ChildImage
@@ -84,7 +85,7 @@ class ImageDao @Inject constructor(
         return query
     }
 
-    fun getAllParentImages(): List<ParentImage>{
+    fun getAllParentImages(): List<ParentImage> {
         val db = database.writableDatabase
         val cursor: Cursor = db.query(UploadedImageTable.TABLE_NAME, null, null, null, null, null, "${UploadedImageTable.COLUMN_NAME_DATE} DESC" )
 

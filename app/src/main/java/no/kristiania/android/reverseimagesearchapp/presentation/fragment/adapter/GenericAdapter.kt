@@ -1,5 +1,6 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,22 +17,17 @@ class GenericRecyclerViewAdapter<T: Any>(
     private val bindingInterface: GenericRecyclerBindingInterface<T>
 ) :
     androidx.recyclerview.widget.ListAdapter<T, GenericRecyclerViewAdapter.GenericViewHolder>(GenericDiffUtil()){
-    class GenericViewHolder(val view: View, private val onClickListener: OnClickListener) : RecyclerView.ViewHolder(view), View.OnClickListener, View.OnLongClickListener{
+    class GenericViewHolder(val view: View, private val onClickListener: OnClickListener) : RecyclerView.ViewHolder(view), View.OnClickListener{
         fun<T: Any> bind(
             item: T,
             bindingInterface: GenericRecyclerBindingInterface<T>
         ) = bindingInterface.bindData(item, view)
         init {
             view.setOnClickListener(this)
-            view.setOnLongClickListener(this)
         }
         override fun onClick(view: View) {
+            Log.i("TAGTAG", "THIS IS FUCKING CLICKED")
             onClickListener.onClick(layoutPosition, view)
-        }
-
-        override fun onLongClick(view: View?): Boolean {
-            onClickListener.onLongClick(layoutPosition)
-            return true
         }
     }
 

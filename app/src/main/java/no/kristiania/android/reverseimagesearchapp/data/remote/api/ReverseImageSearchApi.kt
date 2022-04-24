@@ -16,7 +16,7 @@ interface ReverseImageSearchApi {
         @Part("desc") desc: RequestBody
     ): String
 
-    @GET("bing")
+    @GET("google")
     suspend fun fetchResultPhotoData(@Query("url") url: String): List<ResultImageDto>
 
     @GET("google")
