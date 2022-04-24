@@ -2,7 +2,7 @@ package no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapte
 
 import androidx.recyclerview.widget.RecyclerView
 import no.kristiania.android.reverseimagesearchapp.databinding.CollectionItemBinding
-import no.kristiania.android.reverseimagesearchapp.presentation.fragment.OnClickCollectionListener
+import no.kristiania.android.reverseimagesearchapp.presentation.fragment.onclicklistener.OnClickCollectionListener
 import no.kristiania.android.reverseimagesearchapp.presentation.model.CollectionItem
 
 class CardViewHolder(
@@ -17,7 +17,7 @@ class CardViewHolder(
         collectionItemBinding.recyclerText.text = collectionItem.collectionName
         //setting button listener on the arrow to open up the collection
         collectionItemBinding.recyclerImageButton.setOnClickListener {
-            onClickListener.onClickCollection(collectionItem)
+            onClickListener.onClickCollection(layoutPosition)
         }
     }
 }

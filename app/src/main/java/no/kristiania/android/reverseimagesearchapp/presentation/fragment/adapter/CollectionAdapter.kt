@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import no.kristiania.android.reverseimagesearchapp.databinding.CollectionItemBinding
-import no.kristiania.android.reverseimagesearchapp.presentation.fragment.OnClickCollectionListener
+import no.kristiania.android.reverseimagesearchapp.presentation.fragment.onclicklistener.OnClickCollectionListener
 import no.kristiania.android.reverseimagesearchapp.presentation.model.CollectionItem
 
 class CollectionAdapter(

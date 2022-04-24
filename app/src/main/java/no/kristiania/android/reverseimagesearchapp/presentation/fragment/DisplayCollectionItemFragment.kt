@@ -10,9 +10,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ChildImage
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayCollectiomItemBinding
-import no.kristiania.android.reverseimagesearchapp.presentation.OnClickListener
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerBindingInterface
-import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerViewAdapter
+import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericPhotoAdapter
+import no.kristiania.android.reverseimagesearchapp.presentation.fragment.onclicklistener.OnClickPhotoListener
 import no.kristiania.android.reverseimagesearchapp.presentation.model.CollectionItem
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.DisplayCollectionItemViewModel
 
@@ -21,7 +21,7 @@ private const val TAG = "DisplayCollectionItem"
 
 @AndroidEntryPoint
 class DisplayCollectionItemFragment: Fragment(R.layout.fragment_display_collectiom_item),
-    OnClickListener {
+    OnClickPhotoListener {
 
     private lateinit var binding: FragmentDisplayCollectiomItemBinding
     private lateinit var collectionItem: CollectionItem
@@ -43,7 +43,7 @@ class DisplayCollectionItemFragment: Fragment(R.layout.fragment_display_collecti
                 binding.imageView.setImageBitmap(it.parentImage.bitmap)
                 binding.rvContainer.apply {
                     layoutManager = GridLayoutManager(context, 3)
-                    adapter = GenericRecyclerViewAdapter(
+                    adapter = GenericPhotoAdapter(
                         it.childImages,
                         R.layout.list_photo_gallery,
                         this@DisplayCollectionItemFragment,

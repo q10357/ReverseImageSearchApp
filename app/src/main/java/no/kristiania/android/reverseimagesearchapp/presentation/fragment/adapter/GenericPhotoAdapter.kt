@@ -1,23 +1,20 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
-import no.kristiania.android.reverseimagesearchapp.presentation.OnClickListener
+import no.kristiania.android.reverseimagesearchapp.presentation.fragment.onclicklistener.OnClickPhotoListener
 
-class GenericRecyclerViewAdapter<T: Any>(
+class GenericPhotoAdapter<T: Any>(
     private val dataSet: List<T>,
     @LayoutRes val layoutID: Int,
-//    private val clickListener: (Int, View) -> Unit,
-//    private val onLongClickListener: (Int, View) -> Unit,
-    private val onClickListener: OnClickListener,
+    private val onClickPhotoListener: OnClickPhotoListener,
     private val bindingInterface: GenericRecyclerBindingInterface<T>
 ) :
-    androidx.recyclerview.widget.ListAdapter<T, GenericRecyclerViewAdapter.GenericViewHolder>(GenericDiffUtil()){
-    class GenericViewHolder(val view: View, private val onClickListener: OnClickListener) : RecyclerView.ViewHolder(view), View.OnClickListener{
+    androidx.recyclerview.widget.ListAdapter<T, GenericPhotoAdapter.GenericViewHolder>(GenericDiffUtil()){
+    class GenericViewHolder(val view: View, private val onClickPhotoListener: OnClickPhotoListener) : RecyclerView.ViewHolder(view), View.OnClickListener{
         fun<T: Any> bind(
             item: T,
             bindingInterface: GenericRecyclerBindingInterface<T>
@@ -26,8 +23,7 @@ class GenericRecyclerViewAdapter<T: Any>(
             view.setOnClickListener(this)
         }
         override fun onClick(view: View) {
-            Log.i("TAGTAG", "THIS IS FUCKING CLICKED")
-            onClickListener.onClick(layoutPosition, view)
+            onClickPhotoListener.onClick(layoutPosition, view)
         }
     }
 
@@ -41,7 +37,7 @@ class GenericRecyclerViewAdapter<T: Any>(
         val view = LayoutInflater.from(viewGroup.context)
             .inflate(layoutID, viewGroup, false)
 
-        return GenericViewHolder(view, onClickListener)
+        return GenericViewHolder(view, onClickPhotoListener)
     }
 
     override fun onBindViewHolder(holder: GenericViewHolder, position: Int) {

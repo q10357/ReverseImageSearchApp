@@ -28,9 +28,9 @@ import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.core.util.getSize
 import no.kristiania.android.reverseimagesearchapp.core.util.scaleBitmap
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayResultsBinding
-import no.kristiania.android.reverseimagesearchapp.presentation.OnClickListener
+import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericPhotoAdapter
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerBindingInterface
-import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerViewAdapter
+import no.kristiania.android.reverseimagesearchapp.presentation.fragment.onclicklistener.OnClickPhotoListener
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.observer.DisplayResultObserver
 import no.kristiania.android.reverseimagesearchapp.presentation.model.ReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedImage
@@ -43,7 +43,7 @@ private const val PARENT_IMAGE_DATA = "parent_image_data"
 private const val TAG = "DisplayResultImages"
 
 @AndroidEntryPoint
-class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnClickListener {
+class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnClickPhotoListener {
 
     private lateinit var binding: FragmentDisplayResultsBinding
     private lateinit var thumbnailDownloader: ThumbnailDownloader<ImageButton>
@@ -87,7 +87,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
             resultItems = it as MutableList<ReverseImageSearchItem>
             binding.rvContainer.apply {
                 layoutManager = GridLayoutManager(context, 3)
-                adapter = GenericRecyclerViewAdapter(
+                adapter = GenericPhotoAdapter(
                     it,
                     R.layout.list_photo_gallery,
                     this@DisplayResultFragment,
@@ -198,21 +198,48 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
         }
     }
 
-    private fun inflatePhoto(image: Bitmap?) {
+    private fun inflatePhoto(image: Bitmap) {
         val builder = AlertDialog.Builder(requireContext())
 
         val size = requireActivity().getSize()
-        val width = size.x
-        val height = size.y
+        val width = size.x.toFloat()
+        val height = size.y.toFloat()
         Log.i(TAG, "This is screen width: $width")
         Log.i(TAG, "This is screen height: $height")
+
+        val displayFactor: Float = if (height >= width) {
+            (width / height)
+        } else {
+            (height / width)
+        }
 
         val inflater = layoutInflater
         val screenLayout = inflater.inflate(R.layout.image_popout, null)
         val imageView = screenLayout.findViewById<ImageView>(R.id.image_id)
-        val scalingFactor: Float = image!!.width.toFloat() / image.height.toFloat()
-        val scaledHeight = image.height / scalingFactor
-        val bitmap = scaleBitmap(image, width.toFloat(), scaledHeight.toFloat())
+
+        var newWidth: Float = 0F
+        var newHeight: Float = 0F
+        var scalingFactor: Float = 0F
+
+        if (image.height >= image.width) {
+            scalingFactor = (image.width / image.height).toFloat()
+            newHeight = (height * scalingFactor) * (displayFactor)
+            newWidth = (width * scalingFactor) * (displayFactor)
+        } else if (image.width >= image.height) {
+            scalingFactor = (image.height / image.width).toFloat()
+            newWidth = width
+            newHeight = width / scalingFactor
+//        } else if (image.height >= image.width && height < width) {
+//            scalingFactor = height / image.height
+//            newHeight = height
+//            newWidth = image.width * scalingFactor
+//        } else if (image.width >= image.height && height < width) {
+//            scalingFactor = height / image.width
+//            newWidth = image.width * scalingFactor
+//            newHeight = height
+        }
+
+        val bitmap = scaleBitmap(image, newWidth, newHeight)
         imageView.setImageBitmap(bitmap)
         with(builder) {
             setNeutralButton("done") { dialog, which -> }
@@ -235,7 +262,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
     }
 
     override fun onLongClick(position: Int) {
-        inflatePhoto(resultItems[position].bitmap)
+        resultItems[position].bitmap?.let { inflatePhoto(it) }
     }
 
     override fun onDestroy() {

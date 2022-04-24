@@ -2,6 +2,7 @@ package no.kristiania.android.reverseimagesearchapp.presentation
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -50,6 +51,7 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks,
         navMenuItem = bottomNavigationView.menu.findItem(navPos).apply {
             this.isEnabled = false
         }
+        Log.i(TAG, "Logcat is working")
 
         setFragment(getCurrentFragment(navPos), navPos)
 
@@ -114,6 +116,11 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks,
         //Instance to have any use of it (as resultFragment, which we hopefully will
         //Put in a new activity and launch in a new intent later
         val fragment = DisplayCollectionItemFragment
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, fragment.newInstance(parentId))
+            .addToBackStack(null)
+            .commit()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
