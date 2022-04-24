@@ -163,8 +163,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                             type = DialogType.ERROR,
                             message = it.message.toString(),
                             {upload()},
-                            requireContext(),
-                            layoutInflater,
+                            requireActivity()
                         )
                     }
                 }

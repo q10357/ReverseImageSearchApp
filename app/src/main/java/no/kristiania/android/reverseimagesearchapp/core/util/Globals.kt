@@ -16,6 +16,8 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 
+//Function for checking if index in bound
+fun inBound(x: Int, y:Int): Boolean =  x < y
 
 fun getScaledBitmap(bitmap: Bitmap, scaling: Int): Bitmap {
     // Read in the dimensions of the image on disk

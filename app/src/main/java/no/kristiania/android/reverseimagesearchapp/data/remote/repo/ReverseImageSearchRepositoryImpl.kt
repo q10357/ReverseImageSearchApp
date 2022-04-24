@@ -1,4 +1,7 @@
 package no.kristiania.android.reverseimagesearchapp.data.remote.repo
+import android.util.Log
+import no.kristiania.android.reverseimagesearchapp.core.util.inBound
+import no.kristiania.android.reverseimagesearchapp.core.util.provider.Constants
 import no.kristiania.android.reverseimagesearchapp.data.remote.api.ReverseImageSearchApi
 import no.kristiania.android.reverseimagesearchapp.data.remote.dto.ResultImageDto
 import okhttp3.MediaType
@@ -14,6 +17,7 @@ private const val TAG = "NetworkRepo"
 class ReverseImageSearchRepositoryImpl @Inject constructor(
     private val api: ReverseImageSearchApi,
 ) : ReverseImageSearchRepository {
+    var counter = 0
 
     override suspend fun getUploadedImageUrl(body: MultipartBody.Part): String {
         return api.uploadImage(
@@ -23,7 +27,10 @@ class ReverseImageSearchRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getReverseImageSearchResults(url: String): List<ResultImageDto> {
-        return api.fetchResultPhotoData(url)
+        counter++
+        if(!inBound(counter, Constants.fetchUrls.size)) counter = 0
+        Log.i(TAG, "Now searching with ${Constants.fetchUrls[counter]}")
+        return api.fetchResultPhotoData(Constants.fetchUrls[counter], url)
     }
 
     override suspend fun fetchBytes(url: String): Call<ResponseBody> {

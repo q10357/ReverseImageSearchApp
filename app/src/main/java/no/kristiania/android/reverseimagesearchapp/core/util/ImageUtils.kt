@@ -1,15 +1,37 @@
 package no.kristiania.android.reverseimagesearchapp.core.util
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Matrix
-import android.util.DisplayMetrics
 import android.util.Log
-import kotlin.math.roundToInt
 
 private const val TAG = "ImageUtils"
-fun scaleBitmap(bitmapToScale: Bitmap?, newWidth: Float, newHeight: Float): Bitmap? {
+
+fun Activity.scaleBitmap(image: Bitmap): Bitmap? {
+    val size = getSize()
+    val width = size.x.toFloat()
+    val height = size.y.toFloat()
+
+    var scalingFactor: Float = if (height >= width) {
+        (width / height)
+    } else {
+        (height / width)
+    }
+
+    if (image.height >= image.width) {
+        scalingFactor *= image.width.toFloat() / image.height.toFloat()
+    } else if (image.width >= image.height) {
+        scalingFactor *= image.height.toFloat() / image.width.toFloat()
+    }
+
+    val newWidth = image.width.toFloat() / scalingFactor
+    val newHeight = image.height.toFloat() / scalingFactor
+
+    return scaleBitmap(image, newWidth, newHeight)
+}
+
+private fun scaleBitmap(bitmapToScale: Bitmap?, newWidth: Float, newHeight: Float): Bitmap? {
     if (bitmapToScale == null) return null
     //get the original width and height
     val width = bitmapToScale.width

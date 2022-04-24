@@ -13,7 +13,6 @@ import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -25,13 +24,11 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import no.kristiania.android.reverseimagesearchapp.R
-import no.kristiania.android.reverseimagesearchapp.core.util.getSize
-import no.kristiania.android.reverseimagesearchapp.core.util.scaleBitmap
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayResultsBinding
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericPhotoAdapter
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerBindingInterface
-import no.kristiania.android.reverseimagesearchapp.presentation.fragment.onclicklistener.OnClickPhotoListener
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.observer.DisplayResultObserver
+import no.kristiania.android.reverseimagesearchapp.presentation.fragment.onclicklistener.OnClickPhotoListener
 import no.kristiania.android.reverseimagesearchapp.presentation.model.ReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.presentation.service.ThumbnailDownloader
@@ -198,55 +195,21 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
         }
     }
 
-    private fun inflatePhoto(image: Bitmap) {
-        val builder = AlertDialog.Builder(requireContext())
-
-        val size = requireActivity().getSize()
-        val width = size.x.toFloat()
-        val height = size.y.toFloat()
-        Log.i(TAG, "This is screen width: $width")
-        Log.i(TAG, "This is screen height: $height")
-
-        val displayFactor: Float = if (height >= width) {
-            (width / height)
-        } else {
-            (height / width)
-        }
-
-        val inflater = layoutInflater
-        val screenLayout = inflater.inflate(R.layout.image_popout, null)
-        val imageView = screenLayout.findViewById<ImageView>(R.id.image_id)
-
-        var newWidth: Float = 0F
-        var newHeight: Float = 0F
-        var scalingFactor: Float = 0F
-
-        if (image.height >= image.width) {
-            scalingFactor = (image.width / image.height).toFloat()
-            newHeight = (height * scalingFactor) * (displayFactor)
-            newWidth = (width * scalingFactor) * (displayFactor)
-        } else if (image.width >= image.height) {
-            scalingFactor = (image.height / image.width).toFloat()
-            newWidth = width
-            newHeight = width / scalingFactor
-//        } else if (image.height >= image.width && height < width) {
-//            scalingFactor = height / image.height
-//            newHeight = height
-//            newWidth = image.width * scalingFactor
-//        } else if (image.width >= image.height && height < width) {
-//            scalingFactor = height / image.width
-//            newWidth = image.width * scalingFactor
-//            newHeight = height
-        }
-
-        val bitmap = scaleBitmap(image, newWidth, newHeight)
-        imageView.setImageBitmap(bitmap)
-        with(builder) {
-            setNeutralButton("done") { dialog, which -> }
-        }
-            .setView(screenLayout)
-            .show()
-    }
+//    private fun inflatePhoto(image: Bitmap) {
+//        val builder = AlertDialog.Builder(requireContext())
+//
+//        val inflater = layoutInflater
+//        val screenLayout = inflater.inflate(R.layout.image_popout, null)
+//        val imageView = screenLayout.findViewById<ImageView>(R.id.image_id)
+//
+//        val bitmap = activity?.scaleBitmap(image)
+//        imageView.setImageBitmap(bitmap)
+//        with(builder) {
+//            setNeutralButton("done") { dialog, which -> }
+//        }
+//            .setView(screenLayout)
+//            .show()
+//    }
 
     override fun onClick(position: Int, view: View) {
         Log.i(TAG, "Photo clicked, check if add or remove")
@@ -262,7 +225,8 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
     }
 
     override fun onLongClick(position: Int) {
-        resultItems[position].bitmap?.let { inflatePhoto(it) }
+        Log.i(TAG, "YEYEYEYE")
+    //resultItems[position].bitmap?.let { inflatePhoto(it) }
     }
 
     override fun onDestroy() {

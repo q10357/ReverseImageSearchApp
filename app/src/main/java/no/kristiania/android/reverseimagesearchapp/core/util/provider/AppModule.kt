@@ -41,7 +41,7 @@ object AppModule {
     @Singleton
     fun provideImageSearchApi(): ReverseImageSearchApi {
         val client = OkHttpClient.Builder()
-            .connectTimeout(1, TimeUnit.MINUTES)
+            .connectTimeout(15, TimeUnit.SECONDS)
             .build()
 
         val gson: Gson = GsonBuilder()
@@ -88,12 +88,4 @@ object AppModule {
     fun provideGetReverseImageSearchItemDataUseCase(repository: ReverseImageSearchRepository): GetReverseImageSearchItemData {
         return GetReverseImageSearchItemData(repository)
     }
-
-//    @Provides
-//    @Singleton
-//    fun provideUploadedImageRepository(
-//        api: ReverseImageFetchrApi
-//    ): UploadedImageRepositoryImpl {
-//        return UploadedImageRepositoryImpl(api = api)
-//    }
 }

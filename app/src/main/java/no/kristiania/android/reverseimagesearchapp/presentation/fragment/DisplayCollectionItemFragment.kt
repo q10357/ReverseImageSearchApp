@@ -1,15 +1,22 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
+import android.app.AlertDialog
+import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import no.kristiania.android.reverseimagesearchapp.R
+import no.kristiania.android.reverseimagesearchapp.core.util.scaleBitmap
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ChildImage
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayCollectiomItemBinding
+import no.kristiania.android.reverseimagesearchapp.presentation.PopupView
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerBindingInterface
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericPhotoAdapter
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.onclicklistener.OnClickPhotoListener
@@ -77,10 +84,14 @@ class DisplayCollectionItemFragment: Fragment(R.layout.fragment_display_collecti
     }
 
     override fun onClick(position: Int, view: View) {
-        TODO("Not yet implemented")
+        Log.i(TAG, "View Clicked")
     }
 
     override fun onLongClick(position: Int) {
-        TODO("Not yet implemented")
+        val bitmap =
+            requireActivity().scaleBitmap(
+                collectionItem.childImages[position].bitmap
+            ) ?: return
+        PopupView.inflatePhoto(bitmap, requireActivity())
     }
 }

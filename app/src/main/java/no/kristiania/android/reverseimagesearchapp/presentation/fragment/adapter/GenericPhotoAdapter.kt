@@ -14,16 +14,22 @@ class GenericPhotoAdapter<T: Any>(
     private val bindingInterface: GenericRecyclerBindingInterface<T>
 ) :
     androidx.recyclerview.widget.ListAdapter<T, GenericPhotoAdapter.GenericViewHolder>(GenericDiffUtil()){
-    class GenericViewHolder(val view: View, private val onClickPhotoListener: OnClickPhotoListener) : RecyclerView.ViewHolder(view), View.OnClickListener{
+    class GenericViewHolder(val view: View, private val onClickPhotoListener: OnClickPhotoListener) : RecyclerView.ViewHolder(view), View.OnClickListener, View.OnLongClickListener{
         fun<T: Any> bind(
             item: T,
             bindingInterface: GenericRecyclerBindingInterface<T>
         ) = bindingInterface.bindData(item, view)
         init {
             view.setOnClickListener(this)
+            view.setOnLongClickListener(this)
         }
         override fun onClick(view: View) {
             onClickPhotoListener.onClick(layoutPosition, view)
+        }
+
+        override fun onLongClick(view: View?): Boolean {
+            onClickPhotoListener.onLongClick(layoutPosition)
+            return true
         }
     }
 

@@ -6,25 +6,21 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
 import android.view.LayoutInflater
-import android.widget.EditText
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.annotation.Nullable
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.core.util.getSize
 import no.kristiania.android.reverseimagesearchapp.core.util.scaleBitmap
-import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedImage
 
 object PopupView {
     fun showDialogueWindow(
         type: DialogType,
         message: String,
-        @Nullable f: () -> Unit,
-        context: Context,
-        inflater: LayoutInflater,
+        f: () -> Unit,
+        activity: Activity
     ) {
-        val builder = AlertDialog.Builder(context)
-        val popupLayout = inflater.inflate(type.layoutId, null)
+        val builder = AlertDialog.Builder(activity.applicationContext)
+        val popupLayout = activity.layoutInflater.inflate(type.layoutId, null)
         var posBtnText = "Try Again?"
 
         if(type == DialogType.ERROR) true.apply { posBtnText = "Try Again?" }
@@ -43,22 +39,14 @@ object PopupView {
         }
     }
 
-    fun inflatePhoto(
-        image: Bitmap?,
-        context: Context,
-        activity: Activity,
-        layoutInflater: LayoutInflater
-    ) {
-        val builder = AlertDialog.Builder(context)
-        val size = activity.getSize()
-        val width = size.x
-        val height = size.y
+    fun inflatePhoto(image: Bitmap, activity: Activity) {
+        val builder = AlertDialog.Builder(activity.applicationContext)
 
-        val screenLayout = layoutInflater.inflate(R.layout.image_popout, null)
+        val inflater = activity.layoutInflater
+        val screenLayout = inflater.inflate(R.layout.image_popout, null)
         val imageView = screenLayout.findViewById<ImageView>(R.id.image_id)
-        val scalingFactor = width / height
-        val scaledHeight = (image!!.height) / scalingFactor
-        val bitmap = scaleBitmap(image, width.toFloat(), scaledHeight.toFloat())
+
+        val bitmap = activity.scaleBitmap(image)
         imageView.setImageBitmap(bitmap)
         with(builder) {
             setNeutralButton("done") { dialog, which -> }

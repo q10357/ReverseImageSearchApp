@@ -51,7 +51,6 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks,
         navMenuItem = bottomNavigationView.menu.findItem(navPos).apply {
             this.isEnabled = false
         }
-        Log.i(TAG, "Logcat is working")
 
         setFragment(getCurrentFragment(navPos), navPos)
 
