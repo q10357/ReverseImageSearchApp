@@ -77,5 +77,4 @@ class ResultImageService: Service() {
         Log.i(TAG, "Removing task")
         stopSelf()
     }
-
 }

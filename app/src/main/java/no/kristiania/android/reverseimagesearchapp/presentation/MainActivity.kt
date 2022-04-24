@@ -23,12 +23,12 @@ import no.kristiania.android.reverseimagesearchapp.presentation.service.ResultIm
 import kotlin.properties.Delegates
 
 private const val ARG_NAV_POSITION = "nav_position"
+private const val ARG_UPLOADED_IMAGE = "uploaded_image"
 private const val TAG = "MainActivityTAG"
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks,
     DisplayCollectionFragment.Callbacks {
-    private var displayResultFragment = DisplayResultFragment.newInstance(null)
     private var uploadImageFragment = UploadImageFragment.newInstance()
     private var displayCollectionFragment = DisplayCollectionFragment.newInstance()
     private lateinit var bottomNavigationView: BottomNavigationView
@@ -57,7 +57,6 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks,
         bottomNavigationView.setOnItemSelectedListener { m ->
             when (m.itemId) {
                 R.id.upload -> setFragment(uploadImageFragment, m.itemId)
-                R.id.display_result -> setFragment(displayResultFragment, m.itemId)
                 R.id.display_collection -> setFragment(displayCollectionFragment, m.itemId)
             }
             navPos = m.itemId
@@ -68,7 +67,6 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks,
     private fun getCurrentFragment(navPos: Int): Fragment {
         return when (navPos) {
             R.id.upload -> uploadImageFragment
-            R.id.display_result -> displayResultFragment
             R.id.display_collection -> displayCollectionFragment
             else -> {
                 return uploadImageFragment
@@ -85,7 +83,9 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks,
             .beginTransaction()
             .replace(R.id.fragment_container, currentFragment, "$pos")
             .commit()
-        navMenuItem.apply { isEnabled = true }
+        navMenuItem.apply {
+            isEnabled = true
+        }
         navMenuItem = bottomNavigationView.menu.findItem(pos)
         navMenuItem.isEnabled = false
     }
@@ -100,14 +100,10 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks,
     }
 
     override fun onImageSelected(image: UploadedImage) {
-        val url = image.urlOnServer ?: return
-        startService(Intent(this, ResultImageService::class.java)
-            .putExtra("image_url", url))
-
-        displayResultFragment = DisplayResultFragment.newInstance(image)
-        navPos = R.id.display_result.also { bottomNavigationView.selectedItemId = it }
-        setFragment(displayResultFragment, navPos)
-
+        Intent(this, ResultActivity::class.java).also {
+            it.putExtra(ARG_UPLOADED_IMAGE, image)
+            startActivity(it)
+        }
     }
 
     override fun onCollectionSelected(parentId: Long) {

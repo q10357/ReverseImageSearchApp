@@ -1,13 +1,13 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
-import android.app.AlertDialog
-import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.PopupMenu
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
@@ -17,8 +17,8 @@ import no.kristiania.android.reverseimagesearchapp.core.util.scaleBitmap
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ChildImage
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayCollectiomItemBinding
 import no.kristiania.android.reverseimagesearchapp.presentation.PopupView
-import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerBindingInterface
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericPhotoAdapter
+import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerBindingInterface
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.onclicklistener.OnClickPhotoListener
 import no.kristiania.android.reverseimagesearchapp.presentation.model.CollectionItem
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.DisplayCollectionItemViewModel
@@ -33,6 +33,9 @@ class DisplayCollectionItemFragment: Fragment(R.layout.fragment_display_collecti
     private lateinit var binding: FragmentDisplayCollectiomItemBinding
     private lateinit var collectionItem: CollectionItem
     private val viewModel by viewModels<DisplayCollectionItemViewModel>()
+    private var isEditing: Boolean = false
+    private var itemsSelected: Int = 0
+    private var imagesChosen: ArrayList<ChildImage> = arrayListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,7 +63,9 @@ class DisplayCollectionItemFragment: Fragment(R.layout.fragment_display_collecti
             }
         )
     }
-
+    //We used this before in our binding interface, but when added onLongClick
+    //We rather used the OnPhotoClickListener instance as parameter in
+    //The photoAdapter
     private val clickListener: (Int, View) -> Unit = { x: Int, y: View -> onClick(x, y) }
 
     private fun createBindingInterface() =
@@ -84,14 +89,27 @@ class DisplayCollectionItemFragment: Fragment(R.layout.fragment_display_collecti
     }
 
     override fun onClick(position: Int, view: View) {
-        Log.i(TAG, "View Clicked")
+        Log.i(TAG, "Photo clicked, check if add or remove")
+        if(!isEditing) return
+
+        val clickedItem = collectionItem.childImages[position]
+        imagesChosen.contains(clickedItem).apply {
+            if(this) imagesChosen.remove(clickedItem) else imagesChosen.add(clickedItem)
+        }.also { treatOnClick(it) }
     }
+
+private fun treatOnClick(isChosen: Boolean): Drawable? {
+    return when (isChosen) {
+        true -> ResourcesCompat.getDrawable(resources, R.drawable.highlight, null)
+        false -> ColorDrawable(Color.TRANSPARENT)
+    }
+}
 
     override fun onLongClick(position: Int) {
         val bitmap =
             requireActivity().scaleBitmap(
                 collectionItem.childImages[position].bitmap
             ) ?: return
-        PopupView.inflatePhoto(bitmap, requireActivity())
+        PopupView.inflatePhoto(bitmap, requireActivity(), requireContext())
     }
 }

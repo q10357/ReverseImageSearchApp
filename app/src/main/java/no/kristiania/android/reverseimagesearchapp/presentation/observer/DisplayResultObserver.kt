@@ -1,4 +1,4 @@
-package no.kristiania.android.reverseimagesearchapp.presentation.fragment.observer
+package no.kristiania.android.reverseimagesearchapp.presentation.observer
 
 import android.content.ComponentName
 import android.content.Context

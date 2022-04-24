@@ -1,7 +1,5 @@
-package no.kristiania.android.reverseimagesearchapp.presentation.fragment.observer
+package no.kristiania.android.reverseimagesearchapp.presentation.observer
 
-import android.content.Context
-import android.graphics.Bitmap
 import android.net.Uri
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.ActivityResultRegistry

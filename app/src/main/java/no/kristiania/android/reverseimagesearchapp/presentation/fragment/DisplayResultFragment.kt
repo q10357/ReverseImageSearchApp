@@ -27,7 +27,7 @@ import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayResultsBinding
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericPhotoAdapter
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerBindingInterface
-import no.kristiania.android.reverseimagesearchapp.presentation.fragment.observer.DisplayResultObserver
+import no.kristiania.android.reverseimagesearchapp.presentation.observer.DisplayResultObserver
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.onclicklistener.OnClickPhotoListener
 import no.kristiania.android.reverseimagesearchapp.presentation.model.ReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedImage
@@ -45,18 +45,21 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
     private lateinit var binding: FragmentDisplayResultsBinding
     private lateinit var thumbnailDownloader: ThumbnailDownloader<ImageButton>
     private lateinit var observer: DisplayResultObserver<ImageButton>
-    private var bitmap: Bitmap? = null
+    private lateinit var bitmap: Bitmap
     private var imageCount: Int = 0
 
     //Temporary containers before sending to db, on users request
     private var resultItems = mutableListOf<ReverseImageSearchItem>()
 
     private val viewModel by viewModels<DisplayResultViewModel>()
-    private var parentImage: UploadedImage? = null
+    private lateinit var parentImage: UploadedImage
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        parentImage = arguments?.getParcelable(PARENT_IMAGE_DATA) as UploadedImage?
+        parentImage = arguments?.getParcelable(PARENT_IMAGE_DATA) ?: return
+        val file = File(requireContext().cacheDir, parentImage.photoFileName)
+        Log.i(TAG, "Size of file: ${file.length()}")
+        bitmap = BitmapFactory.decodeFile(file.path) ?: return
 
         var counter = 0
         thumbnailDownloader =
@@ -64,8 +67,6 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
             { holder, bitmap ->
                 if (counter < resultItems.size) {
                     resultItems[counter].bitmap = bitmap
-                    Log.i(TAG, "This is the bitmaps height (thumbnail) ${bitmap.height}")
-                    Log.i(TAG, "This is the bitmaps width (thumbnail) ${bitmap.width}")
                     holder.setImageBitmap(bitmap)
                     counter++
                 }
@@ -98,18 +99,11 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentDisplayResultsBinding.bind(view)
 
-        //overlayImage?.findViewById<ImageView>(R.id.overlay_image)
+        val file = File(requireContext().cacheDir, parentImage.photoFileName)
+        Log.i(TAG, "Size of file: ${file.length()}")
+        bitmap = BitmapFactory.decodeFile(file.path)
 
-        if (parentImage != null && bitmap == null) {
-            val file = File(requireContext().cacheDir, parentImage!!.photoFileName)
-            Log.i(TAG, "Size of file: ${file.length()}")
-            bitmap = BitmapFactory.decodeFile(file.path)
-            Log.i(TAG, "This is the bitmaps height (original) ${bitmap!!.height}")
-            Log.i(TAG, "This is the bitmaps width (original) ${bitmap!!.width}")
-        }
-
-        bitmap?.let { binding.imageView.setImageBitmap(it) }
-
+        binding.imageView.setImageBitmap(bitmap)
 
         binding.buttonSave.setOnClickListener {
             if (imageCount <= 0) {
@@ -122,7 +116,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
                 //in the main thread
                     //val f: (UploadedImage) -> Unit = { i: UploadedImage -> addCollectionToDb(i)}
                 viewModel
-                showPopupForSaving(parentImage!!) { addCollectionToDb() }
+                showPopupForSaving(parentImage) { addCollectionToDb() }
             }
         }
     }
@@ -167,7 +161,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
 
     private fun addCollectionToDb() {
         lifecycleScope.launch(IO) {
-            val parentId = async { viewModel.saveParentImage(parentImage!!) }
+            val parentId = async { viewModel.saveParentImage(parentImage) }
             val chosenImages = async { resultItems.filter { it.chosenByUser } }
             chosenImages.await().forEach {
                 it.parentImageId = parentId.await()
@@ -194,22 +188,6 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
             false -> ColorDrawable(Color.TRANSPARENT)
         }
     }
-
-//    private fun inflatePhoto(image: Bitmap) {
-//        val builder = AlertDialog.Builder(requireContext())
-//
-//        val inflater = layoutInflater
-//        val screenLayout = inflater.inflate(R.layout.image_popout, null)
-//        val imageView = screenLayout.findViewById<ImageView>(R.id.image_id)
-//
-//        val bitmap = activity?.scaleBitmap(image)
-//        imageView.setImageBitmap(bitmap)
-//        with(builder) {
-//            setNeutralButton("done") { dialog, which -> }
-//        }
-//            .setView(screenLayout)
-//            .show()
-//    }
 
     override fun onClick(position: Int, view: View) {
         Log.i(TAG, "Photo clicked, check if add or remove")

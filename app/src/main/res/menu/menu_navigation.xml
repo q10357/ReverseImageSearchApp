@@ -7,11 +7,6 @@
         android:icon="@drawable/ic_upload" />
 
     <item
-        android:id="@+id/display_result"
-        android:title="@string/results"
-        android:icon="@drawable/ic_image_search" />
-
-    <item
         android:id="@+id/display_collection"
         android:title="@string/saved_results"
         android:icon="@drawable/ic_collection"/>

@@ -19,7 +19,7 @@ import no.kristiania.android.reverseimagesearchapp.core.util.uriToBitmap
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentUploadImageBinding
 import no.kristiania.android.reverseimagesearchapp.presentation.DialogType
 import no.kristiania.android.reverseimagesearchapp.presentation.PopupView
-import no.kristiania.android.reverseimagesearchapp.presentation.fragment.observer.RegisterActivityResultsObserver
+import no.kristiania.android.reverseimagesearchapp.presentation.observer.RegisterActivityResultsObserver
 import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.UploadImageViewModel
 import java.io.File
@@ -31,6 +31,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     private lateinit var observer: RegisterActivityResultsObserver
     private lateinit var selectedImage: UploadedImage
 
+    //UI components
     private lateinit var binding: FragmentUploadImageBinding
     private lateinit var imageView: CropImageView
     private lateinit var bitmap: Bitmap
@@ -99,6 +100,8 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     }
 
     private fun upload() {
+        binding.uploadImageBtn.isEnabled = false
+        binding.selectImageBtn.isEnabled = false
         val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
         viewModel.onUpload(selectedImage, file)
         observeUpload()
@@ -117,7 +120,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
 
     private fun writeToFile() {
         val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
-        //We get the rightly scaled bitmap here
         createFileFromBitmap(bitmap, file)
     }
 
@@ -163,7 +165,8 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                             type = DialogType.ERROR,
                             message = it.message.toString(),
                             {upload()},
-                            requireActivity()
+                            requireActivity(),
+                            requireContext()
                         )
                     }
                 }

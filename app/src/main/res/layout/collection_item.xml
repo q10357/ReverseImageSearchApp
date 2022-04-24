@@ -39,17 +39,46 @@
 
                 <TextView
                     android:id="@+id/recycler_text"
-                    android:layout_width="232dp"
-                    android:layout_height="47dp"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="20dp"
                     android:textSize="15sp"
+                    app:layout_constraintBottom_toTopOf="@id/recycler_date_text"
+                    app:layout_constraintEnd_toStartOf="@+id/recycler_image_button"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/recycler_image"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Collection Name" />
+
+                <TextView
+                    android:id="@+id/recycler_date_text"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="-15dp"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toTopOf="@id/recycler_count_text"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/recycler_image_button"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/recycler_image"
+                    app:layout_constraintTop_toBottomOf="@id/recycler_text"
+                    tools:text="1/4-22 kl 13:32"/>
+
+                <TextView
+                    android:id="@+id/recycler_count_text"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="-15dp"
+                    android:textSize="12sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/recycler_image_button"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toEndOf="@+id/recycler_image"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="1/4-22 kl 13:32 \n 25 resultater" />
-
+                    app:layout_constraintTop_toBottomOf="@id/recycler_date_text"
+                    tools:text="25 resultate"/>
 
                 <ImageButton
                     android:id="@+id/recycler_image_button"

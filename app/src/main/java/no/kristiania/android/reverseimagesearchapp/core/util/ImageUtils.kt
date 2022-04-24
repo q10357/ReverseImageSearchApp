@@ -3,8 +3,13 @@ package no.kristiania.android.reverseimagesearchapp.core.util
 import android.app.Activity
 import android.app.AlertDialog
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.Matrix
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.util.Log
+import androidx.core.content.res.ResourcesCompat
+import no.kristiania.android.reverseimagesearchapp.R
 
 private const val TAG = "ImageUtils"
 

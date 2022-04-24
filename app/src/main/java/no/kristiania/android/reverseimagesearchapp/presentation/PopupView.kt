@@ -5,11 +5,8 @@ import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
-import android.view.LayoutInflater
 import android.widget.ImageView
-import androidx.annotation.Nullable
 import no.kristiania.android.reverseimagesearchapp.R
-import no.kristiania.android.reverseimagesearchapp.core.util.getSize
 import no.kristiania.android.reverseimagesearchapp.core.util.scaleBitmap
 
 object PopupView {
@@ -17,13 +14,14 @@ object PopupView {
         type: DialogType,
         message: String,
         f: () -> Unit,
-        activity: Activity
+        activity: Activity,
+        context: Context,
     ) {
-        val builder = AlertDialog.Builder(activity.applicationContext)
+        val builder = AlertDialog.Builder(context)
         val popupLayout = activity.layoutInflater.inflate(type.layoutId, null)
         var posBtnText = "Try Again?"
 
-        if(type == DialogType.ERROR) true.apply { posBtnText = "Try Again?" }
+        if (type == DialogType.ERROR) true.apply { posBtnText = "Try Again?" }
 
         with(builder) {
             setTitle(message)
@@ -39,8 +37,8 @@ object PopupView {
         }
     }
 
-    fun inflatePhoto(image: Bitmap, activity: Activity) {
-        val builder = AlertDialog.Builder(activity.applicationContext)
+    fun inflatePhoto(image: Bitmap, activity: Activity, context: Context) {
+        val builder = AlertDialog.Builder(context)
 
         val inflater = activity.layoutInflater
         val screenLayout = inflater.inflate(R.layout.image_popout, null)

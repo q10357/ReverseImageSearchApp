@@ -15,6 +15,8 @@ class CardViewHolder(
     fun bindCollection(collectionItem: CollectionItem){
         collectionItemBinding.recyclerImage.setImageBitmap(collectionItem.parentImage.bitmap)
         collectionItemBinding.recyclerText.text = collectionItem.collectionName
+        collectionItemBinding.recyclerDateText.text = collectionItem.date.toString()
+        collectionItemBinding.recyclerCountText.text = collectionItem.childImages.size.toString()
         //setting button listener on the arrow to open up the collection
         collectionItemBinding.recyclerImageButton.setOnClickListener {
             onClickListener.onClickCollection(layoutPosition)

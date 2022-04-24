@@ -6,26 +6,30 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        tools:remove="android:appComponentFactory"
         android:name=".ReverseImageSearchApp"
         android:allowBackup="true"
-        android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_logo_finished"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_logo_finished_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.App.SplashScreen">
+        android:theme="@style/Theme.App.SplashScreen"
+        android:usesCleartextTraffic="true"
+        tools:remove="android:appComponentFactory">
         <activity
-            android:name="no.kristiania.android.reverseimagesearchapp.presentation.MainActivity"
+            android:name=".presentation.ResultActivity"
+            android:exported="false"
+            android:theme="@style/Theme.App.Main"/>
+        <activity
+            android:name=".presentation.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.App.SplashScreen">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <service android:name=".presentation.service.ResultImageService" />
     </application>
 
