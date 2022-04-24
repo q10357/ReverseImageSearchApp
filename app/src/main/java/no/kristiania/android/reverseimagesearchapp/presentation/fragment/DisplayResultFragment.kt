@@ -116,12 +116,12 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
                 //in the main thread
                     //val f: (UploadedImage) -> Unit = { i: UploadedImage -> addCollectionToDb(i)}
                 viewModel
-                showPopupForSaving(parentImage) { addCollectionToDb() }
+                showPopupForSaving(parentImage)
             }
         }
     }
 
-    private fun showPopupForSaving(image: UploadedImage, f: () -> Unit) {
+    private fun showPopupForSaving(image: UploadedImage) {
         val builder = AlertDialog.Builder(requireContext())
         val inflater = layoutInflater
         val popupLayout = inflater.inflate(R.layout.save_collection_popup, null)
@@ -136,9 +136,8 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
                     .show()
                 //parentImage?.collectionName = editText.text.toString()
                 val text = editText.text.toString()
-                Log.i(TAG, "This is text $text")
                 image.title = text
-                f()
+                addCollectionToDb()
             }
             setNegativeButton("cancel") { dialog, _ ->
                 Toast.makeText(requireContext(), "Cancel the popout", Toast.LENGTH_SHORT).show()

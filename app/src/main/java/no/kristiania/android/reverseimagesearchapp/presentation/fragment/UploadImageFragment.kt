@@ -18,11 +18,12 @@ import no.kristiania.android.reverseimagesearchapp.core.util.isInit
 import no.kristiania.android.reverseimagesearchapp.core.util.uriToBitmap
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentUploadImageBinding
 import no.kristiania.android.reverseimagesearchapp.presentation.DialogType
-import no.kristiania.android.reverseimagesearchapp.presentation.PopupView
-import no.kristiania.android.reverseimagesearchapp.presentation.observer.RegisterActivityResultsObserver
+import no.kristiania.android.reverseimagesearchapp.presentation.PopupDialog
 import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedImage
+import no.kristiania.android.reverseimagesearchapp.presentation.observer.RegisterActivityResultsObserver
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.UploadImageViewModel
 import java.io.File
+import java.lang.NullPointerException
 
 private const val TAG = "MainActivityTAG"
 
@@ -87,12 +88,12 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
 
         }
 
-        //simple button to rotate the cropview left
+        //simple button to rotate the cropView left
         binding.rotateLeftBtn.setOnClickListener {
             binding.cropImageView.rotateImage(270)
         }
 
-        //simple button to rotate cropview to the right
+        //simple button to rotate cropView to the right
         binding.rotateRightBtn.setOnClickListener {
             imageView.rotateImage(90)
         }
@@ -100,8 +101,8 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     }
 
     private fun upload() {
+        Log.i(TAG, "We are here...")
         binding.uploadImageBtn.isEnabled = false
-        binding.selectImageBtn.isEnabled = false
         val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
         viewModel.onUpload(selectedImage, file)
         observeUpload()
@@ -155,23 +156,23 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         viewModel.mResult.observe(
             viewLifecycleOwner,
             {
-                when(it.status){
+                when(it?.status){
                     Status.SUCCESS -> {
                         selectedImage.urlOnServer = it.data
                         callbacks?.onImageSelected(selectedImage)
                     }
                     Status.ERROR -> {
-                        PopupView.showDialogueWindow(
-                            type = DialogType.ERROR,
-                            message = it.message.toString(),
-                            {upload()},
-                            requireActivity(),
-                            requireContext()
-                        )
+                        showPopup()
                     }
                 }
             }
         )
+    }
+
+    private fun showPopup() {
+        val popupDialog = PopupDialog(type = DialogType.ERROR){upload()}
+        popupDialog.show(
+            requireActivity().supportFragmentManager, "dialog")
     }
 
     override fun onStart() {

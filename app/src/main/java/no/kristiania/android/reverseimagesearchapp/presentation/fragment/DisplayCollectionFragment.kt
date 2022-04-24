@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayCollectionBinding
+import no.kristiania.android.reverseimagesearchapp.presentation.DialogType
+import no.kristiania.android.reverseimagesearchapp.presentation.PopupDialog
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.CollectionAdapter
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.onclicklistener.OnClickCollectionListener
 import no.kristiania.android.reverseimagesearchapp.presentation.model.CollectionItem
@@ -69,7 +71,6 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
     //OnDetach is called when the fragment is removed from it's hosting activity
     override fun onDetach() {
         super.onDetach()
-        Log.i(TAG, "We are detached")
         callbacks = null
     }
 
@@ -78,12 +79,20 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
     //Then we will be able to notify context (Activity) via callbacks
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        Log.i(TAG, "We are attached")
         callbacks = context as Callbacks?
     }
 
+    private fun deleteCollectionItem(collectionItem: CollectionItem){
+        viewModel.deleteCollectionItem(collectionItem.parentImage.id)
+    }
+
     override fun onClickCollection(position: Int) {
-        Log.i(TAG, "This is callback value ${callbacks}")
         callbacks?.onCollectionSelected(collection[position].parentImage.id)
+    }
+
+    override fun onLongClickCollection(position: Int) {
+        val popupDialog = PopupDialog(type = DialogType.DELETE){ deleteCollectionItem(collection[position]) }
+        popupDialog.show(
+            requireActivity().supportFragmentManager, "deleteDialog")
     }
 }

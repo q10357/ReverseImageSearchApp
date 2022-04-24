@@ -2,4 +2,6 @@ package no.kristiania.android.reverseimagesearchapp.presentation.fragment.onclic
 
 interface OnClickCollectionListener {
     fun onClickCollection(position: Int)
+
+    fun onLongClickCollection(position: Int)
 }

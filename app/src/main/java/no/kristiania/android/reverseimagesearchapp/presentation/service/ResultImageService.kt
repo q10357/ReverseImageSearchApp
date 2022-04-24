@@ -13,7 +13,6 @@ import kotlinx.coroutines.launch
 import no.kristiania.android.reverseimagesearchapp.core.util.*
 import no.kristiania.android.reverseimagesearchapp.presentation.model.ReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.data.remote.use_case.GetReverseImageSearchItemData
-import no.kristiania.android.reverseimagesearchapp.presentation.PopupView
 import java.util.*
 import javax.inject.Inject
 

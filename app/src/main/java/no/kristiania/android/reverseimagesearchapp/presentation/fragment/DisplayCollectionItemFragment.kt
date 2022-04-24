@@ -13,10 +13,11 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import no.kristiania.android.reverseimagesearchapp.R
+import no.kristiania.android.reverseimagesearchapp.core.util.inflatePhoto
 import no.kristiania.android.reverseimagesearchapp.core.util.scaleBitmap
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ChildImage
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayCollectiomItemBinding
-import no.kristiania.android.reverseimagesearchapp.presentation.PopupView
+import no.kristiania.android.reverseimagesearchapp.presentation.PopupDialog
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericPhotoAdapter
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerBindingInterface
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.onclicklistener.OnClickPhotoListener
@@ -110,6 +111,6 @@ private fun treatOnClick(isChosen: Boolean): Drawable? {
             requireActivity().scaleBitmap(
                 collectionItem.childImages[position].bitmap
             ) ?: return
-        PopupView.inflatePhoto(bitmap, requireActivity(), requireContext())
+        inflatePhoto(bitmap, requireActivity(), requireContext())
     }
 }

@@ -54,4 +54,9 @@ class DisplayCollectionViewModel @Inject constructor(
     private fun getChildImages(id: Long): List<ChildImage> {
         return dao.getParentsChildImages(id)
     }
+
+    fun deleteCollectionItem(parentId: Long){
+        dao.deleteAllChildren(parentId)
+        dao.deleteParent(parentId)
+    }
 }

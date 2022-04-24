@@ -2,12 +2,14 @@ package no.kristiania.android.reverseimagesearchapp.core.util
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.util.Log
+import android.widget.ImageView
 import androidx.core.content.res.ResourcesCompat
 import no.kristiania.android.reverseimagesearchapp.R
 
@@ -55,4 +57,20 @@ private fun scaleBitmap(bitmapToScale: Bitmap?, newWidth: Float, newHeight: Floa
         bitmapToScale.height,
         matrix,
         true)
+}
+
+fun inflatePhoto(image: Bitmap, activity: Activity, context: Context) {
+    val builder = AlertDialog.Builder(context)
+
+    val inflater = activity.layoutInflater
+    val screenLayout = inflater.inflate(R.layout.image_popout, null)
+    val imageView = screenLayout.findViewById<ImageView>(R.id.image_id)
+
+    val bitmap = activity.scaleBitmap(image)
+    imageView.setImageBitmap(bitmap)
+    with(builder) {
+        setNeutralButton("done") { dialog, which -> }
+    }
+        .setView(screenLayout)
+        .show()
 }

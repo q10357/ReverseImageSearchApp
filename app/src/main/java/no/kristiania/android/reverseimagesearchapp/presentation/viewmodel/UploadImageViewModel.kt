@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.launchIn
@@ -22,15 +23,14 @@ class UploadImageViewModel @Inject constructor(
 ) : ViewModel(), ProgressRequestBody.UploadCallback {
     private var bitmapScaling = 2
     private var scaleFactor = 1
-    private var _mResult = MutableLiveData<Resource<String>>()
+    private var _mResult = MutableLiveData<Resource<String>?>()
     var mProgress = MutableLiveData(0)
-    var mResult: LiveData<Resource<String>> = _mResult
+    var mResult: LiveData<Resource<String>?> = _mResult
     //We return the ID of the selected image when inserted in our SQLLite database
 
     fun onUpload(image: UploadedImage, file: File) {
         val body = getMultiPartBody(file, this)
-        _mResult.postValue(Resource.loading())
-        Log.i(TAG, "${mResult.value}")
+        _mResult.value = null
 
         getUploadedImageUrl(body).onEach { result ->
             when (result.status) {
@@ -54,6 +54,7 @@ class UploadImageViewModel @Inject constructor(
                 }
             }
             _mResult.postValue(result)
+            Log.i(TAG, "THIS IS THE FUCKING THING ${mResult.value}")
         }.launchIn(GlobalScope)
     }
 

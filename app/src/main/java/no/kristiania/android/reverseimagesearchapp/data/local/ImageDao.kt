@@ -12,6 +12,7 @@ import no.kristiania.android.reverseimagesearchapp.core.util.bitmapToByteArray
 import no.kristiania.android.reverseimagesearchapp.data.local.FeedReaderContract.UploadedImageTable
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ChildImage
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ParentImage
+import no.kristiania.android.reverseimagesearchapp.presentation.model.CollectionItem
 import no.kristiania.android.reverseimagesearchapp.presentation.model.ReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedImage
 import java.io.File
@@ -76,13 +77,31 @@ class ImageDao @Inject constructor(
         return result[0]
     }
 
-    //delete for delete button you press on result page
-    fun deleteResult(id: Int): Int {
+    fun deleteCollection(parentId: Long): Int {
         val db = database.writableDatabase
-        val where = "_id =${id};"
+        val where = "_id =${parentId};"
+        return db.delete(ResultImageTable.TABLE_NAME, where, null)
+    }
+
+    fun deleteAllChildren(parentId: Long): Int {
+        val db = database.writableDatabase
+        val where = "parent_id =${parentId};"
         val query = db.delete(ResultImageTable.TABLE_NAME, where, null);
 
         return query
+    }
+
+    fun deleteParent(id: Long): Int{
+        val db = database.writableDatabase
+        val where = "_id =${id};"
+        return db.delete(UploadedImageTable.TABLE_NAME, where, null);
+    }
+
+    //delete for delete button you press on result page
+    fun deleteChild(id: Int): Int {
+        val db = database.writableDatabase
+        val where = "_id =${id};"
+        return db.delete(ResultImageTable.TABLE_NAME, where, null);
     }
 
     fun getAllParentImages(): List<ParentImage> {

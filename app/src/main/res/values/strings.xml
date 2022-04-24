@@ -12,4 +12,5 @@
     <string name="return_to_collections">Return to collections</string>
     <string name="image_from_your_device">Image from your device</string>
     <string name="collection">Collection</string>
+    <string name="cancel">Cancel</string>
 </resources>
