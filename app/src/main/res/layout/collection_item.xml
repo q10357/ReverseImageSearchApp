@@ -31,6 +31,7 @@
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:layout_centerVertical="true"
+                    android:layout_marginStart="10dp"
                     android:layout_centerHorizontal ="true"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -43,7 +44,9 @@
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_marginStart="20dp"
-                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
                     app:layout_constraintBottom_toTopOf="@id/recycler_date_text"
                     app:layout_constraintEnd_toStartOf="@+id/recycler_image_button"
                     app:layout_constraintHorizontal_bias="0.5"
@@ -57,6 +60,7 @@
                     android:layout_height="0dp"
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="-15dp"
+                    android:textColor="@color/black"
                     android:textSize="12sp"
                     app:layout_constraintBottom_toTopOf="@id/recycler_count_text"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -64,22 +68,40 @@
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toEndOf="@+id/recycler_image"
                     app:layout_constraintTop_toBottomOf="@id/recycler_text"
-                    tools:text="1/4-22 kl 13:32"/>
+                    tools:text="1/4-22 kl 13:32" />
 
                 <TextView
                     android:id="@+id/recycler_count_text"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
+                    android:layout_width="24dp"
+                    android:layout_height="26dp"
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="-15dp"
+                    android:textColor="@color/black"
                     android:textSize="12sp"
+                    android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/recycler_image_button"
-                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toEndOf="@+id/recycler_image"
                     app:layout_constraintTop_toBottomOf="@id/recycler_date_text"
-                    tools:text="25 resultate"/>
+                    tools:text="25" />
+
+                <TextView
+                    android:layout_width="126dp"
+                    android:layout_height="25dp"
+                    android:layout_marginEnd="91dp"
+                    android:text=" : images in collection"
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    android:textStyle="italic"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/recycler_image_button"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintStart_toEndOf="@+id/recycler_count_text"
+                    app:layout_constraintTop_toBottomOf="@+id/recycler_date_text"
+                    app:layout_constraintVertical_bias="0.0"
+                    tools:text="images in collection" />
 
                 <ImageButton
                     android:id="@+id/recycler_image_button"
