@@ -18,28 +18,6 @@ private const val TAG = "ActivityResultTAG"
 
 @AndroidEntryPoint
 class ResultActivity : AppCompatActivity() {
-    private var mBinder: ResultImageService.LocalBinder? = null
-    private var mService: ResultImageService? = null
-    private var mBound = false
-
-    private val connection = object : ServiceConnection {
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            Log.i(TAG, "Connected to the service")
-            val binder = service as ResultImageService.LocalBinder
-            mBound = true
-            mService = binder.getService()
-            mBinder = binder
-        }
-
-        override fun onServiceDisconnected(className: ComponentName) {
-            Log.i(TAG, "Disconnected from service")
-            mService = null
-            mBound = false
-            mBinder = null
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_result)
@@ -64,6 +42,7 @@ class ResultActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        Log.i(TAG, "Service stopping...")
         Intent(this, ResultImageService::class.java).also {
             stopService(it)
         }

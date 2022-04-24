@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks,
     }
 
     override fun onImageSelected(image: UploadedImage) {
-        Intent(this, ResultActivity::class.java).also {
+        Intent(this@MainActivity, ResultActivity::class.java).also {
             it.putExtra(ARG_UPLOADED_IMAGE, image)
             startActivity(it)
         }

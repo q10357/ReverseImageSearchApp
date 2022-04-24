@@ -17,6 +17,7 @@
         tools:remove="android:appComponentFactory">
         <activity
             android:name=".presentation.ResultActivity"
+            android:parentActivityName=".presentation.MainActivity"
             android:exported="false"
             android:theme="@style/Theme.App.Main"/>
         <activity
