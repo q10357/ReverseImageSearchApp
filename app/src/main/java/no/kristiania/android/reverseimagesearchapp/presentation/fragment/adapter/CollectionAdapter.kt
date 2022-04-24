@@ -1,13 +1,11 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import no.kristiania.android.reverseimagesearchapp.R
-import no.kristiania.android.reverseimagesearchapp.data.local.entity.CollectionItem
 import no.kristiania.android.reverseimagesearchapp.databinding.CollectionItemBinding
-import no.kristiania.android.reverseimagesearchapp.presentation.OnClickCollectionListener
+import no.kristiania.android.reverseimagesearchapp.presentation.fragment.OnClickCollectionListener
+import no.kristiania.android.reverseimagesearchapp.presentation.model.CollectionItem
 
 class CollectionAdapter(
     var collection: List<CollectionItem>,
