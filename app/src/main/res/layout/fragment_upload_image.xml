@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:layout_marginTop="20dp"
     >
 
     <ProgressBar
@@ -26,10 +27,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        app:layout_constraintBottom_toBottomOf="@+id/progress_bar_circular"
-        app:layout_constraintEnd_toEndOf="@+id/progress_bar_circular"
-        app:layout_constraintStart_toStartOf="@+id/progress_bar_circular"
-        app:layout_constraintTop_toTopOf="@+id/progress_bar_circular"
+        app:layout_constraintBottom_toBottomOf="@+id/progress_bar"
+        app:layout_constraintEnd_toEndOf="@+id/progress_bar"
+        app:layout_constraintStart_toStartOf="@+id/progress_bar"
+        app:layout_constraintTop_toTopOf="@+id/progress_bar"
         tools:text="60%" />
 
 
