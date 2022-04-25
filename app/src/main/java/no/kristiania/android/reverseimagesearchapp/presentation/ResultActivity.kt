@@ -39,7 +39,7 @@ class ResultActivity : AppCompatActivity(),
             mBound = true
             mService = binder.getService()
             mBinder = binder
-            mService!!.onStart(image.urlOnServer)
+            serviceFetchData()
             mService!!.mResult.observe(
                 this@ResultActivity
             ) {
@@ -85,10 +85,9 @@ class ResultActivity : AppCompatActivity(),
     }
 
     private fun serviceFetchData() {
-        if (!mService!!.resultItems.value.isNullOrEmpty()) return
-        lifecycleScope.launch(IO) {
-            mService!!.onStart(image.urlOnServer)
-        }
+        val service = mService ?: return
+        if (!service.resultItems.value.isNullOrEmpty()) return
+        service.onStart(image.urlOnServer)
     }
 
         private fun onError() {

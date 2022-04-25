@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.lifecycle.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.*
 import no.kristiania.android.reverseimagesearchapp.core.util.*
 import no.kristiania.android.reverseimagesearchapp.presentation.model.ReverseImageSearchItem
@@ -28,15 +29,15 @@ class ResultImageService: Service() {
     @Inject
     lateinit var getReverseImageSearchItemData: GetReverseImageSearchItemData
 
-    suspend fun onStart(url: String?){
+    fun onStart(url: String?){
         url ?: return
         _mResult.value = Resource.loading()
-        fetchImageData(url)
+        GlobalScope.launch(IO) {
+            fetchImageData(url)
+        }
     }
 
     private suspend fun fetchImageData(url: String) {
-        Log.i(TAG, "This is our result mutable ${_mResult.value}")
-        Log.i(TAG, "This is our result immutable ${mResult.value}")
         val result = getReverseImageSearchItemData(url)
         if(result.status == Status.SUCCESS){
             _mResult.postValue(Resource.success(
