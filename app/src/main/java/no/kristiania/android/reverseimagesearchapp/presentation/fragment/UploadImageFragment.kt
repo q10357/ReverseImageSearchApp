@@ -80,7 +80,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                         //If the code is 413, we know the image is too large,
                         //If this is the case, we will scale the bitmap, and increase the scalingFactor,
                         //If the image still is too large, it will be scaled down until "infinity"
-                        if(isCode13(it.data)){
+                        if(isCode13(it.code)){
                             bitmap = getScaledBitmap(bitmap, bitmapScaling * scaleFactor)
                             scaleFactor++
                             writeToFile()
@@ -215,14 +215,8 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         }
     }
 
-    private fun isCode13(data: String?): Boolean {
-        data ?: return false
-        val code: Int
-        try {
-            code = data.toInt()
-        } catch (e: NumberFormatException) {
-            return false
-        }
+    private fun isCode13(code: Int?): Boolean {
+        code ?: return false
         if (code == 413) {
             Log.i(TAG, "Photo to big, resize instantiated")
             return true

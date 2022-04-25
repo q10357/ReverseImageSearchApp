@@ -16,6 +16,8 @@ interface ReverseImageSearchApi {
         @Part("desc") desc: RequestBody
     ): String
 
+//    @GET("{searchMotor}")
+//    suspend fun fetchResultPhotoData(@Path("searchMotor") searchMotor: String, @Query("url") url: String): List<ResultImageDto>@GET("{searchMotor}")
     @GET("{searchMotor}")
     suspend fun fetchResultPhotoData(@Path("searchMotor") searchMotor: String, @Query("url") url: String): List<ResultImageDto>
 

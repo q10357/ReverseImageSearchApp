@@ -31,6 +31,7 @@ class ReverseImageSearchRepositoryImpl @Inject constructor(
         if(!inBound(counter, Constants.fetchUrls.size)) counter = 0
         Log.i(TAG, "Now searching with ${Constants.fetchUrls[counter]}")
         return api.fetchResultPhotoData(Constants.fetchUrls[counter], url)
+//        return api.fetchResultPhotoData(url)
     }
 
     override suspend fun fetchBytes(url: String): Call<ResponseBody> {
