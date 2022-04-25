@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.DialogFragment
@@ -18,10 +19,8 @@ import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.core.util.Resource
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayCollectionFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayCollectionItemFragment
-import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayResultFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.UploadImageFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedImage
-import no.kristiania.android.reverseimagesearchapp.presentation.service.ResultImageService
 import kotlin.properties.Delegates
 
 private const val ARG_NAV_POSITION = "nav_position"
@@ -30,8 +29,9 @@ private const val TAG = "MainActivityTAG"
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks,
-    DisplayCollectionFragment.Callbacks,
-    PopupDialog.DialogListener{
+    DisplayCollectionFragment.Callbacks, DisplayCollectionItemFragment.Callbacks,
+    PopupDialog.DialogListener
+{
     private var uploadImageFragment = UploadImageFragment.newInstance()
     private var displayCollectionFragment = DisplayCollectionFragment.newInstance()
     private lateinit var bottomNavigationView: BottomNavigationView
@@ -109,6 +109,10 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks,
             it.putExtra(ARG_UPLOADED_IMAGE, image)
             startActivity(it)
         }
+    }
+
+    override fun onReturnCollectionItem() {
+        setFragment(displayCollectionFragment, navPos)
     }
 
     override fun onCollectionSelected(parentId: Long) {

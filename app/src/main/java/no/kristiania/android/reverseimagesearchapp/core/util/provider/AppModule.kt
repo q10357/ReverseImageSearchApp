@@ -47,7 +47,6 @@ object AppModule {
         val gson: Gson = GsonBuilder()
             .setLenient()
             .create()
-
         //Since we need to to retrieve the raw URL string when we upload image,
         //We need two converters, ScalarsConverter (for raw string),
         //And GSON for parsing json to objects

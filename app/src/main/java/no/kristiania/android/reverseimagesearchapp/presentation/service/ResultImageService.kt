@@ -23,7 +23,8 @@ class ResultImageService: Service() {
     private val binder = LocalBinder()
     private val _resultItems = MutableLiveData<List<ReverseImageSearchItem>>()
     val resultItems: LiveData<List<ReverseImageSearchItem>> = _resultItems
-    val _mResult = MutableLiveData<Resource<String>>()
+
+    private val _mResult = MutableLiveData<Resource<String>>()
     val mResult: LiveData<Resource<String>> = _mResult
 
     @Inject
