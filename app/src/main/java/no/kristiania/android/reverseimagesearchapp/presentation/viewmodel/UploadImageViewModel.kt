@@ -23,14 +23,13 @@ class UploadImageViewModel @Inject constructor(
 ) : ViewModel(), ProgressRequestBody.UploadCallback {
     private var bitmapScaling = 2
     private var scaleFactor = 1
-    private var _mResult = MutableLiveData<Resource<String>?>()
+    private var _mResult = MutableLiveData<Resource<String>>()
     var mProgress = MutableLiveData(0)
-    var mResult: LiveData<Resource<String>?> = _mResult
+    var mResult: LiveData<Resource<String>> = _mResult
     //We return the ID of the selected image when inserted in our SQLLite database
 
     fun onUpload(image: UploadedImage, file: File) {
         val body = getMultiPartBody(file, this)
-        _mResult.value = null
 
         getUploadedImageUrl(body).onEach { result ->
             when (result.status) {

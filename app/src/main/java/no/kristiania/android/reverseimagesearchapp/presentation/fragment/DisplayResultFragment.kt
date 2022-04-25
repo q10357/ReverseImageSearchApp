@@ -90,7 +90,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results),
             binding.rvContainer.apply {
                 layoutManager = GridLayoutManager(context, 2)
                 adapter = GenericPhotoAdapter(
-                    it,
+                    resultItems,
                     R.layout.list_photo_gallery,
                     this@DisplayResultFragment,
                     createBindingInterface()

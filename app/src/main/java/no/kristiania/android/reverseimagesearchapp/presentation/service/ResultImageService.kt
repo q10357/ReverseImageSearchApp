@@ -7,9 +7,8 @@ import android.os.*
 import android.util.Log
 import androidx.lifecycle.*
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import no.kristiania.android.reverseimagesearchapp.core.util.*
 import no.kristiania.android.reverseimagesearchapp.presentation.model.ReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.data.remote.use_case.GetReverseImageSearchItemData
@@ -23,34 +22,33 @@ class ResultImageService: Service() {
     private val binder = LocalBinder()
     private val _resultItems = MutableLiveData<List<ReverseImageSearchItem>>()
     val resultItems: LiveData<List<ReverseImageSearchItem>> = _resultItems
-    val mResult = MutableLiveData<Resource<String>>()
+    val _mResult = MutableLiveData<Resource<String>>()
+    val mResult: LiveData<Resource<String>> = _mResult
 
     @Inject
     lateinit var getReverseImageSearchItemData: GetReverseImageSearchItemData
 
-    suspend fun onStart(url: String?){
+    fun onStart(url: String?){
         url ?: return
-        fetchImageData(url)
+        _mResult.value = Resource.loading()
+
+        GlobalScope.launch {
+            fetchImageData(url)
+        }
     }
 
-//    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-//        val url = intent?.getStringExtra("image_url")
-//
-//        if(url != null){
-//            GlobalScope.launch {
-//                fetchImageData(url)
-//            }
-//        }
-//        return super.onStartCommand(intent, flags, startId)
-//    }
-
     private suspend fun fetchImageData(url: String) {
+        Log.i(TAG, "This is our result mutable ${_mResult.value}")
+        Log.i(TAG, "This is our result immutable ${mResult.value}")
         val result = getReverseImageSearchItemData(url)
-
         if(result.status == Status.SUCCESS){
+            _mResult.postValue(Resource.success(
+                data = result.data?.size.toString(),
+                message = result.message.toString()
+            ))
             saveResponse(result.data as MutableList<ReverseImageSearchItem>)
         }else if(result.status == Status.ERROR){
-            mResult.postValue(result.message?.let {
+            _mResult.postValue(result.message?.let {
                 Resource.error(
                     message = it
                 )

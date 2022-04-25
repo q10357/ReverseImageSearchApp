@@ -56,6 +56,30 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         //To give a cleaner look
         imageView = binding.cropImageView
 
+        viewModel.mProgress.observe(
+            viewLifecycleOwner,
+            {
+                it?.let {
+                    binding.progressBar.progress = it
+                }
+            }
+        )
+
+        viewModel.mResult.observe(
+            this,
+            {
+                when(it?.status){
+                    Status.SUCCESS -> {
+                        selectedImage.urlOnServer = it.data
+                        callbacks?.onImageSelected(selectedImage)
+                    }
+                    Status.ERROR -> {
+                        callbacks?.onUploadError(it)
+                    }
+                    Status.LOADING -> Log.i(TAG, "Loading...")
+                }
+            }
+        )
 
         if (isInit { bitmap }) {
             imageView.setImageBitmap(bitmap)
@@ -103,8 +127,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         binding.uploadImageBtn.isEnabled = false
         val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
         viewModel.onUpload(selectedImage, file)
-        observeUpload()
-        observeResponse()
     }
 
     //function to change the bitmap variable in the Uploaded Image Object
@@ -137,34 +159,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         binding.rotateLeftBtn.isEnabled = isEnabled
         binding.rotateRightBtn.isEnabled = isEnabled
         binding.uploadImageBtn.isEnabled = isEnabled
-    }
-
-    private fun observeUpload() {
-        viewModel.mProgress.observe(
-            viewLifecycleOwner,
-            {
-                it?.let {
-                    binding.progressBar.progress = it
-                }
-            }
-        )
-    }
-
-    private fun observeResponse() {
-        viewModel.mResult.observe(
-            viewLifecycleOwner,
-            {
-                when(it?.status){
-                    Status.SUCCESS -> {
-                        selectedImage.urlOnServer = it.data
-                        callbacks?.onImageSelected(selectedImage)
-                    }
-                    Status.ERROR -> {
-                        callbacks?.onUploadError(it)
-                    }
-                }
-            }
-        )
     }
 
     override fun onStart() {

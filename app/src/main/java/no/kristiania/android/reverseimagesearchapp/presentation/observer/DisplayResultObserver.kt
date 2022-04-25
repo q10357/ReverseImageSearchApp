@@ -65,6 +65,7 @@ class DisplayResultObserver<T>(
 
     override fun onDestroy(owner: LifecycleOwner) {
         super.onDestroy(owner)
+        Log.i(TAG, "Unbinding observer from service...")
         unBindService()
         thumbnailDownloader.onDestroy()
     }

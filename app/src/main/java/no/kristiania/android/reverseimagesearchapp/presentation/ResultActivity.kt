@@ -24,12 +24,12 @@ private const val TAG = "ActivityResultTAG"
 
 @AndroidEntryPoint
 class ResultActivity : AppCompatActivity(),
-PopupDialog.DialogListener
-{
+    PopupDialog.DialogListener {
     private var mBinder: ResultImageService.LocalBinder? = null
     private var mService: ResultImageService? = null
     private var mBound = false
     private lateinit var image: UploadedImage
+    private var counter = 0
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
@@ -39,8 +39,16 @@ PopupDialog.DialogListener
             mBound = true
             mService = binder.getService()
             mBinder = binder
-            observeServiceResponse()
-
+            mService!!.onStart(image.urlOnServer)
+            mService!!.mResult.observe(
+                this@ResultActivity
+            ) {
+                when (it.status) {
+                    Status.ERROR -> onError()
+                    Status.SUCCESS -> initResultFragment(image)
+                    Status.LOADING -> Log.i(TAG, "Loading...")
+                }
+            }
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
@@ -51,29 +59,6 @@ PopupDialog.DialogListener
         }
     }
 
-    private fun observeServiceResponse() {
-        if(!mService!!.resultItems.value.isNullOrEmpty()) return
-        lifecycleScope.launch(Dispatchers.Main) {
-            mService!!.apply{
-                Log.i(TAG, "ResultItems is null or empty")
-                onStart(image.urlOnServer)
-                mResult.observe(
-                    this@ResultActivity
-                ){
-                    when(it.status){
-                        Status.ERROR -> onError()
-                        Status.SUCCESS -> initResultFragment(image)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun onError() {
-        val errorPopup = PopupDialog(DialogType.ERROR)
-        errorPopup.show(supportFragmentManager, "dialog")
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_result)
@@ -81,12 +66,13 @@ PopupDialog.DialogListener
         Log.i(TAG, "Starting Activity")
         image = intent.getParcelableExtra<UploadedImage>(ARG_UPLOADED_IMAGE) ?: return
 
-        bindService()
-        startService(Intent(this, ResultImageService::class.java)
-            .putExtra("image_url", image?.urlOnServer))
+        supportFragmentManager
+            .beginTransaction()
+            .add(PopupDialog(DialogType.ERROR), "errorDialog")
+
     }
 
-    private fun initResultFragment(image: UploadedImage){
+    private fun initResultFragment(image: UploadedImage) {
         val currentFragment =
             supportFragmentManager.findFragmentById(R.id.fragment_container)
         if (currentFragment == null) {
@@ -98,30 +84,48 @@ PopupDialog.DialogListener
         }
     }
 
-    private fun bindService(){
-        bindService(Intent(
-            this, ResultImageService::class.java),
-            connection,
-            Context.BIND_AUTO_CREATE
-        )
+    private fun observeServiceResponse() {
+        if (!mService!!.resultItems.value.isNullOrEmpty()) return
+        mService!!.onStart(image.urlOnServer)
     }
 
-    override fun onPause() {
-        super.onPause()
-        Intent(this, ResultImageService::class.java).also {
-            stopService(it)
+        private fun onError() {
+            Log.i(TAG, "This is happening this many times $counter")
+            counter++
+            val errorPopup = PopupDialog(DialogType.ERROR)
+            errorPopup.show(supportFragmentManager, "ErrorDialog")
+        }
+
+        override fun onResume() {
+            super.onResume()
+            Log.i(TAG, "Binding to service...")
+            bindService()
+        }
+
+        private fun bindService() {
+            bindService(Intent(
+                this, ResultImageService::class.java),
+                connection,
+                Context.BIND_AUTO_CREATE
+            )
+        }
+
+        override fun onPause() {
+            super.onPause()
+            Log.i(TAG, "Unbinding from service...")
+            unbindService(connection)
+        }
+
+        override fun onDialogPositiveClick(dialog: DialogFragment) {
+            Log.i(TAG, "User pressed try again")
+            observeServiceResponse()
+        }
+
+        override fun onDialogNegativeClick(dialog: DialogFragment) {
+            Log.i(TAG, "User cancelled, returning to main")
+            Intent(this, MainActivity::class.java).also {
+                it.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(it)
+            }
         }
     }
-
-    override fun onDialogPositiveClick(dialog: DialogFragment) {
-        Log.i(TAG, "User pressed try again")
-        observeServiceResponse()
-    }
-
-    override fun onDialogNegativeClick(dialog: DialogFragment) {
-        Log.i(TAG, "User cancelled, returning to main")
-        Intent(this, MainActivity::class.java).also {
-            startActivity(it)
-        }
-    }
-}
