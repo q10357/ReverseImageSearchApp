@@ -84,7 +84,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
         ) {
             resultItems = it as MutableList<ReverseImageSearchItem>
             binding.rvContainer.apply {
-                layoutManager = GridLayoutManager(context, 3)
+                layoutManager = GridLayoutManager(context, 2)
                 adapter = GenericPhotoAdapter(
                     it,
                     R.layout.list_photo_gallery,

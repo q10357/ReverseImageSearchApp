@@ -17,7 +17,6 @@ import no.kristiania.android.reverseimagesearchapp.core.util.inflatePhoto
 import no.kristiania.android.reverseimagesearchapp.core.util.scaleBitmap
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ChildImage
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayCollectiomItemBinding
-import no.kristiania.android.reverseimagesearchapp.presentation.PopupDialog
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericPhotoAdapter
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerBindingInterface
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.onclicklistener.OnClickPhotoListener
@@ -53,7 +52,7 @@ class DisplayCollectionItemFragment: Fragment(R.layout.fragment_display_collecti
                 collectionItem = it
                 binding.imageView.setImageBitmap(it.parentImage.bitmap)
                 binding.rvContainer.apply {
-                    layoutManager = GridLayoutManager(context, 3)
+                    layoutManager = GridLayoutManager(context, 2)
                     adapter = GenericPhotoAdapter(
                         it.childImages,
                         R.layout.list_photo_gallery,

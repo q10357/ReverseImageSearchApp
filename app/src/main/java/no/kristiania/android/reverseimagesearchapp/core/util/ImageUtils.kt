@@ -4,9 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.Matrix
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.util.Log
 import android.widget.ImageView
@@ -38,7 +36,7 @@ fun Activity.scaleBitmap(image: Bitmap): Bitmap? {
     return scaleBitmap(image, newWidth, newHeight)
 }
 
-private fun scaleBitmap(bitmapToScale: Bitmap?, newWidth: Float, newHeight: Float): Bitmap? {
+fun scaleBitmap(bitmapToScale: Bitmap?, newWidth: Float, newHeight: Float): Bitmap? {
     if (bitmapToScale == null) return null
     //get the original width and height
     val width = bitmapToScale.width
