@@ -1,53 +1,47 @@
 package no.kristiania.android.reverseimagesearchapp.presentation
 
+import android.app.AlertDialog
+import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.EditText
 import androidx.fragment.app.DialogFragment
 import no.kristiania.android.reverseimagesearchapp.R
-import no.kristiania.android.reverseimagesearchapp.databinding.SaveCollectionPopupBinding
-import no.kristiania.android.reverseimagesearchapp.databinding.TryagainPopupBinding
 
-enum class DialogTypeO {
-    DIALOG_ERROR,
-    DIALOG_DELETE,
-    DIALOG_EDIT
-}
-
-sealed class Dialog {
-    object CreateErrorDialog: Dialog()
-    object DeleteMessageDialog: Dialog()
-    object EditCollectionDialog: Dialog()
-}
 class PopupDialog(
-    private val type: DialogType,
-    private val f: () -> Unit
+    private val type: DialogType
 ): DialogFragment() {
+    //We use this interface to deliever action events to clients
+    internal lateinit var listener: DialogListener
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val view: View = inflater.inflate(R.layout.tryagain_popup, container, false)
+    interface DialogListener {
+        fun onDialogPositiveClick(dialog: DialogFragment)
+        fun onDialogNegativeClick(dialog: DialogFragment)
 
-        val binding: TryagainPopupBinding = TryagainPopupBinding.bind(view)
-        binding.cancelButton.setOnClickListener {
-            dismiss()
+    }
+    override fun onCreateDialog(savedInstanceState: Bundle?): android.app.Dialog {
+        return activity?.let {
+            val builder = AlertDialog.Builder(it)
+            val inflater = requireActivity().layoutInflater
+
+            //builder.setView(inflater.inflate(R.layout.tryagain_popup, null)) if we want to custom
+            builder.setMessage(type.title)
+                .setPositiveButton(type.posText) { dialog, id ->
+                    listener.onDialogPositiveClick(this)
+                }
+                .setNegativeButton(R.string.cancel) { dialog, id ->
+                    listener.onDialogNegativeClick(this)
+                }
+            builder.create()
+        }?: throw IllegalStateException("Activity cannot be null")
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        try {
+            listener = context as DialogListener
+        }catch(e: ClassCastException){
+            throw ClassCastException()
         }
-
-        binding.messageId.text = type.title
-        binding.positiveButton.text = type.posText
-        binding.positiveButton.setOnClickListener {
-            Log.i("TAGTAG", "THIS IS FUCKING CLICKED ALREADY")
-            f()
-            dismiss()
-        }
-
-        return view
     }
 }
 

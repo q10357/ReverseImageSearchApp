@@ -1,18 +1,16 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import no.kristiania.android.reverseimagesearchapp.R
@@ -23,7 +21,6 @@ import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.onclicklistener.OnClickCollectionListener
 import no.kristiania.android.reverseimagesearchapp.presentation.model.CollectionItem
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.DisplayCollectionViewModel
-import java.io.IOException
 
 private const val TAG = "DisplayCollection"
 private const val ARG_PARENT_ID = "parent_id"
@@ -34,10 +31,12 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
     private val viewModel by viewModels<DisplayCollectionViewModel>()
     private lateinit var binding: FragmentDisplayCollectionBinding
     private lateinit var collection: List<CollectionItem>
+    private var positionDeletion: Int = 0
     private var callbacks: Callbacks? = null
 
     interface Callbacks {
         fun onCollectionSelected(parentId: Long)
+        fun onCollectionDelete(position: Int)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,12 +99,14 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
         binding.collectionRecyclerView.adapter = null
     }
 
-    private fun deleteCollectionItem(collectionItem: CollectionItem){
+    fun deleteCollectionItem(position: Int){
+        Log.i(TAG, "We are here now...")
+        val id = collection[position].parentImage.id
         lifecycleScope.launch(Dispatchers.Main) {
             emptyRecycler()
             withContext(Dispatchers.IO){
                 viewModel.apply {
-                    deleteCollectionItem(collectionItem.parentImage.id)
+                    deleteCollectionItem(id)
                     initCollection()
                 }
             }
@@ -118,8 +119,6 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
     }
 
     override fun onLongClickCollection(position: Int) {
-        val popupDialog = PopupDialog(type = DialogType.DELETE){ deleteCollectionItem(collection[position]) }
-        popupDialog.show(
-            requireActivity().supportFragmentManager, "deleteDialog")
+        callbacks?.onCollectionDelete(position)
     }
 }

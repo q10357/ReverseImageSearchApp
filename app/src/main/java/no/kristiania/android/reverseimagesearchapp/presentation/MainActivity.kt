@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
@@ -14,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import no.kristiania.android.reverseimagesearchapp.R
+import no.kristiania.android.reverseimagesearchapp.core.util.Resource
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayCollectionFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayCollectionItemFragment
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.DisplayResultFragment
@@ -28,12 +30,15 @@ private const val TAG = "MainActivityTAG"
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks,
-    DisplayCollectionFragment.Callbacks {
+    DisplayCollectionFragment.Callbacks,
+    PopupDialog.DialogListener{
     private var uploadImageFragment = UploadImageFragment.newInstance()
     private var displayCollectionFragment = DisplayCollectionFragment.newInstance()
     private lateinit var bottomNavigationView: BottomNavigationView
     private var navPos by Delegates.notNull<Int>()
+    private lateinit var currentDialogState: DialogType
     private lateinit var navMenuItem: MenuItem
+    private var deletePos: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -118,6 +123,37 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks,
             .commit()
     }
 
+    override fun onCollectionDelete(position: Int) {
+        currentDialogState = DialogType.DELETE
+        deletePos = position
+        showPopUp()
+    }
+
+    override fun onUploadError(data: Resource<String>) {
+        currentDialogState = DialogType.ERROR
+        showPopUp()
+    }
+
+    private fun showPopUp(){
+        val errorPopup = PopupDialog(currentDialogState)
+        errorPopup.show(supportFragmentManager, "dialog")
+    }
+
+    override fun onDialogPositiveClick(dialog: DialogFragment) {
+        when(currentDialogState){
+            DialogType.DELETE -> {
+                deletePos?.let { displayCollectionFragment.deleteCollectionItem(it) }
+                deletePos = null
+            }
+            DialogType.ERROR -> {
+                uploadImageFragment.upload()
+            }
+        }
+    }
+
+    override fun onDialogNegativeClick(dialog: DialogFragment) {
+        Log.i(TAG, "User clicked cancel")
+    }
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putInt(ARG_NAV_POSITION, navPos)

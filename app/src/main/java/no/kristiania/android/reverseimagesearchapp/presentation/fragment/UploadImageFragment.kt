@@ -7,15 +7,13 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.edmodo.cropper.CropImageView
 import dagger.hilt.android.AndroidEntryPoint
 import no.kristiania.android.reverseimagesearchapp.R
-import no.kristiania.android.reverseimagesearchapp.core.util.Status
-import no.kristiania.android.reverseimagesearchapp.core.util.createFileFromBitmap
-import no.kristiania.android.reverseimagesearchapp.core.util.isInit
-import no.kristiania.android.reverseimagesearchapp.core.util.uriToBitmap
+import no.kristiania.android.reverseimagesearchapp.core.util.*
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentUploadImageBinding
 import no.kristiania.android.reverseimagesearchapp.presentation.DialogType
 import no.kristiania.android.reverseimagesearchapp.presentation.PopupDialog
@@ -23,7 +21,6 @@ import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedIm
 import no.kristiania.android.reverseimagesearchapp.presentation.observer.RegisterActivityResultsObserver
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.UploadImageViewModel
 import java.io.File
-import java.lang.NullPointerException
 
 private const val TAG = "MainActivityTAG"
 
@@ -40,6 +37,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
 
     interface Callbacks {
         fun onImageSelected(image: UploadedImage)
+        fun onUploadError(data: Resource<String>)
     }
 
     private val viewModel by viewModels<UploadImageViewModel>()
@@ -100,7 +98,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
 
     }
 
-    private fun upload() {
+    fun upload() {
         Log.i(TAG, "We are here...")
         binding.uploadImageBtn.isEnabled = false
         val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
@@ -162,17 +160,11 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                         callbacks?.onImageSelected(selectedImage)
                     }
                     Status.ERROR -> {
-                        showPopup()
+                        callbacks?.onUploadError(it)
                     }
                 }
             }
         )
-    }
-
-    private fun showPopup() {
-        val popupDialog = PopupDialog(type = DialogType.ERROR){upload()}
-        popupDialog.show(
-            requireActivity().supportFragmentManager, "dialog")
     }
 
     override fun onStart() {

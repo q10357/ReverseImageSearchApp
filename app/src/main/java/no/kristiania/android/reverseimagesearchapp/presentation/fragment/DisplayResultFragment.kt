@@ -15,6 +15,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -24,13 +25,15 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import no.kristiania.android.reverseimagesearchapp.R
+import no.kristiania.android.reverseimagesearchapp.core.util.inflatePhoto
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayResultsBinding
+import no.kristiania.android.reverseimagesearchapp.presentation.PopupDialog
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericPhotoAdapter
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter.GenericRecyclerBindingInterface
-import no.kristiania.android.reverseimagesearchapp.presentation.observer.DisplayResultObserver
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.onclicklistener.OnClickPhotoListener
 import no.kristiania.android.reverseimagesearchapp.presentation.model.ReverseImageSearchItem
 import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedImage
+import no.kristiania.android.reverseimagesearchapp.presentation.observer.DisplayResultObserver
 import no.kristiania.android.reverseimagesearchapp.presentation.service.ThumbnailDownloader
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.DisplayResultViewModel
 import java.io.File
@@ -40,7 +43,8 @@ private const val PARENT_IMAGE_DATA = "parent_image_data"
 private const val TAG = "DisplayResultImages"
 
 @AndroidEntryPoint
-class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnClickPhotoListener {
+class DisplayResultFragment : Fragment(R.layout.fragment_display_results),
+    OnClickPhotoListener{
 
     private lateinit var binding: FragmentDisplayResultsBinding
     private lateinit var thumbnailDownloader: ThumbnailDownloader<ImageButton>
@@ -114,7 +118,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
                 //So when we plan to use it in a coroutine, we have to
                 //Be sure that it is initialized
                 //in the main thread
-                    //val f: (UploadedImage) -> Unit = { i: UploadedImage -> addCollectionToDb(i)}
+                //val f: (UploadedImage) -> Unit = { i: UploadedImage -> addCollectionToDb(i)}
                 viewModel
                 showPopupForSaving(parentImage)
             }
@@ -202,8 +206,10 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
     }
 
     override fun onLongClick(position: Int) {
-        Log.i(TAG, "YEYEYEYE")
-    //resultItems[position].bitmap?.let { inflatePhoto(it) }
+        resultItems[position].bitmap?.let {
+            inflatePhoto(it, requireActivity(),
+                requireContext())
+        }
     }
 
     override fun onDestroy() {
@@ -213,6 +219,6 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results), OnCli
 
     override fun onDestroyView() {
         super.onDestroyView()
-        observer.onDestroyView(this)
+        observer.onDestroyView()
     }
 }

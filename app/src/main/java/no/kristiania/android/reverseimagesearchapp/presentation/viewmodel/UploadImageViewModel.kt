@@ -54,7 +54,6 @@ class UploadImageViewModel @Inject constructor(
                 }
             }
             _mResult.postValue(result)
-            Log.i(TAG, "THIS IS THE FUCKING THING ${mResult.value}")
         }.launchIn(GlobalScope)
     }
 

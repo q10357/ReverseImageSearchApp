@@ -28,16 +28,21 @@ class ResultImageService: Service() {
     @Inject
     lateinit var getReverseImageSearchItemData: GetReverseImageSearchItemData
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val url = intent?.getStringExtra("image_url")
-
-        if(url != null){
-            GlobalScope.launch {
-                fetchImageData(url)
-            }
-        }
-        return super.onStartCommand(intent, flags, startId)
+    suspend fun onStart(url: String?){
+        url ?: return
+        fetchImageData(url)
     }
+
+//    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+//        val url = intent?.getStringExtra("image_url")
+//
+//        if(url != null){
+//            GlobalScope.launch {
+//                fetchImageData(url)
+//            }
+//        }
+//        return super.onStartCommand(intent, flags, startId)
+//    }
 
     private suspend fun fetchImageData(url: String) {
         val result = getReverseImageSearchItemData(url)

@@ -69,7 +69,7 @@ class DisplayResultObserver<T>(
         thumbnailDownloader.onDestroy()
     }
 
-    fun onDestroyView(owner: LifecycleOwner){
+    fun onDestroyView(){
         thumbnailDownloader.onDestroyView()
     }
 

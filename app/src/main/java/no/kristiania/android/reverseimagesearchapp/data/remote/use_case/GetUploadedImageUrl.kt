@@ -16,7 +16,6 @@ class GetUploadedImageUrl @Inject constructor(
 ) {
 
     operator fun invoke(body: MultipartBody.Part): Flow<Resource<String>> = flow {
-        emit(Resource.loading())
         var url = ""
 
         try {
