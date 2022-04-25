@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.core.util.Status
@@ -84,9 +84,11 @@ class ResultActivity : AppCompatActivity(),
         }
     }
 
-    private fun observeServiceResponse() {
+    private fun serviceFetchData() {
         if (!mService!!.resultItems.value.isNullOrEmpty()) return
-        mService!!.onStart(image.urlOnServer)
+        lifecycleScope.launch(IO) {
+            mService!!.onStart(image.urlOnServer)
+        }
     }
 
         private fun onError() {
@@ -118,7 +120,7 @@ class ResultActivity : AppCompatActivity(),
 
         override fun onDialogPositiveClick(dialog: DialogFragment) {
             Log.i(TAG, "User pressed try again")
-            observeServiceResponse()
+            serviceFetchData()
         }
 
         override fun onDialogNegativeClick(dialog: DialogFragment) {

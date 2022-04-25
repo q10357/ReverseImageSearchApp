@@ -28,13 +28,10 @@ class ResultImageService: Service() {
     @Inject
     lateinit var getReverseImageSearchItemData: GetReverseImageSearchItemData
 
-    fun onStart(url: String?){
+    suspend fun onStart(url: String?){
         url ?: return
         _mResult.value = Resource.loading()
-
-        GlobalScope.launch {
-            fetchImageData(url)
-        }
+        fetchImageData(url)
     }
 
     private suspend fun fetchImageData(url: String) {
