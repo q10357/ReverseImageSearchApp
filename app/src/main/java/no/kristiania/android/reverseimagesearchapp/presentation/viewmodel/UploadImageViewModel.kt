@@ -53,7 +53,7 @@ class UploadImageViewModel @Inject constructor(
                 }
             }
             _mResult.postValue(result)
-        }.launchIn(GlobalScope)
+        }.launchIn(viewModelScope)
     }
 
     //If the code is 413, we know the image is too large,
