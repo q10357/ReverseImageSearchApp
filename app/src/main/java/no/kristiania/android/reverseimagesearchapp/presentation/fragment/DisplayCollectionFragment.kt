@@ -1,13 +1,20 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentDisplayCollectionBinding
 import no.kristiania.android.reverseimagesearchapp.presentation.DialogType
@@ -16,10 +23,10 @@ import no.kristiania.android.reverseimagesearchapp.presentation.fragment.adapter
 import no.kristiania.android.reverseimagesearchapp.presentation.fragment.onclicklistener.OnClickCollectionListener
 import no.kristiania.android.reverseimagesearchapp.presentation.model.CollectionItem
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.DisplayCollectionViewModel
+import java.io.IOException
 
 private const val TAG = "DisplayCollection"
 private const val ARG_PARENT_ID = "parent_id"
-
 
 @AndroidEntryPoint
 class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection),
@@ -33,18 +40,25 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
         fun onCollectionSelected(parentId: Long)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.initCollection()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentDisplayCollectionBinding.bind(view)
-        val collectionFragment = this
+        observeCollectionItems()
+    }
 
+    private fun observeCollectionItems() {
         viewModel.collection.observe(
             viewLifecycleOwner
         ) {
             collection = it
             binding.collectionRecyclerView.apply {
                 layoutManager = GridLayoutManager(context,1)
-                adapter = CollectionAdapter(it, collectionFragment)
+                adapter = CollectionAdapter(it, this@DisplayCollectionFragment)
             }
         }
     }
@@ -82,8 +96,21 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
         callbacks = context as Callbacks?
     }
 
+    fun emptyRecycler(){
+        binding.collectionRecyclerView.adapter = null
+    }
+
     private fun deleteCollectionItem(collectionItem: CollectionItem){
-        viewModel.deleteCollectionItem(collectionItem.parentImage.id)
+        lifecycleScope.launch(Dispatchers.Main) {
+            emptyRecycler()
+            withContext(Dispatchers.IO){
+                viewModel.apply {
+                    deleteCollectionItem(collectionItem.parentImage.id)
+                    initCollection()
+                }
+            }
+            observeCollectionItems()
+        }
     }
 
     override fun onClickCollection(position: Int) {

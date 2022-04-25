@@ -21,11 +21,7 @@ class DisplayCollectionViewModel @Inject constructor(
 
     var collection = MutableLiveData<List<CollectionItem>>()
 
-    init {
-        initCollection()
-    }
-
-    private fun initCollection() {
+    fun initCollection() {
         viewModelScope.launch {
             val collectionContainer: MutableList<CollectionItem> = mutableListOf()
             val parentImages = mutableListOf<ParentImage>()
