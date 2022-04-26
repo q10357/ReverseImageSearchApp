@@ -245,9 +245,9 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         //hides the image so that we can see the progressbar when loading
         val animation = AlphaAnimation(0.1f,1.0f)
         animation.fillAfter = false
-        animation.duration = 7000
+        animation.duration = 13000
         imageView.startAnimation(animation)
-        if(animation.hasEnded()) animation.reset()
+
 
     }
 }
