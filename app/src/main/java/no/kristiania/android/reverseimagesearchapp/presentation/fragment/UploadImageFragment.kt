@@ -1,11 +1,14 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
+import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.animation.Animation
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
@@ -21,6 +24,10 @@ import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedIm
 import no.kristiania.android.reverseimagesearchapp.presentation.observer.RegisterActivityResultsObserver
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.UploadImageViewModel
 import java.io.File
+import android.view.animation.AlphaAnimation
+
+
+
 
 private const val TAG = "MainActivityTAG"
 
@@ -51,6 +58,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         )
     }
 
+    @SuppressLint("ObjectAnimatorBinding")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentUploadImageBinding.bind(view)
@@ -58,6 +66,11 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         Log.i(TAG, "We are in view created")
         //To give a cleaner look
         imageView = binding.cropImageView
+
+
+
+
+
 
         viewModel.mProgress.observe(
             viewLifecycleOwner,
@@ -67,6 +80,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                 }
             }
         )
+
 
         viewModel.mResult.observe(
             this,
@@ -108,7 +122,9 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                 //setting bitmap for selected image to the cropped uri
                 cropImage()
                 Log.i(TAG, "Wait for it...")
+                startAnimation()
                 upload()
+
             }
         }
 
@@ -138,6 +154,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         binding.uploadImageBtn.isEnabled = false
         val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
         viewModel.onUpload(selectedImage, file)
+
     }
 
     //function to change the bitmap variable in the Uploaded Image Object
@@ -222,5 +239,15 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
             return true
         }
         return false
+    }
+
+    private fun startAnimation(){
+        //hides the image so that we can see the progressbar when loading
+        val animation = AlphaAnimation(0.1f,1.0f)
+        animation.fillAfter = false
+        animation.duration = 7000
+        imageView.startAnimation(animation)
+        if(animation.hasEnded()) animation.reset()
+
     }
 }
