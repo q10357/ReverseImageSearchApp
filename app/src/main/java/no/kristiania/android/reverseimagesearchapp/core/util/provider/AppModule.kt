@@ -41,13 +41,14 @@ object AppModule {
     @Singleton
     fun provideImageSearchApi(): ReverseImageSearchApi {
         val client = OkHttpClient.Builder()
-            .connectTimeout(20, TimeUnit.SECONDS)
+            .connectTimeout(1, TimeUnit.MINUTES)
+            .readTimeout(15, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS)
             .build()
 
         val gson: Gson = GsonBuilder()
             .setLenient()
             .create()
-
         //Since we need to to retrieve the raw URL string when we upload image,
         //We need two converters, ScalarsConverter (for raw string),
         //And GSON for parsing json to objects

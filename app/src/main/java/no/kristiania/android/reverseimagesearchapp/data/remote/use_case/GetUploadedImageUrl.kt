@@ -14,31 +14,32 @@ private const val TAG = "UploadingImageGetUrl"
 class GetUploadedImageUrl @Inject constructor(
     private val repository: ReverseImageSearchRepository
 ) {
-
-    operator fun invoke(body: MultipartBody.Part): Flow<Resource<String>> = flow {
+    suspend operator fun invoke(body: MultipartBody.Part): Resource<String>{
         var url = ""
+        var result: Resource<String>
 
         try {
             Log.i(TAG, "IN TRY BLOCK")
             url = repository.getUploadedImageUrl(body)
-            emit(Resource.success(data = url))
+            result = Resource.success(data = url)
 
         } catch (e: HttpException) {
             e.printStackTrace()
             Log.i(TAG, "THIS IS CODE: ${e.code()}, ${e.message()}")
-            emit(
+            result = (
                 Resource.error(
                     message = "Something went wrong...\nTry again?",
-                    data = "${e.code()}"
+                    code = e.code()
                 )
             )
         } catch (e: IOException) {
             e.printStackTrace()
-            emit(
+            result = (
                 Resource.error(
                     message = "Connection Error"
                 )
             )
         }
+        return result
     }
 }

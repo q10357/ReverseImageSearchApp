@@ -1,5 +1,6 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
@@ -33,9 +34,15 @@ class DisplayCollectionItemFragment: Fragment(R.layout.fragment_display_collecti
     private lateinit var binding: FragmentDisplayCollectiomItemBinding
     private lateinit var collectionItem: CollectionItem
     private val viewModel by viewModels<DisplayCollectionItemViewModel>()
+    private var imagesChosen: ArrayList<ChildImage> = arrayListOf()
+    private var callbacks: Callbacks? = null
     private var isEditing: Boolean = false
     private var itemsSelected: Int = 0
-    private var imagesChosen: ArrayList<ChildImage> = arrayListOf()
+
+
+    interface Callbacks {
+        fun onReturnCollectionItem()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,10 +53,16 @@ class DisplayCollectionItemFragment: Fragment(R.layout.fragment_display_collecti
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentDisplayCollectiomItemBinding.bind(view)
+
+        binding.backButton.setOnClickListener{
+            callbacks?.onReturnCollectionItem()
+        }
+
         viewModel.collectionItemLiveData.observe(
             viewLifecycleOwner,
             {
                 collectionItem = it
+                binding.textView.text = it.collectionName
                 binding.imageView.setImageBitmap(it.parentImage.bitmap)
                 binding.rvContainer.apply {
                     layoutManager = GridLayoutManager(context, 2)
@@ -111,5 +124,15 @@ private fun treatOnClick(isChosen: Boolean): Drawable? {
                 collectionItem.childImages[position].bitmap
             ) ?: return
         inflatePhoto(bitmap, requireActivity(), requireContext())
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks?
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
     }
 }

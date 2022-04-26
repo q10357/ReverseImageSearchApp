@@ -34,6 +34,8 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     private lateinit var imageView: CropImageView
     private lateinit var bitmap: Bitmap
     private var callbacks: Callbacks? = null
+    private var bitmapScaling = 2
+    private var scaleFactor = 1
 
     interface Callbacks {
         fun onImageSelected(image: UploadedImage)
@@ -53,6 +55,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentUploadImageBinding.bind(view)
         viewLifecycleOwner.lifecycle.addObserver(observer)
+        Log.i(TAG, "We are in view created")
         //To give a cleaner look
         imageView = binding.cropImageView
 
@@ -68,12 +71,20 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         viewModel.mResult.observe(
             this,
             {
-                when(it?.status){
+                when(it.status){
                     Status.SUCCESS -> {
                         selectedImage.urlOnServer = it.data
                         callbacks?.onImageSelected(selectedImage)
                     }
                     Status.ERROR -> {
+                        //If the code is 413, we know the image is too large,
+                        //If this is the case, we will scale the bitmap, and increase the scalingFactor,
+                        //If the image still is too large, it will be scaled down until "infinity"
+                        if(isCode13(it.code)){
+                            bitmap = getScaledBitmap(bitmap, bitmapScaling * scaleFactor)
+                            scaleFactor++
+                            writeToFile()
+                        }
                         callbacks?.onUploadError(it)
                     }
                     Status.LOADING -> Log.i(TAG, "Loading...")
@@ -202,5 +213,14 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         if(isInit { selectedImage }){
             outState.putParcelable("selected_image_uri", observer.uri.value)
         }
+    }
+
+    private fun isCode13(code: Int?): Boolean {
+        code ?: return false
+        if (code == 413) {
+            Log.i(TAG, "Photo to big, resize instantiated")
+            return true
+        }
+        return false
     }
 }

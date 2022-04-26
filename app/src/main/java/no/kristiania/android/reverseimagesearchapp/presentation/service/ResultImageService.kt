@@ -23,7 +23,8 @@ class ResultImageService: Service() {
     private val binder = LocalBinder()
     private val _resultItems = MutableLiveData<List<ReverseImageSearchItem>>()
     val resultItems: LiveData<List<ReverseImageSearchItem>> = _resultItems
-    val _mResult = MutableLiveData<Resource<String>>()
+
+    private val _mResult = MutableLiveData<Resource<String>>()
     val mResult: LiveData<Resource<String>> = _mResult
 
     @Inject
@@ -44,13 +45,16 @@ class ResultImageService: Service() {
                 data = result.data?.size.toString(),
                 message = result.message.toString()
             ))
+            Log.i(TAG, "The size of result: ${result.data?.size}")
             saveResponse(result.data as MutableList<ReverseImageSearchItem>)
         }else if(result.status == Status.ERROR){
-            _mResult.postValue(result.message?.let {
+            Log.i(TAG, "This is boris fucked up shitty error code ${result.code}")
+            _mResult.postValue(
                 Resource.error(
-                    message = it
+                    message = result.message.toString(),
+                    code = result.code
                 )
-            })
+            )
         }
     }
 
