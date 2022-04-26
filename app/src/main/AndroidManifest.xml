@@ -4,9 +4,10 @@
     package="no.kristiania.android.reverseimagesearchapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
     <application
         android:name=".ReverseImageSearchApp"
@@ -18,11 +19,21 @@
         android:theme="@style/Theme.App.SplashScreen"
         android:usesCleartextTraffic="true"
         tools:remove="android:appComponentFactory">
+        <receiver
+            android:name=".core.util.BatteryReceiver"
+            android:enabled="true"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.BATTERY_LOW"/>
+            </intent-filter>
+        </receiver>
+
         <activity
             android:name=".presentation.ResultActivity"
-            android:parentActivityName=".presentation.MainActivity"
             android:exported="false"
-            android:theme="@style/Theme.App.Main"/>
+            android:parentActivityName=".presentation.MainActivity"
+            android:theme="@style/Theme.App.Main" />
         <activity
             android:name=".presentation.MainActivity"
             android:exported="true"
