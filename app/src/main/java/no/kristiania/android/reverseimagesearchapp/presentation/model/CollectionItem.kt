@@ -2,11 +2,10 @@ package no.kristiania.android.reverseimagesearchapp.presentation.model
 
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ChildImage
 import no.kristiania.android.reverseimagesearchapp.data.local.entity.ParentImage
-import java.util.*
 
 data class CollectionItem(
     var collectionName: String,
-    var date: Date,
+    var date: String,
     var parentImage: ParentImage,
     var childImages: List<ChildImage>
 ) {

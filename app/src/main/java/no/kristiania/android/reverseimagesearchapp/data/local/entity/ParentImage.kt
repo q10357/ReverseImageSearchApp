@@ -7,5 +7,6 @@ data class ParentImage(
     val id: Long,
     val title: String,
     val bitmap: Bitmap,
-    val date: Date
+    val date: Date,
+    val dateAfter: String
 )

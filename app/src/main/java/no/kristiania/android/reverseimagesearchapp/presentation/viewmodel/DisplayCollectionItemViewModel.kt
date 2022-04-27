@@ -30,7 +30,7 @@ class DisplayCollectionItemViewModel @Inject constructor(
         val children = getChildImages(parentId)
          return CollectionItem(
             collectionName = parent.title,
-            date = parent.date,
+            date = parent.dateAfter,
             parentImage = parent,
             childImages = children
         )

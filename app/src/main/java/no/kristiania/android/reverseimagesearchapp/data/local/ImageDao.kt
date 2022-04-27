@@ -7,6 +7,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import no.kristiania.android.reverseimagesearchapp.data.local.FeedReaderContract.ResultImageTable
 import android.provider.BaseColumns
+import android.util.Log
 import androidx.lifecycle.LiveData
 import no.kristiania.android.reverseimagesearchapp.core.util.bitmapToByteArray
 import no.kristiania.android.reverseimagesearchapp.data.local.FeedReaderContract.UploadedImageTable
@@ -159,17 +160,21 @@ class ImageDao @Inject constructor(
             val image = cursor.getBlob(cursor.getColumnIndexOrThrow(
                 UploadedImageTable.COLUMN_NAME_IMAGE
             ))
-            val dateLongValue = cursor.getLong(cursor.getColumnIndexOrThrow(
+            val dateLongValue = cursor.getString(cursor.getColumnIndexOrThrow(
                 UploadedImageTable.COLUMN_NAME_DATE
             ))
             val bitmap = BitmapFactory.decodeByteArray(image, 0, image.size)
-            val date: Date = Date(TimeUnit.SECONDS.toMillis(dateLongValue * 1000))
+
+
+            //val date: Date = Date(TimeUnit.SECONDS.toMillis(dateLong * 1000))
+            val date = Date(4)
 
             val parentImage: ParentImage = ParentImage(
                 id = id,
                 title = title,
                 bitmap = bitmap,
-                date = date
+                date = date,
+                dateAfter = dateLongValue
             )
             result.add(parentImage)
         }

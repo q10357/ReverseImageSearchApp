@@ -32,7 +32,7 @@ class DisplayCollectionViewModel @Inject constructor(
                 childImages = getChildImages(it.id) as MutableList<ChildImage>
                 val collectionItem = CollectionItem(
                     collectionName = it.title,
-                    date = it.date,
+                    date = it.dateAfter,
                     parentImage = it,
                     childImages = childImages
                 )
