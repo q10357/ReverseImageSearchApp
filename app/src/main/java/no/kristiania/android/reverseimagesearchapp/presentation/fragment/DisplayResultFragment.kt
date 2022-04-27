@@ -1,6 +1,7 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
 import android.app.AlertDialog
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -22,6 +23,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import no.kristiania.android.reverseimagesearchapp.R
@@ -49,6 +51,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results),
     private lateinit var binding: FragmentDisplayResultsBinding
     private lateinit var thumbnailDownloader: ThumbnailDownloader<ImageButton>
     private lateinit var observer: DisplayResultObserver<ImageButton>
+    private var callbacks: Callbacks? = null
     private lateinit var bitmap: Bitmap
     private var imageCount: Int = 0
 
@@ -57,6 +60,10 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results),
 
     private val viewModel by viewModels<DisplayResultViewModel>()
     private lateinit var parentImage: UploadedImage
+
+    interface Callbacks {
+        fun onSave()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -164,13 +171,14 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results),
         }
 
     private fun addCollectionToDb() {
-        lifecycleScope.launch(IO) {
+        GlobalScope.launch(IO) {
             val parentId = async { viewModel.saveParentImage(parentImage) }
             val chosenImages = async { resultItems.filter { it.chosenByUser } }
             chosenImages.await().forEach {
                 it.parentImageId = parentId.await()
                 viewModel.saveChildImage(it)
             }
+            callbacks?.onSave()
         }
     }
 
@@ -221,5 +229,15 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results),
     override fun onDestroyView() {
         super.onDestroyView()
         observer.onDestroyView()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks?
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
     }
 }

@@ -11,7 +11,7 @@ class PopupDialog(
     private val type: DialogType
 ): DialogFragment() {
     //We use this interface to deliever action events to clients
-    internal lateinit var listener: DialogListener
+    private lateinit var listener: DialogListener
 
     interface DialogListener {
         fun onDialogPositiveClick(dialog: DialogFragment)

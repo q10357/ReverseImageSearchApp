@@ -88,11 +88,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
             }
         }
 
-
-
-
-
-
         viewModel.mProgress.observe(
             viewLifecycleOwner,
             {
@@ -169,7 +164,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         }
     }
 
-    fun selectImage(){
+    private fun selectImage(){
         //We don't want to open the fileSystem in main thread
         lifecycleScope.launch(Dispatchers.Default) {
             observer.selectImage()

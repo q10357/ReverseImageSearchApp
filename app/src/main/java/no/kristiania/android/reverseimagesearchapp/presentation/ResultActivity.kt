@@ -24,7 +24,7 @@ private const val TAG = "ActivityResultTAG"
 
 @AndroidEntryPoint
 class ResultActivity : AppCompatActivity(),
-    PopupDialog.DialogListener {
+    PopupDialog.DialogListener, DisplayResultFragment.Callbacks {
     private var mBinder: ResultImageService.LocalBinder? = null
     private var mService: ResultImageService? = null
     private var mBound = false
@@ -90,43 +90,59 @@ class ResultActivity : AppCompatActivity(),
         service.onStart(image.urlOnServer)
     }
 
-        private fun onError() {
-            Log.i(TAG, "This is happening this many times $counter")
-            counter++
-            val errorPopup = PopupDialog(DialogType.ERROR)
-            errorPopup.show(supportFragmentManager, "ErrorDialog")
-        }
+    private fun onError() {
+        Log.i(TAG, "This is happening this many times $counter")
+        counter++
+        val errorPopup = PopupDialog(DialogType.ERROR)
+        errorPopup.show(supportFragmentManager, "ErrorDialog")
+    }
 
-        override fun onResume() {
-            super.onResume()
-            Log.i(TAG, "Binding to service...")
-            bindService()
-        }
+    override fun onResume() {
+        super.onResume()
+        Log.i(TAG, "Binding to service...")
+        bindService()
+    }
 
-        private fun bindService() {
-            bindService(Intent(
-                this, ResultImageService::class.java),
-                connection,
-                Context.BIND_AUTO_CREATE
-            )
-        }
+    private fun bindService() {
+        bindService(Intent(
+            this, ResultImageService::class.java),
+            connection,
+            Context.BIND_AUTO_CREATE
+        )
+    }
 
-        override fun onPause() {
-            super.onPause()
-            Log.i(TAG, "Unbinding from service...")
-            unbindService(connection)
-        }
+    override fun onPause() {
+        super.onPause()
+        Log.i(TAG, "Unbinding from service...")
+        unbindService(connection)
+    }
 
-        override fun onDialogPositiveClick(dialog: DialogFragment) {
-            Log.i(TAG, "User pressed try again")
-            serviceFetchData()
-        }
 
-        override fun onDialogNegativeClick(dialog: DialogFragment) {
-            Log.i(TAG, "User cancelled, returning to main")
-            Intent(this, MainActivity::class.java).also {
-                it.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(it)
-            }
+    override fun onDialogPositiveClick(dialog: DialogFragment) {
+        Log.i(TAG, "User pressed try again")
+        serviceFetchData()
+    }
+
+    override fun onDialogNegativeClick(dialog: DialogFragment) {
+        Log.i(TAG, "User cancelled, returning to main")
+        onDestroy()
+    }
+
+    override fun onDestroy() {
+        quit()
+        super.onDestroy()
+    }
+
+    //When child images are saved, this function gets called
+    override fun onSave() {
+        quit()
+    }
+
+    //We clean up the task, and start our main activity
+    private fun quit(){
+        Intent(this, MainActivity::class.java).also {
+            it.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(it)
         }
     }
+}
