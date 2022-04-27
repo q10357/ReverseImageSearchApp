@@ -129,6 +129,7 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks,
             .commit()
     }
 
+    //Function triggered when user wants to delete a collection item
     override fun onCollectionDelete(position: Int) {
         currentDialogState = DialogType.DELETE
         deletePos = position
@@ -157,9 +158,12 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks,
         }
     }
 
+    //If user clicked cancel
     override fun onDialogNegativeClick(dialog: DialogFragment) {
         Log.i(TAG, "User clicked cancel")
     }
+
+    //For saving our position
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putInt(ARG_NAV_POSITION, navPos)
