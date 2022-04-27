@@ -1,19 +1,13 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.fragment
 
-import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-<<<<<<< HEAD
-import android.view.ViewGroup
-=======
-import android.view.animation.Animation
->>>>>>> origin/master
+import android.view.animation.AlphaAnimation
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -33,9 +27,6 @@ import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedIm
 import no.kristiania.android.reverseimagesearchapp.presentation.observer.RegisterActivityResultsObserver
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.UploadImageViewModel
 import java.io.File
-import android.view.animation.AlphaAnimation
-
-
 
 
 private const val TAG = "MainActivityTAG"
@@ -192,18 +183,12 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
 
     fun upload() {
         binding.uploadImageBtn.isEnabled = false
-<<<<<<< HEAD
         lifecycleScope.launch(IO){
             val file = async {writeToFile()}
             withContext(Main){
                 viewModel.onUpload(file.await())
             }
         }
-=======
-        val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
-        viewModel.onUpload(selectedImage, file)
-
->>>>>>> origin/master
     }
 
     //function to change the bitmap variable in the Uploaded Image Object
