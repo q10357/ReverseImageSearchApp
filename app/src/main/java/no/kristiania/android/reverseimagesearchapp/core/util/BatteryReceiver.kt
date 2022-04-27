@@ -10,6 +10,7 @@ class BatteryReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         // This method is called when the BroadcastReceiver is receiving an Intent broadcast.
+        //it will give a toast if the user ever gets below 5%
        val action  = intent.action
         Toast.makeText(context,action,Toast.LENGTH_LONG).show()
 

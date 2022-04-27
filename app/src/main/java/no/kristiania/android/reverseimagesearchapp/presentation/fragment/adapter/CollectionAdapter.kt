@@ -12,7 +12,7 @@ class CollectionAdapter(
     private val clickListener: OnClickCollectionListener
 ) : RecyclerView.Adapter<CardViewHolder>() {
 
-    //size of the arraylist of tiems
+    //size of the arraylist of items
     override fun getItemCount(): Int {
         return collection.size
     }
@@ -22,6 +22,7 @@ class CollectionAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewHolder {
+        //created the bridge beetween the adapterview and the data
         val fromLayout = LayoutInflater.from(parent.context)
         val binding = CollectionItemBinding.inflate(fromLayout,parent,false)
         return CardViewHolder(binding,clickListener)

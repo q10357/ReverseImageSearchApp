@@ -14,6 +14,7 @@ class CardViewHolder(
 
     //function that binds the xml-file variables and replaces it with the
     //information we get from the CollectionItem data class object
+    //from the database
     fun bindCollection(collectionItem: CollectionItem){
         collectionItemBinding.cardView.setOnClickListener(this)
         collectionItemBinding.cardView.setOnLongClickListener(this)

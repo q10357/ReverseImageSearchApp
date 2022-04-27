@@ -31,6 +31,7 @@ class ImageDao @Inject constructor(
     private val cacheDir = context.applicationContext.cacheDir
 
     //We want to know the ID of the uploaded picture, so we return the newRowId
+    //inserts the uploaded images to db and the newRowId acts as a foreign key
     fun insertUploadedImage(image: UploadedImage): Long {
         val db = database.writableDatabase
         val file = File(cacheDir, image.photoFileName)
@@ -77,13 +78,13 @@ class ImageDao @Inject constructor(
         assert(result.size == 1)
         return result[0]
     }
-
+    //delete collection
     fun deleteCollection(parentId: Long): Int {
         val db = database.writableDatabase
         val where = "_id =${parentId};"
         return db.delete(ResultImageTable.TABLE_NAME, where, null)
     }
-
+    //deleting all the children of the parent
     fun deleteAllChildren(parentId: Long): Int {
         val db = database.writableDatabase
         val where = "parent_id =${parentId};"
@@ -91,20 +92,15 @@ class ImageDao @Inject constructor(
 
         return query
     }
-
+    //deleting the parent for with and id
     fun deleteParent(id: Long): Int{
         val db = database.writableDatabase
         val where = "_id =${id};"
         return db.delete(UploadedImageTable.TABLE_NAME, where, null);
     }
 
-    //delete for delete button you press on result page
-    fun deleteChild(id: Int): Int {
-        val db = database.writableDatabase
-        val where = "_id =${id};"
-        return db.delete(ResultImageTable.TABLE_NAME, where, null);
-    }
 
+    //database query to get all the parents images in descending order
     fun getAllParentImages(): List<ParentImage> {
         val db = database.writableDatabase
         val cursor: Cursor = db.query(UploadedImageTable.TABLE_NAME, null, null, null, null, null, "${UploadedImageTable.COLUMN_NAME_DATE} DESC" )
@@ -121,6 +117,7 @@ class ImageDao @Inject constructor(
         return retrieveChildImageData(cursor)
     }
 
+    //here we get childimage from database
     private fun retrieveChildImageData(cursor: Cursor): List<ChildImage> {
         val result = mutableListOf<ChildImage>()
         while(cursor.moveToNext()){
@@ -148,6 +145,7 @@ class ImageDao @Inject constructor(
     }
 
 
+    //Here we create a call call to sqlite to get all the parentsImages in the database
     private fun retrieveParentImageData(cursor: Cursor): List<ParentImage> {
         val result = mutableListOf<ParentImage>()
         while(cursor.moveToNext()){
@@ -166,9 +164,13 @@ class ImageDao @Inject constructor(
             val bitmap = BitmapFactory.decodeByteArray(image, 0, image.size)
 
 
-            //val date: Date = Date(TimeUnit.SECONDS.toMillis(dateLong * 1000))
+
             val date = Date(4)
 
+            //here we create the ParentImage from the database and adds it in
+            // a mutable list. We also had some problem converting the time to the correct time,
+            //so we just made it to a string and stored it in the dateAfter variable. therefore we just
+            //threw the previous time from the database in date which will not be used in the recycler
             val parentImage: ParentImage = ParentImage(
                 id = id,
                 title = title,
