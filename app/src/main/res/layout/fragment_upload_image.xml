@@ -38,7 +38,7 @@
         android:id="@+id/crop_image_view"
         android:layout_width="match_parent"
         android:layout_height="477dp"
-        android:background="@drawable/ic_launcher_foreground"
+        android:background="@drawable/ic_image_click_me"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
