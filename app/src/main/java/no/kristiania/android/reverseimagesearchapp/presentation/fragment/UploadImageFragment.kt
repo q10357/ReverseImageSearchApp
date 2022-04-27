@@ -5,18 +5,24 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.edmodo.cropper.CropImageView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.core.util.*
 import no.kristiania.android.reverseimagesearchapp.databinding.FragmentUploadImageBinding
-import no.kristiania.android.reverseimagesearchapp.presentation.DialogType
-import no.kristiania.android.reverseimagesearchapp.presentation.PopupDialog
 import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedImage
 import no.kristiania.android.reverseimagesearchapp.presentation.observer.RegisterActivityResultsObserver
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.UploadImageViewModel
@@ -24,6 +30,7 @@ import java.io.File
 
 private const val TAG = "MainActivityTAG"
 
+private const val ARG_SELECTED_IMAGE_URI = "selected_image_uri"
 @AndroidEntryPoint
 class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     private lateinit var observer: RegisterActivityResultsObserver
@@ -49,6 +56,19 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         observer = RegisterActivityResultsObserver(
             requireActivity().activityResultRegistry,
         )
+
+        lifecycleScope.launchWhenStarted {
+            observer.uri.observe(
+                viewLifecycleOwner,
+                {
+                    it?.let {
+                        Log.i(TAG, "Well this is it not null ${it}")
+                        initSelectedPhoto(it)
+                        updateButtonFunctionality(true)
+                    }
+                }
+            )
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -58,6 +78,13 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         Log.i(TAG, "We are in view created")
         //To give a cleaner look
         imageView = binding.cropImageView
+        val uri: Uri? = savedInstanceState?.getParcelable(ARG_SELECTED_IMAGE_URI)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            if (uri != null) {
+                initSelectedPhoto(uri)
+            }
+        }
 
         viewModel.mProgress.observe(
             viewLifecycleOwner,
@@ -77,10 +104,11 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                         callbacks?.onImageSelected(selectedImage)
                     }
                     Status.ERROR -> {
+                        Log.i(TAG, "This is code ${it.data}")
                         //If the code is 413, we know the image is too large,
                         //If this is the case, we will scale the bitmap, and increase the scalingFactor,
                         //If the image still is too large, it will be scaled down until "infinity"
-                        if(isCode13(it.code)){
+                        if(isCode13(it.data)){
                             bitmap = getScaledBitmap(bitmap, bitmapScaling * scaleFactor)
                             scaleFactor++
                             writeToFile()
@@ -113,31 +141,44 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         }
 
         binding.cropImageView.setOnClickListener {
-            observer.selectImage()
+            selectImage()
         }
 
         binding.selectImageBtn.setOnClickListener {
-            observer.selectImage()
-
+            selectImage()
         }
 
         //simple button to rotate the cropView left
         binding.rotateLeftBtn.setOnClickListener {
-            binding.cropImageView.rotateImage(270)
+            imageView.rotateImage(270)
         }
 
         //simple button to rotate cropView to the right
         binding.rotateRightBtn.setOnClickListener {
             imageView.rotateImage(90)
         }
+    }
 
+    fun selectImage(){
+        //We don't want to open the fileSystem in main thread
+        lifecycleScope.launch(Dispatchers.Default) {
+            observer.selectImage()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.i(TAG, "We are sinking....")
     }
 
     fun upload() {
-        Log.i(TAG, "We are here...")
         binding.uploadImageBtn.isEnabled = false
-        val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
-        viewModel.onUpload(selectedImage, file)
+        lifecycleScope.launch(IO){
+            val file = async {writeToFile()}
+            withContext(Main){
+                viewModel.onUpload(file.await())
+            }
+        }
     }
 
     //function to change the bitmap variable in the Uploaded Image Object
@@ -146,47 +187,33 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         val croppedImage = imageView.croppedImage
         bitmap = croppedImage
         imageView.setImageBitmap(croppedImage)
-
-        writeToFile()
     }
 
-    private fun writeToFile() {
-        val file = File(requireActivity().cacheDir, selectedImage.photoFileName)
-        createFileFromBitmap(bitmap, file)
+    private fun writeToFile(): File {
+        val f = File(requireActivity().cacheDir, selectedImage.photoFileName)
+        return createFileFromBitmap(bitmap, f)
     }
 
     private fun initSelectedPhoto(uri: Uri) {
-        bitmap = uriToBitmap(requireContext(), uri)
-
+        Log.i(TAG, "Well, well, well....")
+       lifecycleScope.launch(IO) {
+            val bmp = async{uriToBitmap(requireContext(), uri)}
+            withContext(Main){
+                bmp.await().also {
+                    imageView.setImageBitmap(it)
+                    bitmap = it
+                }
+            }
+        }
         selectedImage = UploadedImage(
             title = "default"
         )
-        writeToFile()
-
-        imageView.setImageBitmap(bitmap)
     }
 
     private fun updateButtonFunctionality(isEnabled: Boolean) {
         binding.rotateLeftBtn.isEnabled = isEnabled
         binding.rotateRightBtn.isEnabled = isEnabled
         binding.uploadImageBtn.isEnabled = isEnabled
-    }
-
-    override fun onStart() {
-        super.onStart()
-        //We used an observer to choose image from gallery
-        //When onStarted() is called, we will observe the value of the observer's
-        //Uri property, if it is not null, the user has chosen an image, and we will update the UI
-        observer.uri.observe(
-            viewLifecycleOwner,
-            {
-                it?.let {
-                    Log.i(TAG, "WE ARE OBSERVING URI, IT IS NOT NULL")
-                    initSelectedPhoto(it)
-                    updateButtonFunctionality(true)
-                }
-            }
-        )
     }
 
     override fun onAttach(context: Context) {
@@ -210,13 +237,21 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        if(isInit { selectedImage }){
-            outState.putParcelable("selected_image_uri", observer.uri.value)
-        }
+
+        observer.uri.value ?: return
+        Log.i(TAG, "We are saving it... ${observer.uri.value}")
+        outState.putParcelable(ARG_SELECTED_IMAGE_URI, observer.uri.value)
+
     }
 
-    private fun isCode13(code: Int?): Boolean {
-        code ?: return false
+    private fun isCode13(data: String?): Boolean {
+        data ?: return false
+        val code: Int
+        try {
+            code = data.toInt()
+        } catch (e: NumberFormatException) {
+            return false
+        }
         if (code == 413) {
             Log.i(TAG, "Photo to big, resize instantiated")
             return true

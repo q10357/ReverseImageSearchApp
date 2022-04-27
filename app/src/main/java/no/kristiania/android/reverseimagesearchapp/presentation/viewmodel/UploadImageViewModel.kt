@@ -1,5 +1,6 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.viewmodel
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -23,13 +24,11 @@ private const val TAG = "CoroutineTAG"
 class UploadImageViewModel @Inject constructor(
     private val getUploadedImageUrl: GetUploadedImageUrl
 ) : ViewModel(), ProgressRequestBody.UploadCallback {
-    private var bitmapScaling = 2
-    private var scaleFactor = 1
     private val _mResult = MutableLiveData<Resource<String>>()
     val mResult: LiveData<Resource<String>> = _mResult
     var mProgress = MutableLiveData(0)
 
-    fun onUpload(image: UploadedImage, file: File) {
+    fun onUpload(file: File) {
         val body = getMultiPartBody(file, this)
         _mResult.value = Resource.loading()
 

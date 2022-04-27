@@ -139,8 +139,9 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results),
                 Toast.makeText(requireContext(), editText.text.toString(), Toast.LENGTH_SHORT)
                     .show()
                 //parentImage?.collectionName = editText.text.toString()
-                val text = editText.text.toString()
-                image.title = text
+                val text = editText.text.toString().also{
+                    image.title = it
+                }
                 addCollectionToDb()
             }
             setNegativeButton("cancel") { dialog, _ ->

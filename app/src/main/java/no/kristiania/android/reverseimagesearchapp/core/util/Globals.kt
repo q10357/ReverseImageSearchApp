@@ -11,11 +11,14 @@ import android.os.Build
 import android.provider.MediaStore
 import android.util.DisplayMetrics
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import okhttp3.MultipartBody
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 
+private val scope = CoroutineScope(Dispatchers.IO)
 //Function for checking if index in bound
 fun inBound(x: Int, y:Int): Boolean =  x < y
 
@@ -30,11 +33,12 @@ fun getScaledBitmap(bitmap: Bitmap, scaling: Int): Bitmap {
     return Bitmap.createScaledBitmap(bitmap, scaledWidth, scaledHeight, false )
 }
 
-fun createFileFromBitmap(bitmap: Bitmap, file: File){
+fun createFileFromBitmap(bitmap: Bitmap, file: File): File {
     val outStream = ByteArrayOutputStream()
     bitmap.compress(Bitmap.CompressFormat.PNG, 0, outStream)
     val bitmapData = outStream.toByteArray()
     file.writeBytes(bitmapData)
+    return file
 }
 
 fun bitmapToByteArray(bitmap: Bitmap): ByteArray {

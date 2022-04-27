@@ -30,8 +30,7 @@ class GetReverseImageSearchItemData @Inject constructor(
         } catch (e: HttpException) {
             e.printStackTrace()
             return Resource.error(
-                message = "Something went wrong...\nTry again?",
-                code = e.code()
+                message = e.code().toString(),
             )
         } catch (e: IOException) {
             e.printStackTrace()

@@ -29,7 +29,7 @@ class GetUploadedImageUrl @Inject constructor(
             result = (
                 Resource.error(
                     message = "Something went wrong...\nTry again?",
-                    code = e.code()
+                    data = e.code().toString()
                 )
             )
         } catch (e: IOException) {

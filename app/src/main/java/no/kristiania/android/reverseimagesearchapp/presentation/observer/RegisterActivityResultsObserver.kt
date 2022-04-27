@@ -7,7 +7,8 @@ import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
-import no.kristiania.android.reverseimagesearchapp.core.util.uriToBitmap
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 private const val TAG = "MainActivityTAG"
 
@@ -15,7 +16,7 @@ class RegisterActivityResultsObserver(
     private val registry: ActivityResultRegistry,
 ) : DefaultLifecycleObserver {
     lateinit var getContent: ActivityResultLauncher<String>
-    var uri = MutableLiveData<Uri>()
+    var uri = MutableLiveData<Uri?>()
 
     override fun onCreate(owner: LifecycleOwner) {
         getContent = registry.register("key", owner, GetContent()) {
@@ -25,7 +26,12 @@ class RegisterActivityResultsObserver(
         }
     }
 
-    fun selectImage(){
+    suspend fun selectImage(){
         getContent.launch("image/*")
+    }
+
+    override fun onDestroy(owner: LifecycleOwner) {
+        super.onDestroy(owner)
+        uri.value = null
     }
 }

@@ -87,6 +87,7 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks,
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.fragment_container, currentFragment, "$pos")
+            .addToBackStack(null)
             .commit()
         navMenuItem.apply {
             isEnabled = true

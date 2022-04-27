@@ -48,11 +48,10 @@ class ResultImageService: Service() {
             Log.i(TAG, "The size of result: ${result.data?.size}")
             saveResponse(result.data as MutableList<ReverseImageSearchItem>)
         }else if(result.status == Status.ERROR){
-            Log.i(TAG, "This is boris fucked up shitty error code ${result.code}")
+            Log.i(TAG, "This is boris fucked up shitty error code ${result.data}")
             _mResult.postValue(
                 Resource.error(
-                    message = result.message.toString(),
-                    code = result.code
+                    message = result.message.toString()
                 )
             )
         }

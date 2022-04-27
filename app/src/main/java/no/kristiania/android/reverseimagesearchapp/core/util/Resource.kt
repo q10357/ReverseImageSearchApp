@@ -6,15 +6,14 @@ package no.kristiania.android.reverseimagesearchapp.core.util
 //To store the data and pass it to the viewModels
 //Are we still loading etc
 data class Resource<out T>(val status: Status, val data: T?,
-                           val message: String? = null,
-                            val code: Int? = null) {
+                           val message: String? = null) {
     companion object {
 
         fun <T> success(data: T, message: String= ""): Resource<T> {
             return Resource(Status.SUCCESS, data, message)
         }
 
-        fun <T> error(data: T? = null, message: String, code: Int? = null): Resource<T> {
+        fun <T> error(data: T? = null, message: String): Resource<T> {
             return Resource(Status.ERROR, data, message)
         }
 
