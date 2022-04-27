@@ -6,10 +6,8 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.view.animation.Animation
+import android.view.animation.AlphaAnimation
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -29,9 +27,6 @@ import no.kristiania.android.reverseimagesearchapp.presentation.model.UploadedIm
 import no.kristiania.android.reverseimagesearchapp.presentation.observer.RegisterActivityResultsObserver
 import no.kristiania.android.reverseimagesearchapp.presentation.viewmodel.UploadImageViewModel
 import java.io.File
-import android.view.animation.AlphaAnimation
-
-
 
 
 private const val TAG = "MainActivityTAG"
@@ -92,6 +87,12 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                 initSelectedPhoto(uri)
             }
         }
+
+
+
+
+
+
         viewModel.mProgress.observe(
             viewLifecycleOwner,
             {
@@ -100,6 +101,8 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                 }
             }
         )
+
+
         viewModel.mResult.observe(
             this,
             {
@@ -202,6 +205,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     }
 
     private fun initSelectedPhoto(uri: Uri) {
+        Log.i(TAG, "Well, well, well....")
        lifecycleScope.launch(IO) {
             val bmp = async{uriToBitmap(requireContext(), uri)}
             withContext(Main){
@@ -271,5 +275,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         animation.fillAfter = false
         animation.duration = 13000
         imageView.startAnimation(animation)
+
+
     }
 }
