@@ -100,7 +100,6 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
     }
 
     fun deleteCollectionItem(position: Int){
-        Log.i(TAG, "We are here now...")
         val id = collection[position].parentImage.id
         lifecycleScope.launch(Dispatchers.Main) {
             withContext(Dispatchers.IO){

@@ -19,7 +19,6 @@ class GetReverseImageSearchItemData @Inject constructor(
     private val repository: ReverseImageSearchRepository
 ) {
     suspend operator fun invoke(url: String): Resource<List<ReverseImageSearchItem>> {
-        Log.i(TAG, "WE ARE HERE")
         try {
             val imageSearchItems = repository.getReverseImageSearchResults(url).map {
                 it.toReverseImageSearchItem()

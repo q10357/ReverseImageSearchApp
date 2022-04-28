@@ -57,7 +57,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         observer = RegisterActivityResultsObserver(
             requireActivity().activityResultRegistry,
         )
-        Log.i(TAG, "WE ARE IN ONCREATE!!!!!!!!!!")
 
         lifecycleScope.launchWhenStarted {
             observer.uri.observe(
