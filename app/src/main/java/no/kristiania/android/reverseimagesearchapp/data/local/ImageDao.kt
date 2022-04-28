@@ -92,6 +92,14 @@ class ImageDao @Inject constructor(
 
         return query
     }
+
+    fun deleteOneChild(childId: Long): Int{
+
+        val db = database.writableDatabase
+        val where = "_id = ${childId};"
+        val query = db.delete(ResultImageTable.TABLE_NAME, where, null);
+        return query
+    }
     //deleting the parent for with and id
     fun deleteParent(id: Long): Int{
         val db = database.writableDatabase
