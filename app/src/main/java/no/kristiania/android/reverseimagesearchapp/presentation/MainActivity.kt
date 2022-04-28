@@ -52,9 +52,12 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks,
 
         setContentView(R.layout.activity_main)
 
+        //If the activity is rotated, it saves the navPos in the bundle,
         navPos = savedInstanceState?.getInt(ARG_NAV_POSITION) ?: R.id.upload
         bottomNavigationView = findViewById(R.id.bottom_navigation_view)
 
+        //finding the current item, and setting isEnabled to false,
+        //This protects us from "FragmentAlreadyAdded" exception
         navMenuItem = bottomNavigationView.menu.findItem(navPos).apply {
             this.isEnabled = false
         }

@@ -21,6 +21,8 @@ class DisplayCollectionViewModel @Inject constructor(
 
     var collection = MutableLiveData<List<CollectionItem>>()
 
+    //Initialize the collection and save it to the
+    //collection property, to be observed by fragment, and used in adapter
     fun initCollection() {
         viewModelScope.launch {
             val collectionContainer: MutableList<CollectionItem> = mutableListOf()

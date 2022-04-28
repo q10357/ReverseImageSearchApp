@@ -139,6 +139,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results),
         }
     }
 
+    //Popup for saving the search, setting a title to the collection
     private fun showPopupForSaving(image: UploadedImage) {
         val builder = AlertDialog.Builder(requireContext())
         val inflater = layoutInflater
@@ -214,6 +215,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results),
         }
     }
 
+    //Deciding whether an image is chosen or unChosen, and set the background accordingly
     override fun onClick(position: Int, view: View) {
         Log.i(TAG, "Photo clicked, check if add or remove")
         resultItems[position].apply {

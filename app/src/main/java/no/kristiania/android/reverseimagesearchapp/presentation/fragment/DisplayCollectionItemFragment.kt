@@ -42,14 +42,16 @@ class DisplayCollectionItemFragment: Fragment(R.layout.fragment_display_collecti
     private var isEditing: Boolean = false
     private var itemsSelected: Int = 0
 
-
+    //callback for returning from the collectionItem back to DisplayCollectionFragment
     interface Callbacks {
         fun onReturnCollectionItem()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val parentId: Long = arguments?.getLong(ARG_PARENT_ID) as Long
+        //For this fragment to work, we have to be provided with a
+        //parentId, if not, we return from the fragment
+        val parentId: Long = arguments?.getLong(ARG_PARENT_ID) ?: return
         viewModel.loadCollectionItem(parentId)
     }
 
@@ -61,6 +63,7 @@ class DisplayCollectionItemFragment: Fragment(R.layout.fragment_display_collecti
             callbacks?.onReturnCollectionItem()
         }
 
+        //If imagesChosen size is zero, the user has not chosen any images to delete
         binding.deleteButton.setOnClickListener{
             if(imagesChosen.size == 0) Toast.makeText(requireContext(), "No pictures selected", Toast.LENGTH_SHORT).show()
             deleteChildItems()
@@ -98,6 +101,7 @@ class DisplayCollectionItemFragment: Fragment(R.layout.fragment_display_collecti
             }
         }
 
+    //Creates the fragment, we need to provide the fragment with a parentImage
     companion object{
         fun newInstance(parentImageId: Long): DisplayCollectionItemFragment {
             val args = Bundle().apply {
@@ -109,6 +113,8 @@ class DisplayCollectionItemFragment: Fragment(R.layout.fragment_display_collecti
         }
     }
 
+    //Evaluates whether the user has chosen, or unChosen an item.
+    //The background is set accordingly, and we update or imagesChosen list.
     override fun onClick(position: Int, view: View) {
         Log.i(TAG, "Photo clicked, check if add or remove")
         var isChosen: Boolean
@@ -130,12 +136,16 @@ class DisplayCollectionItemFragment: Fragment(R.layout.fragment_display_collecti
         }
     }
 
+    //This method is called if the user presses delete and has chosen images
+    //for deletion
     private fun deleteChildItems(){
         lifecycleScope.launch {
             imagesChosen.forEach{ viewModel.deleteChild(it.id) }
         }
     }
 
+    //This calls our imageUtil method (core.util package)
+    //Inflates the photo in correct proportions
     override fun onLongClick(position: Int) {
         val bitmap =
             requireActivity().scaleBitmap(

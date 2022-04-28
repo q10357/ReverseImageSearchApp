@@ -76,6 +76,9 @@ class ThumbnailDownloader<in T>(
         })
     }
 
+    //Called by our ViewHolder, target is
+    //The view, url is from ReverseImageSearchItem
+    //It is placed in a queue and awaits being fetched by our service
     fun queueThumbnail(target: T, url: String) {
         requestMap[target] = url
         requestHandler.obtainMessage(MESSAGE_DOWNLOAD, target)

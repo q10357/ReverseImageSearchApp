@@ -23,7 +23,8 @@ class PopupDialog(
             val builder = AlertDialog.Builder(it)
             val inflater = requireActivity().layoutInflater
 
-            //builder.setView(inflater.inflate(R.layout.tryagain_popup, null)) if we want to custom
+            //we set the builder pos button with the associated title
+            //from the type received in the parameters
             builder.setMessage(type.title)
                 .setPositiveButton(type.posText) { dialog, id ->
                     listener.onDialogPositiveClick(this)
@@ -45,6 +46,8 @@ class PopupDialog(
     }
 }
 
+//Kind of works as a factoryl, but only sort of, should have used
+//Correct factory pattern
 enum class DialogType(val title: String, val posText: String) {
     ERROR("Something Happened", "Try Again"),
     INSERT("A title for your collection", "Save"),

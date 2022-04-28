@@ -89,6 +89,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
             }
         }
 
+        //Used to display progressBar
         viewModel.mProgress.observe(
             viewLifecycleOwner,
             {
@@ -99,6 +100,12 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         )
 
 
+        //When we kick of the upload, we observe the response
+        //We use callbacks to inform MainAcivity about what is happening
+        //If the request returns successfull, we launch ResultActivity
+        //(callbacks?.onImageSelected)
+        //If returns error, we use callbacks.?onUploadError to launch the popupwindow
+        //Asking user if it want's to try again
         viewModel.mResult.observe(
             this,
             {
@@ -199,6 +206,10 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         return createFileFromBitmap(bitmap, f)
     }
 
+    //Sub Req 7, writing to file in coroutine
+    //We await the result, and set the imageview to the returned bitmap
+    //We do this to not overload our main thread with
+    //Operations doing read/write operations
     private fun initSelectedPhoto(uri: Uri) {
        lifecycleScope.launch(IO) {
             val bmp = async{uriToBitmap(requireContext(), uri)}

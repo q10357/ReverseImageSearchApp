@@ -34,6 +34,8 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
     private var positionDeletion: Int = 0
     private var callbacks: Callbacks? = null
 
+    //Callbacks to main, so that it can launch DisplayCollectionItemFragment when
+    //A collection is clicked
     interface Callbacks {
         fun onCollectionSelected(parentId: Long)
         fun onCollectionDelete(position: Int)
@@ -50,6 +52,7 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
         observeCollectionItems()
     }
 
+    //We observe the collectionItems retrieved from the database in the ViewModel
     private fun observeCollectionItems() {
         viewModel.collection.observe(
             viewLifecycleOwner
@@ -117,6 +120,8 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
         callbacks?.onCollectionSelected(collection[position].parentImage.id)
     }
 
+    //OnLongClicked will trigger a popup view that asks if you want to delete the collection
+    //The popup is launched in Main, if users says yes, MainActivity calls the DeleteCollection method
     override fun onLongClickCollection(position: Int) {
         callbacks?.onCollectionDelete(position)
     }

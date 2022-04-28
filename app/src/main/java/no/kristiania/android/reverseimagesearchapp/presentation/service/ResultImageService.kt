@@ -31,6 +31,7 @@ class ResultImageService: Service() {
     @Inject
     lateinit var getReverseImageSearchItemData: GetReverseImageSearchItemData
 
+    //Kicking of our service in GlobalScope
     fun onStart(url: String?){
         url ?: return
         _mResult.value = Resource.loading()
@@ -39,6 +40,9 @@ class ResultImageService: Service() {
         }
     }
 
+    //Fetching the ReverseImageSearch data,
+    //If successful, set the _mResult to the data in the result, this is
+    //Read by DisplayResultFragment
     private suspend fun fetchImageData(url: String) {
         val result = getReverseImageSearchItemData(url)
         if(result.status == Status.SUCCESS){
@@ -75,6 +79,7 @@ class ResultImageService: Service() {
         return getReverseImageSearchItemData.fetchPhoto(url)
     }
 
+    //Clearing task, this is not necessary as we have a bound service
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
         Log.i(TAG, "Removing task")
