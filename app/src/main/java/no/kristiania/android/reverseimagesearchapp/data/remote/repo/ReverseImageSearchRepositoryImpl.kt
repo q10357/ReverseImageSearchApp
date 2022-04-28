@@ -43,7 +43,6 @@ class ReverseImageSearchRepositoryImpl @Inject constructor(
 //
 //        try{
 //            val response = api.fetchResultPhotoData(url)
-//            Log.i(TAG, "THIS IS RESPONSE $response")
 //        }catch (e: HttpException){
 //            e.printStackTrace()
 //            response = Resource.error(
