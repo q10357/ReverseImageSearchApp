@@ -27,7 +27,7 @@ class DisplayCollectionItemViewModel @Inject constructor(
             collectionMutableLiveData.value = getCollectionItem(id)
         }
     }
-    //creates collection items for mutablelivedata by calling the database
+    //creates collection items for mutableLivedata by calling the database
     //data was Date( ..) before, but changed it to string in the last minute when we had some
     //trouble with the conversion, but it should work the same
     private fun getCollectionItem(parentId: Long): CollectionItem {
@@ -40,7 +40,11 @@ class DisplayCollectionItemViewModel @Inject constructor(
             childImages = children
         )
     }
-    //calls to the data access object which makes an extra layer beetween the database
+
+    suspend fun deleteChild(id: Long){
+        dao.deleteOneChild(id)
+    }
+    //calls to the data access object which makes an extra layer between the database
     private fun getParentImage(id: Long): ParentImage {
         return dao.getParentImage(id)
     }

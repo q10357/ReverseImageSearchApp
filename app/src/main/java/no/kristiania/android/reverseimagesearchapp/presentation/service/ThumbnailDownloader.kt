@@ -62,9 +62,9 @@ class ThumbnailDownloader<in T>(
             bitmap = networkResult
         }
 
-        if (bitmap == null) return
-        Log.i(TAG, "This is the results size: Width: ${bitmap!!.width}")
-        Log.i(TAG, "This is the results size: Height: ${bitmap!!.height}")
+        val bmp = bitmap ?: return
+        Log.i(TAG, "This is the results size: Width: ${bmp.width}")
+        Log.i(TAG, "This is the results size: Height: ${bmp.height}")
 
         responseHandler.post(Runnable {
             if (requestMap[target] != url || hasQuit) {
@@ -72,7 +72,7 @@ class ThumbnailDownloader<in T>(
             }
 
             requestMap.remove(target)
-            onThumbnailDownloaded(target, bitmap!!)
+            onThumbnailDownloaded(target, bmp)
         })
     }
 

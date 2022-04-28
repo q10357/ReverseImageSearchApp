@@ -8,11 +8,14 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ImageButton
+import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import no.kristiania.android.reverseimagesearchapp.R
 import no.kristiania.android.reverseimagesearchapp.core.util.inflatePhoto
 import no.kristiania.android.reverseimagesearchapp.core.util.scaleBitmap
@@ -34,7 +37,7 @@ class DisplayCollectionItemFragment: Fragment(R.layout.fragment_display_collecti
     private lateinit var binding: FragmentDisplayCollectiomItemBinding
     private lateinit var collectionItem: CollectionItem
     private val viewModel by viewModels<DisplayCollectionItemViewModel>()
-    private var imagesChosen: ArrayList<ChildImage> = arrayListOf()
+    private var imagesChosen: MutableList<ChildImage> = mutableListOf()
     private var callbacks: Callbacks? = null
     private var isEditing: Boolean = false
     private var itemsSelected: Int = 0
@@ -56,6 +59,11 @@ class DisplayCollectionItemFragment: Fragment(R.layout.fragment_display_collecti
 
         binding.backButton.setOnClickListener{
             callbacks?.onReturnCollectionItem()
+        }
+
+        binding.deleteButton.setOnClickListener{
+            if(imagesChosen.size == 0) Toast.makeText(requireContext(), "No pictures selected", Toast.LENGTH_SHORT).show()
+            deleteChildItems()
         }
 
         viewModel.collectionItemLiveData.observe(
@@ -103,18 +111,28 @@ class DisplayCollectionItemFragment: Fragment(R.layout.fragment_display_collecti
 
     override fun onClick(position: Int, view: View) {
         Log.i(TAG, "Photo clicked, check if add or remove")
-        if(!isEditing) return
+        var isChosen: Boolean
 
         val clickedItem = collectionItem.childImages[position]
         imagesChosen.contains(clickedItem).apply {
+            isChosen =  when (this) {
+                true -> false
+                false -> true
+            }
             if(this) imagesChosen.remove(clickedItem) else imagesChosen.add(clickedItem)
-        }.also { treatOnClick(it) }
+        }.also { view.background = treatOnClick(isChosen) }
     }
 
     private fun treatOnClick(isChosen: Boolean): Drawable? {
         return when (isChosen) {
             true -> ResourcesCompat.getDrawable(resources, R.drawable.highlight, null)
             false -> ColorDrawable(Color.TRANSPARENT)
+        }
+    }
+
+    private fun deleteChildItems(){
+        lifecycleScope.launch {
+            imagesChosen.forEach{ viewModel.deleteChild(it.id) }
         }
     }
 

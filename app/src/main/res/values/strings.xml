@@ -13,4 +13,5 @@
     <string name="image_from_your_device">Image from your device</string>
     <string name="collection">Collection</string>
     <string name="cancel">Cancel</string>
+    <string name="delete_chosen_images">Delete Chosen Images</string>
 </resources>

@@ -18,6 +18,7 @@ import javax.inject.Inject
 
 private const val TAG = "ResultImageDataFetchr"
 
+//Sub Requirement 13, bound service
 @AndroidEntryPoint
 class ResultImageService: Service() {
     private val binder = LocalBinder()
