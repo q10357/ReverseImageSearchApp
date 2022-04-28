@@ -12,6 +12,8 @@ import javax.inject.Inject
 class ImageDatabaseHelper @Inject constructor(context: Context): SQLiteOpenHelper(
     context, DATABASE_NAME, null, DATABASE_VERSION
 ) {
+    //our DatabaseHelper which creates the database and uses variables for names incase we want to
+    //rename them, then we only change them once
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL("CREATE TABLE ${UploadedImageTable.TABLE_NAME}" +
                 " ( ${BaseColumns._ID} INTEGER PRIMARY KEY, " +
