@@ -32,8 +32,8 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks,
     DisplayCollectionFragment.Callbacks, DisplayCollectionItemFragment.Callbacks,
     PopupDialog.DialogListener
 {
-    private var uploadImageFragment = UploadImageFragment.newInstance()
-    private var displayCollectionFragment = DisplayCollectionFragment.newInstance()
+    private lateinit var uploadImageFragment: UploadImageFragment
+    private lateinit var displayCollectionFragment: DisplayCollectionFragment
     private lateinit var bottomNavigationView: BottomNavigationView
     private var navPos by Delegates.notNull<Int>()
     private lateinit var currentDialogState: DialogType
@@ -42,6 +42,8 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks,
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        uploadImageFragment = UploadImageFragment.newInstance()
+        displayCollectionFragment = DisplayCollectionFragment.newInstance()
         //installing the splashscreen and letting a coroutine splashscreen gets screen time
         installSplashScreen()
 
@@ -106,7 +108,6 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks,
     }
 
     override fun onImageSelected(image: UploadedImage) {
-        uploadImageFragment = UploadImageFragment.newInstance()
         Intent(this@MainActivity, ResultActivity::class.java).also {
             it.putExtra(ARG_UPLOADED_IMAGE, image)
             startActivity(it)
@@ -165,7 +166,7 @@ class MainActivity : AppCompatActivity(), UploadImageFragment.Callbacks,
 
     //For saving our position
     override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
         outState.putInt(ARG_NAV_POSITION, navPos)
+        super.onSaveInstanceState(outState)
     }
 }

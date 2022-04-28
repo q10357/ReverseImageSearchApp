@@ -18,8 +18,8 @@ class DisplayCollectionItemViewModel @Inject constructor(
     private var collectionMutableLiveData = MutableLiveData<CollectionItem>()
     var collectionItemLiveData = collectionMutableLiveData
     //the collection view model makes a call for each item with and id
-    //the viewmodel then launches a coroutine to get the item which is stored in mutablelivedata
-    //we use this to to save resources and use livedatas. the livedata will keep all the data even though the
+    //the viewModel then launches a coroutine to get the item which is stored in mutableLivedata
+    //we use this to to save resources and use livedata. the livedata will keep all the data even though the
     //fragment will be destroyed
     fun loadCollectionItem(id: Long){
         parentImageId.value = id

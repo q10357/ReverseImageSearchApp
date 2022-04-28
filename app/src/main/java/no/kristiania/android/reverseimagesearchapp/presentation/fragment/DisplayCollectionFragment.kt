@@ -95,7 +95,7 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
         callbacks = context as Callbacks?
     }
 
-    fun emptyRecycler(){
+    private fun emptyRecycler(){
         binding.collectionRecyclerView.adapter = null
     }
 
@@ -103,7 +103,6 @@ class DisplayCollectionFragment : Fragment(R.layout.fragment_display_collection)
         Log.i(TAG, "We are here now...")
         val id = collection[position].parentImage.id
         lifecycleScope.launch(Dispatchers.Main) {
-            emptyRecycler()
             withContext(Dispatchers.IO){
                 viewModel.apply {
                     deleteCollectionItem(id)

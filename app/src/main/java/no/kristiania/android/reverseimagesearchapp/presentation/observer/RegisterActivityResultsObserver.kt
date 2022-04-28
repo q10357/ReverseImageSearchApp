@@ -1,6 +1,7 @@
 package no.kristiania.android.reverseimagesearchapp.presentation.observer
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
@@ -31,7 +32,8 @@ class RegisterActivityResultsObserver(
     }
 
     override fun onDestroy(owner: LifecycleOwner) {
-        super.onDestroy(owner)
         uri.value = null
+        Log.i(TAG, "Uri value is: ${uri.value}")
+        super.onDestroy(owner)
     }
 }

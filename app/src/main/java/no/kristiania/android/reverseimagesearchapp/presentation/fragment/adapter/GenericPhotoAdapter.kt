@@ -14,7 +14,8 @@ class GenericPhotoAdapter<T: Any>(
     private val bindingInterface: GenericRecyclerBindingInterface<T>
 ) :
     androidx.recyclerview.widget.ListAdapter<T, GenericPhotoAdapter.GenericViewHolder>(GenericDiffUtil()){
-    class GenericViewHolder(val view: View, private val onClickPhotoListener: OnClickPhotoListener) : RecyclerView.ViewHolder(view), View.OnClickListener, View.OnLongClickListener{
+    class GenericViewHolder(val view: View, private val onClickPhotoListener: OnClickPhotoListener) :
+        RecyclerView.ViewHolder(view), View.OnClickListener, View.OnLongClickListener{
         fun<T: Any> bind(
             item: T,
             bindingInterface: GenericRecyclerBindingInterface<T>
@@ -31,11 +32,6 @@ class GenericPhotoAdapter<T: Any>(
             onClickPhotoListener.onLongClick(layoutPosition)
             return true
         }
-    }
-
-    override fun submitList(list: MutableList<T>?) {
-        super.submitList(list)
-
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): GenericViewHolder {

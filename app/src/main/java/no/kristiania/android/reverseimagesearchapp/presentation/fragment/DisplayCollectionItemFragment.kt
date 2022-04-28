@@ -111,12 +111,12 @@ class DisplayCollectionItemFragment: Fragment(R.layout.fragment_display_collecti
         }.also { treatOnClick(it) }
     }
 
-private fun treatOnClick(isChosen: Boolean): Drawable? {
-    return when (isChosen) {
-        true -> ResourcesCompat.getDrawable(resources, R.drawable.highlight, null)
-        false -> ColorDrawable(Color.TRANSPARENT)
+    private fun treatOnClick(isChosen: Boolean): Drawable? {
+        return when (isChosen) {
+            true -> ResourcesCompat.getDrawable(resources, R.drawable.highlight, null)
+            false -> ColorDrawable(Color.TRANSPARENT)
+        }
     }
-}
 
     override fun onLongClick(position: Int) {
         val bitmap =

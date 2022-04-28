@@ -57,6 +57,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         observer = RegisterActivityResultsObserver(
             requireActivity().activityResultRegistry,
         )
+        Log.i(TAG, "WE ARE IN ONCREATE!!!!!!!!!!")
 
         lifecycleScope.launchWhenStarted {
             observer.uri.observe(
@@ -141,7 +142,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
                 Log.i(TAG, "Wait for it...")
                 startAnimation()
                 upload()
-
             }
         }
 
@@ -172,8 +172,8 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         Log.i(TAG, "We are sinking....")
+        super.onDestroy()
     }
 
     fun upload() {
@@ -200,7 +200,6 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     }
 
     private fun initSelectedPhoto(uri: Uri) {
-        Log.i(TAG, "Well, well, well....")
        lifecycleScope.launch(IO) {
             val bmp = async{uriToBitmap(requireContext(), uri)}
             withContext(Main){
@@ -215,10 +214,16 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
         )
     }
 
+    val isEnabled: (List<View>, Boolean) -> Unit = { v: List<View>, b: Boolean ->
+        v.forEach { it.isEnabled = b }
+    }
+
     private fun updateButtonFunctionality(isEnabled: Boolean) {
-        binding.rotateLeftBtn.isEnabled = isEnabled
-        binding.rotateRightBtn.isEnabled = isEnabled
-        binding.uploadImageBtn.isEnabled = isEnabled
+        isEnabled(listOf(
+            binding.rotateLeftBtn,
+            binding.rotateRightBtn,
+            binding.uploadImageBtn
+        ), isEnabled)
     }
 
     override fun onAttach(context: Context) {
@@ -250,6 +255,7 @@ class UploadImageFragment : Fragment(R.layout.fragment_upload_image) {
     }
 
     private fun isCode13(data: String?): Boolean {
+        //This is targeting sub req 1, if data is null, then return
         data ?: return false
         val code: Int
         try {

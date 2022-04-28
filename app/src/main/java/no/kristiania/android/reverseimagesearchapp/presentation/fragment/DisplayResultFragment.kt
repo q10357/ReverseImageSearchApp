@@ -67,12 +67,19 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //If it ever happens, that there is no parentImage,
+        //There is no reason to display the fragment
+        //This is targeting sub requirement 1, elvis operator
+        //If parentImage is null, return from main
         parentImage = arguments?.getParcelable(PARENT_IMAGE_DATA) ?: return
         val file = File(requireContext().cacheDir, parentImage.photoFileName)
         Log.i(TAG, "Size of file: ${file.length()}")
         bitmap = BitmapFactory.decodeFile(file.path) ?: return
 
         var counter = 0
+
+        //The thumbnailDownloader is used to queue requests, and sending the url
+        //To Service, and displaying it to our adapter
         thumbnailDownloader =
             ThumbnailDownloader(Handler(Looper.getMainLooper()), null)
             { holder, bitmap ->
@@ -171,6 +178,8 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results),
         }
 
     private fun addCollectionToDb() {
+        //Saving the chosen images in our viewModel
+        //This is targeting Requirement 7
         GlobalScope.launch(IO) {
             val parentId = async { viewModel.saveParentImage(parentImage) }
             val chosenImages = async { resultItems.filter { it.chosenByUser } }
@@ -183,6 +192,8 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results),
     }
 
     companion object {
+        //We are sending the image as parcelable,
+        //This
         fun newInstance(image: UploadedImage?): DisplayResultFragment {
             val args = Bundle().apply {
                 putParcelable(PARENT_IMAGE_DATA, image)
@@ -194,6 +205,8 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results),
         }
     }
 
+    //Deciding whether image is chosen, or is unChosen,
+    //Sets background accordingly
     private fun treatOnClick(isChosen: Boolean): Drawable? {
         return when (isChosen) {
             true -> ResourcesCompat.getDrawable(resources, R.drawable.highlight, null)
@@ -214,6 +227,7 @@ class DisplayResultFragment : Fragment(R.layout.fragment_display_results),
         Log.i(TAG, "Number of images chosen: $imageCount")
     }
 
+    //OnLongClick will display the image in fullscreen
     override fun onLongClick(position: Int) {
         resultItems[position].bitmap?.let {
             inflatePhoto(it, requireActivity(),
